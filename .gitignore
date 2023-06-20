@@ -1,0 +1,32 @@
+# Mac OS specific: common and thumbnails
+.DS_Store
+._*
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.iws
+*.suo
+*.ntvs*
+*.njsproj
+*.sw?
+
+# .NET + ASP.NET
+[Bb]in/
+[Oo]bj/
+publish/
+wwwroot/
+/packages/
+*.DotSettings.user
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+logs/
+
+# Rider and ReSharper
+riderModule.iml
+/_ReSharper.Caches/
