@@ -2,6 +2,16 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebAPI", "WebAPI\WebAPI.csproj", "{EBBEE611-EBC7-4F79-B42A-B52C5A4585A9}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0564B313-AC2A-4095-8F37-EF79B1892FCF}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.x64-amd64.yml = docker-compose.x64-amd64.yml
+		.dockerignore = .dockerignore
+		.gitignore = .gitignore
+		docker-compose.arm64.yml = docker-compose.arm64.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Database", "Database\Database.csproj", "{B524E55D-663F-45A9-99BB-F9C092B2065C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -12,5 +22,9 @@ Global
 		{EBBEE611-EBC7-4F79-B42A-B52C5A4585A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBBEE611-EBC7-4F79-B42A-B52C5A4585A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBBEE611-EBC7-4F79-B42A-B52C5A4585A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B524E55D-663F-45A9-99BB-F9C092B2065C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B524E55D-663F-45A9-99BB-F9C092B2065C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B524E55D-663F-45A9-99BB-F9C092B2065C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B524E55D-663F-45A9-99BB-F9C092B2065C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

@@ -1,5 +1,11 @@
 using System.Reflection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
+using PharmacySystem.WebAPI.Authentication;
+using PharmacySystem.WebAPI.Authentication.Claims;
+using PharmacySystem.WebAPI.Database;
+using PharmacySystem.WebAPI.Database.Publisher;
 using PharmacySystem.WebAPI.Options;
 
 namespace PharmacySystem.WebAPI;
@@ -19,11 +25,40 @@ internal static class Program
     /// <param name="builder">Web Application builder.</param>
     private static WebApplication ConfigureServices(this WebApplicationBuilder builder)
     {
-        // Configure authorization
+        // Configure options
+        builder.Services.ConfigureOptions<ApplicationOptionsSetup>();
+
+        // Configure database context
+        builder.Services
+            .AddDbContext<DatabaseContext>()
+            .AddScoped<IDatabasePublicationService, DatabasePublicationService>();
+
+        // Add filters
+        builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, DatabasePublicationStartupFilter>());
+
+        // Configure authentication and authorization
+        builder.Services.AddTransient<AuthenticationEvents>();
+        builder.Services
+            .AddAuthentication(options => options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme)
+            .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, options =>
+            {
+                options.Cookie.Name = ".PharmacySystem.Cookies";
+                options.Cookie.MaxAge = TimeSpan.FromHours(1);
+                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.HttpOnly = true;
+                options.SlidingExpiration = true;
+                options.EventsType = typeof(AuthenticationEvents);
+            });
+
         builder.Services.AddAuthorization();
 
-        // Configure routing
-        builder.Services.AddControllers();
+        // Configure controllers and routing
+        builder.Services.AddControllers(options =>
+        {
+            // Include context provider
+            options.ModelBinderProviders.Insert(0, new ClaimProvider());
+        });
+
         builder.Services.AddRouting(options => options.LowercaseUrls = true);
 
         // See more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

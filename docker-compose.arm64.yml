@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  azure-sql-edge:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    restart: on-failure
+    cap_add:
+      - SYS_PTRACE
+    environment:
+      - MSSQL_SA_PASSWORD=<2023!Pass>
+      - ACCEPT_EULA=1
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql-data:/var/opt/mssql
+      - mssql-extensibility:/var/opt/mssql-extensibility
+      - mssql-extensibility-log:/var/opt/mssql-extensibility/log
+      - mssql-extensibility-data:/var/opt/mssql-extensibility/data
+
+volumes:
+  mssql-data: { }
+  mssql-extensibility: { }
+  mssql-extensibility-log: { }
+  mssql-extensibility-data: { }
