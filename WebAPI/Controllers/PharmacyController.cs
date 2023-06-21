@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacySystem.WebAPI.Authentication.Claims;
 using PharmacySystem.WebAPI.Database;
-using PharmacySystem.WebAPI.Models;
+using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Models.Pharmacy;
 
 namespace PharmacySystem.WebAPI.Controllers;
@@ -21,21 +21,34 @@ public sealed class PharmacyController : ControllerBase
         _databaseContext = databaseContext;
     }
 
-    [HttpGet]
+    [HttpPost("list")]
     public async Task<IActionResult> List(
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        [FromBody] PharmacyItemsPagingRequest request,
         CancellationToken cancellationToken
     )
     {
-        var pharmacies = await _databaseContext.Pharmacies
-            .Where(x => x.CompanyId == companyId)
+        var query = _databaseContext.Pharmacies.Where(x => x.CompanyId == companyId);
+
+        query = request.Ordering.Aggregate(query, (current, field) => field.IsAscending
+            ? current.OrderBy(x => EF.Property<object>(x, field.FieldName))
+            : current.OrderByDescending(x => EF.Property<object>(x, field.FieldName)));
+
+        var totalAmount = await query.CountAsync(cancellationToken);
+        var pharmacies = await query
+            .Skip(request.Paging.Offset!.Value)
+            .Take(request.Paging.Size!.Value)
             .ToArrayAsync(cancellationToken);
 
-        return Ok(pharmacies.Select(PharmacyListItemModel.From));
+        return Ok(new ItemsPagingResponse(
+            request.Paging,
+            request.Ordering,
+            totalAmount,
+            pharmacies.Select(PharmacyListItemModel.From)
+        ));
     }
 
     [HttpPost]
-    [ValidateModel]
     public async Task<IActionResult> Add(
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         [FromBody] PharmacyProfileModel model,
@@ -57,7 +70,7 @@ public sealed class PharmacyController : ControllerBase
         await _databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return Ok(pharmacy.Id);
+        return Ok(new ItemResponse(pharmacy.Id));
     }
 
     [HttpGet("{pharmacyId:int}")]
@@ -72,12 +85,11 @@ public sealed class PharmacyController : ControllerBase
             .SingleOrDefaultAsync(x => x.Id == pharmacyId && x.CompanyId == companyId, cancellationToken);
 
         return pharmacy is not null
-            ? Ok(PharmacyProfileModel.From(pharmacy))
+            ? Ok(new ItemResponse(PharmacyProfileModel.From(pharmacy)))
             : NotFound();
     }
 
     [HttpPut("{pharmacyId:int}")]
-    [ValidateModel]
     public async Task<IActionResult> Update(
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         int pharmacyId,
@@ -129,6 +141,8 @@ public sealed class PharmacyController : ControllerBase
         return NoContent();
     }
 
+    #region Validation
+
     [NonAction]
     private async Task<IActionResult?> ValidatePharmacyName(string pharmacyName, int companyId, CancellationToken cancellationToken, int? pharmacyId = null)
     {
@@ -137,7 +151,7 @@ public sealed class PharmacyController : ControllerBase
             .AnyAsync(x => x.Id != pharmacyId && x.Name == pharmacyName && x.CompanyId == companyId, cancellationToken);
 
         return isDuplicated
-            ? BadRequest("The specified pharmacy name is already used into the system")
+            ? BadRequest(new ItemResponse(Error: "The specified pharmacy name is already used into the system"))
             : null;
     }
 
@@ -152,4 +166,6 @@ public sealed class PharmacyController : ControllerBase
             ? NotFound()
             : null;
     }
+
+    #endregion
 }

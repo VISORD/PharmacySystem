@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using PharmacySystem.WebAPI.Database;
 using PharmacySystem.WebAPI.Database.Entities.Company;
-using PharmacySystem.WebAPI.Models;
+using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Models.Company;
 using ClaimTypes = PharmacySystem.WebAPI.Authentication.Claims.ClaimTypes;
 
@@ -27,7 +27,6 @@ public sealed class CompanyAccountController : ControllerBase
     }
 
     [HttpPost("sign-in")]
-    [ValidateModel]
     public async Task<IActionResult> SignInAsCompany(
         [FromBody] CompanyAccountSignInModel model,
         CancellationToken cancellationToken
@@ -39,7 +38,7 @@ public sealed class CompanyAccountController : ControllerBase
             return validationResult;
         }
 
-        var company = await _databaseContext.Database.GetDbConnection().QueryFirstOrDefaultAsync<Company>(new CommandDefinition($@"
+        var company = await _databaseContext.Database.GetDbConnection().QuerySingleOrDefaultAsync<Company>(new CommandDefinition($@"
             SELECT
                  [Id]      [{nameof(Company.Id)}]
                 ,[Email]   [{nameof(Company.Email)}]
@@ -51,14 +50,13 @@ public sealed class CompanyAccountController : ControllerBase
 
         if (company is null)
         {
-            return BadRequest("Invalid credentials");
+            return BadRequest(new ItemResponse(Error: "Invalid credentials"));
         }
 
         return await SignInChallenge(company);
     }
 
     [HttpPost("sign-up")]
-    [ValidateModel]
     public async Task<IActionResult> SignUpAsCompany(
         [FromBody] CompanyAccountSignUpModel model,
         CancellationToken cancellationToken
@@ -73,7 +71,7 @@ public sealed class CompanyAccountController : ControllerBase
 
         await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var company = await transaction.GetDbTransaction().Connection.QueryFirstAsync<Company>(new CommandDefinition($@"
+        var company = await transaction.GetDbTransaction().Connection.QuerySingleAsync<Company>(new CommandDefinition($@"
             DECLARE @Id TABLE ([Id] INT);
 
             INSERT INTO [company].[Company] ([Email], [Name], [Password])
@@ -124,11 +122,13 @@ public sealed class CompanyAccountController : ControllerBase
         return NoContent();
     }
 
+    #region Validation
+
     [NonAction]
     private IActionResult? ValidateAuthenticationStatus()
     {
         return User.Identity?.IsAuthenticated == true
-            ? BadRequest("User has been already authenticated")
+            ? BadRequest(new ItemResponse(Error: "User has been already authenticated"))
             : null;
     }
 
@@ -140,7 +140,9 @@ public sealed class CompanyAccountController : ControllerBase
             .AnyAsync(x => x.Email == model.Email, cancellationToken);
 
         return isDuplicated
-            ? BadRequest("Specified email is already used")
+            ? BadRequest(new ItemResponse(Error: "Specified email is already used"))
             : null;
     }
+
+    #endregion
 }

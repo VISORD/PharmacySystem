@@ -12,10 +12,10 @@ public sealed class Pharmacy
     public string? Phone { get; init; }
     public string Address { get; init; } = null!;
 
-    [Column(TypeName = "DECIMAL(3, 6)")]
+    [Column(TypeName = "DECIMAL(9, 6)")]
     public decimal Latitude { get; init; }
 
-    [Column(TypeName = "DECIMAL(3, 6)")]
+    [Column(TypeName = "DECIMAL(9, 6)")]
     public decimal Longitude { get; init; }
 
     public string? Description { get; init; }

@@ -1,11 +1,13 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using PharmacySystem.WebAPI.Authentication;
 using PharmacySystem.WebAPI.Authentication.Claims;
 using PharmacySystem.WebAPI.Database;
 using PharmacySystem.WebAPI.Database.Publisher;
+using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Options;
 
 namespace PharmacySystem.WebAPI;
@@ -57,6 +59,10 @@ internal static class Program
         {
             // Include context provider
             options.ModelBinderProviders.Insert(0, new ClaimProvider());
+        }).ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = context =>
+        {
+            var response = new ItemResponse(new SerializableError(context.ModelState), "One or more model validation errors occured");
+            return new BadRequestObjectResult(response);
         });
 
         builder.Services.AddRouting(options => options.LowercaseUrls = true);

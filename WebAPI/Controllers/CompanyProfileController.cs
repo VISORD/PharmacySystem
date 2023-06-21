@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacySystem.WebAPI.Authentication.Claims;
 using PharmacySystem.WebAPI.Database;
-using PharmacySystem.WebAPI.Models;
+using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Models.Company;
 
 namespace PharmacySystem.WebAPI.Controllers;
@@ -29,12 +29,11 @@ public sealed class CompanyProfileController : ControllerBase
     {
         var company = await _databaseContext.Companies.FindAsync(new object?[] { companyId }, cancellationToken);
         return company is not null
-            ? Ok(CompanyProfileModel.From(company))
+            ? Ok(new ItemResponse(CompanyProfileModel.From(company)))
             : NotFound();
     }
 
     [HttpPut]
-    [ValidateModel]
     public async Task<IActionResult> Update(
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         [FromBody] CompanyProfileModel model,
@@ -57,6 +56,8 @@ public sealed class CompanyProfileController : ControllerBase
         return NoContent();
     }
 
+    #region Validation
+
     [NonAction]
     private async Task<IActionResult?> ValidateCompanyEmail(int companyId, CompanyProfileModel model, CancellationToken cancellationToken)
     {
@@ -65,7 +66,9 @@ public sealed class CompanyProfileController : ControllerBase
             .AnyAsync(x => x.Id != companyId && x.Email == model.Email, cancellationToken);
 
         return isDuplicated
-            ? BadRequest("The specified email is already used into the system")
+            ? BadRequest(new ItemResponse(Error: "The specified email is already used into the system"))
             : null;
     }
+
+    #endregion
 }

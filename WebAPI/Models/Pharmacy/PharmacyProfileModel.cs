@@ -31,6 +31,7 @@ public sealed class PharmacyProfileModel
     [StringLength(1024)]
     public string? Description { get; init; }
 
+    [Required]
     public IDictionary<DayOfWeek, PharmacyWorkingHoursModel> WorkingHours { get; init; } = null!;
 
     public static PharmacyProfileModel From(Database.Entities.Pharmacy.Pharmacy pharmacy) => new()
