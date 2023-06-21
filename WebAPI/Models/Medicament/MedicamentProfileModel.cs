@@ -14,14 +14,14 @@ public sealed class MedicamentProfileModel
     public string? Description { get; init; }
 
     [Required]
-    public decimal? Price { get; init; }
+    public decimal? VendorPrice { get; init; }
 
     public static MedicamentProfileModel From(Database.Entities.Medicament.Medicament medicament) => new()
     {
         Id = medicament.Id,
         Name = medicament.Name,
         Description = medicament.Description,
-        Price = medicament.Price,
+        VendorPrice = medicament.VendorPrice,
     };
 
     public Database.Entities.Medicament.Medicament To(int companyId, int? id = null) => new()
@@ -30,6 +30,6 @@ public sealed class MedicamentProfileModel
         CompanyId = companyId,
         Name = Name,
         Description = Description,
-        Price = Price!.Value,
+        VendorPrice = VendorPrice!.Value,
     };
 }

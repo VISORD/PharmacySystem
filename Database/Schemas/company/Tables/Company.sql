@@ -7,3 +7,8 @@ CREATE TABLE [company].[Company] (
     CONSTRAINT [PK_Company] PRIMARY KEY CLUSTERED ([Id] ASC),
 );
 GO;
+
+CREATE NONCLUSTERED INDEX [IX_Company_Email_Password]
+    ON [company].[Company] ([Email] ASC)
+    INCLUDE ([Password]);
+GO;

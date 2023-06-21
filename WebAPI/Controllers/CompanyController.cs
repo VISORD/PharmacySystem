@@ -10,13 +10,13 @@ using PharmacySystem.WebAPI.Models.Company;
 namespace PharmacySystem.WebAPI.Controllers;
 
 [ApiController]
-[Route("api/company/profile")]
+[Route("api/[controller]")]
 [Authorize]
-public sealed class CompanyProfileController : ControllerBase
+public sealed class CompanyController : ControllerBase
 {
     private readonly DatabaseContext _databaseContext;
 
-    public CompanyProfileController(DatabaseContext databaseContext)
+    public CompanyController(DatabaseContext databaseContext)
     {
         _databaseContext = databaseContext;
     }

@@ -10,7 +10,7 @@ using PharmacySystem.WebAPI.Models.Medicament;
 namespace PharmacySystem.WebAPI.Controllers;
 
 [ApiController]
-[Route("api/medicament")]
+[Route("api/[controller]")]
 [Authorize]
 public sealed class MedicamentController : ControllerBase
 {

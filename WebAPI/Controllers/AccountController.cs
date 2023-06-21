@@ -16,12 +16,12 @@ using ClaimTypes = PharmacySystem.WebAPI.Authentication.Claims.ClaimTypes;
 namespace PharmacySystem.WebAPI.Controllers;
 
 [ApiController]
-[Route("api/company")]
-public sealed class CompanyAccountController : ControllerBase
+[Route("api/[controller]")]
+public sealed class AccountController : ControllerBase
 {
     private readonly DatabaseContext _databaseContext;
 
-    public CompanyAccountController(DatabaseContext databaseContext)
+    public AccountController(DatabaseContext databaseContext)
     {
         _databaseContext = databaseContext;
     }

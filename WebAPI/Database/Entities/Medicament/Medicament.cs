@@ -11,5 +11,5 @@ public sealed class Medicament
     public string? Description { get; init; }
 
     [Column(TypeName = "MONEY")]
-    public decimal Price { get; init; }
+    public decimal VendorPrice { get; init; }
 }

@@ -9,6 +9,10 @@ CREATE TABLE [pharmacy].[Pharmacy] (
     [Longitude]     DECIMAL (9, 6)    NOT NULL,
     [Description]   NVARCHAR (1024)   NULL,
     CONSTRAINT [PK_Pharmacy] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_Pharmacy_CompanyId] FOREIGN KEY ([CompanyId]) REFERENCES [company].[Company] ([Id]) ON DELETE CASCADE
+    CONSTRAINT [FK_Pharmacy_Company] FOREIGN KEY ([CompanyId]) REFERENCES [company].[Company] ([Id]),
 );
+GO;
+
+CREATE NONCLUSTERED INDEX [IX_Pharmacy_CompanyId]
+    ON [pharmacy].[Pharmacy] ([CompanyId] ASC);
 GO;
