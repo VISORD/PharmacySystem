@@ -2,6 +2,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using PharmacySystem.WebAPI.Database.Entities.Company;
+using PharmacySystem.WebAPI.Database.Entities.Pharmacy;
 using PharmacySystem.WebAPI.Options;
 
 namespace PharmacySystem.WebAPI.Database;
@@ -12,6 +13,7 @@ public sealed class DatabaseContext : DbContext
 
     public string DatabaseName { get; }
     public DbSet<Company> Companies { get; set; } = null!;
+    public DbSet<Pharmacy> Pharmacies { get; set; } = null!;
 
     public DatabaseContext(IOptions<ApplicationOptions> options)
     {
