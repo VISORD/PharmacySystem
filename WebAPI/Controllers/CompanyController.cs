@@ -27,6 +27,8 @@ public sealed class CompanyController : ControllerBase
         CancellationToken cancellationToken
     )
     {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         var company = await _databaseContext.Companies.FindAsync(new object?[] { companyId }, cancellationToken);
         return company is not null
             ? Ok(new ItemResponse(CompanyProfileModel.From(company)))
@@ -40,13 +42,13 @@ public sealed class CompanyController : ControllerBase
         CancellationToken cancellationToken
     )
     {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         var validationResult = await ValidateCompanyEmail(companyId, model, cancellationToken);
         if (validationResult is not null)
         {
             return validationResult;
         }
-
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
         _databaseContext.Companies.Update(model.To(companyId));
 

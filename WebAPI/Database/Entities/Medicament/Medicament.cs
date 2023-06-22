@@ -2,14 +2,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PharmacySystem.WebAPI.Database.Entities.Medicament;
 
-[Table("Medicament", Schema = "medicament")]
+[Table(nameof(Medicament), Schema = "medicament")]
 public sealed class Medicament
 {
-    public int Id { get; init; }
-    public int CompanyId { get; init; }
-    public string Name { get; init; } = null!;
-    public string? Description { get; init; }
+    public int Id { get; set; }
+    public int CompanyId { get; set; }
+    public string Name { get; set; } = null!;
+    public string? Description { get; set; }
 
     [Column(TypeName = "MONEY")]
-    public decimal VendorPrice { get; init; }
+    public decimal VendorPrice { get; set; }
 }

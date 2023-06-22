@@ -32,6 +32,8 @@ public sealed class AccountController : ControllerBase
         CancellationToken cancellationToken
     )
     {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         var validationResult = ValidateAuthenticationStatus();
         if (validationResult is not null)
         {
@@ -62,14 +64,13 @@ public sealed class AccountController : ControllerBase
         CancellationToken cancellationToken
     )
     {
-        var validationResult = ValidateAuthenticationStatus()
-                               ?? await ValidateCompanyEmail(model, cancellationToken);
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
+        var validationResult = ValidateAuthenticationStatus() ?? await ValidateCompanyEmail(model, cancellationToken);
         if (validationResult is not null)
         {
             return validationResult;
         }
-
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
         var company = await transaction.GetDbTransaction().Connection.QuerySingleAsync<Company>(new CommandDefinition($@"
             DECLARE @Id TABLE ([Id] INT);
