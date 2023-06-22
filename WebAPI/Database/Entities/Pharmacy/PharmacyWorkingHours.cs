@@ -3,15 +3,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace PharmacySystem.WebAPI.Database.Entities.Pharmacy;
 
-[Table("PharmacyWorkingHours", Schema = "pharmacy")]
+[Table(nameof(PharmacyWorkingHours), Schema = "pharmacy")]
 [PrimaryKey(nameof(PharmacyId), nameof(Weekday))]
 public sealed class PharmacyWorkingHours
 {
-    public int PharmacyId { get; init; }
+    public int PharmacyId { get; set; }
 
     [Column(TypeName = "TINYINT")]
-    public DayOfWeek Weekday { get; init; }
+    public DayOfWeek Weekday { get; set; }
 
-    public TimeSpan StartTime { get; init; }
-    public TimeSpan StopTime { get; init; }
+    public TimeSpan StartTime { get; set; }
+    public TimeSpan StopTime { get; set; }
 }

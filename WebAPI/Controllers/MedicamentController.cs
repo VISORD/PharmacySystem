@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacySystem.WebAPI.Authentication.Claims;
 using PharmacySystem.WebAPI.Database;
+using PharmacySystem.WebAPI.Database.Entities.Medicament;
 using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Models.Medicament;
 
@@ -28,6 +29,8 @@ public sealed class MedicamentController : ControllerBase
         CancellationToken cancellationToken
     )
     {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         var query = _databaseContext.Medicaments.Where(x => x.CompanyId == companyId);
 
         query = request.Ordering.Aggregate(query, (current, field) => field.IsAscending
@@ -44,7 +47,7 @@ public sealed class MedicamentController : ControllerBase
             request.Paging,
             request.Ordering,
             totalAmount,
-            medicaments.Select(MedicamentListItemModel.From)
+            medicaments.Select(MedicamentItemPagingModel.From)
         ));
     }
 
@@ -57,29 +60,31 @@ public sealed class MedicamentController : ControllerBase
     {
         var medicament = model.To(companyId);
 
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         var validationResult = await ValidateMedicamentName(medicament.Name, companyId, cancellationToken);
         if (validationResult is not null)
         {
             return validationResult;
         }
 
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
-
-        medicament = _databaseContext.Medicaments.Add(medicament).Entity;
+        var result = await _databaseContext.Medicaments.AddAsync(medicament, cancellationToken);
 
         await _databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
-        return Ok(new ItemResponse(medicament.Id));
+        return Ok(new ItemResponse(result.Entity.Id));
     }
 
     [HttpGet("{medicamentId:int}")]
     public async Task<IActionResult> Get(
-        [FromClaim(ClaimTypes.CompanyId)] int companyId,
         int medicamentId,
+        [FromClaim(ClaimTypes.CompanyId)] int companyId,
         CancellationToken cancellationToken
     )
     {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         var medicament = await _databaseContext.Medicaments
             .SingleOrDefaultAsync(x => x.Id == medicamentId && x.CompanyId == companyId, cancellationToken);
 
@@ -90,13 +95,15 @@ public sealed class MedicamentController : ControllerBase
 
     [HttpPut("{medicamentId:int}")]
     public async Task<IActionResult> Update(
-        [FromClaim(ClaimTypes.CompanyId)] int companyId,
         int medicamentId,
+        [FromClaim(ClaimTypes.CompanyId)] int companyId,
         [FromBody] MedicamentProfileModel model,
         CancellationToken cancellationToken
     )
     {
         var medicament = model.To(companyId, medicamentId);
+
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
         var validationResult = await ValidateCompanyMedicamentRelation(companyId, medicamentId, cancellationToken)
                                ?? await ValidateMedicamentName(medicament.Name, companyId, cancellationToken, medicamentId);
@@ -104,8 +111,6 @@ public sealed class MedicamentController : ControllerBase
         {
             return validationResult;
         }
-
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
         _databaseContext.Medicaments.Update(medicament);
 
@@ -122,16 +127,95 @@ public sealed class MedicamentController : ControllerBase
         CancellationToken cancellationToken
     )
     {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
         var validationResult = await ValidateCompanyMedicamentRelation(companyId, medicamentId, cancellationToken);
         if (validationResult is not null)
         {
             return validationResult;
         }
 
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
-
         await _databaseContext.Medicaments
             .Where(x => x.Id == medicamentId)
+            .ExecuteDeleteAsync(cancellationToken);
+
+        await _databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpPost("{medicamentId:int}/analogue/list")]
+    public async Task<IActionResult> List(
+        int medicamentId,
+        [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
+        var validationResult = await ValidateCompanyMedicamentRelation(companyId, medicamentId, cancellationToken);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
+
+        var medicamentAnalogues = await _databaseContext.MedicamentAnalogues
+            .Include(x => x.Analogue)
+            .Where(x => x.OriginalId == medicamentId)
+            .ToArrayAsync(cancellationToken);
+
+        return medicamentAnalogues.Any()
+            ? Ok(new ItemsResponse(medicamentAnalogues.Select(x => MedicamentItemPagingModel.From(x.Analogue))))
+            : NoContent();
+    }
+
+    [HttpPost("{medicamentId:int}/analogue")]
+    public async Task<IActionResult> Associate(
+        int medicamentId,
+        [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        [FromBody] IList<int> analogueIds,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
+        var validationResult = await ValidateCompanyMedicamentRelation(companyId, medicamentId, cancellationToken);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
+
+        await _databaseContext.MedicamentAnalogues.AddRangeAsync(analogueIds.Select(x => new MedicamentAnalogue
+        {
+            OriginalId = medicamentId,
+            AnalogueId = x
+        }), cancellationToken);
+
+        await _databaseContext.SaveChangesAsync(cancellationToken);
+        await transaction.CommitAsync(cancellationToken);
+
+        return NoContent();
+    }
+
+    [HttpDelete("{medicamentId:int}/analogue")]
+    public async Task<IActionResult> Disassociate(
+        int medicamentId,
+        [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        [FromBody] IList<int> analogueIds,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
+        var validationResult = await ValidateCompanyMedicamentRelation(companyId, medicamentId, cancellationToken);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
+
+        await _databaseContext.MedicamentAnalogues
+            .Where(x => x.OriginalId == medicamentId && analogueIds.Contains(x.AnalogueId))
             .ExecuteDeleteAsync(cancellationToken);
 
         await _databaseContext.SaveChangesAsync(cancellationToken);

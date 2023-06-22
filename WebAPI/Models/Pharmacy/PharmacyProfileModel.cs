@@ -5,8 +5,6 @@ namespace PharmacySystem.WebAPI.Models.Pharmacy;
 
 public sealed class PharmacyProfileModel
 {
-    public int? Id { get; init; }
-
     [Required]
     [StringLength(50)]
     public string Name { get; init; } = null!;
@@ -36,7 +34,6 @@ public sealed class PharmacyProfileModel
 
     public static PharmacyProfileModel From(Database.Entities.Pharmacy.Pharmacy pharmacy) => new()
     {
-        Id = pharmacy.Id,
         Name = pharmacy.Name,
         Email = pharmacy.Email,
         Phone = pharmacy.Phone,
@@ -49,7 +46,7 @@ public sealed class PharmacyProfileModel
 
     public Database.Entities.Pharmacy.Pharmacy To(int companyId, int? id = null) => new()
     {
-        Id = id ?? Id ?? 0,
+        Id = id ?? 0,
         CompanyId = companyId,
         Name = Name,
         Email = Email,
@@ -60,7 +57,7 @@ public sealed class PharmacyProfileModel
         Description = Description,
         WorkingHours = WorkingHours.Select(x => new PharmacyWorkingHours
         {
-            PharmacyId = id ?? Id ?? 0,
+            PharmacyId = id ?? 0,
             Weekday = x.Key,
             StartTime = x.Value.StartTime!.Value,
             StopTime = x.Value.StopTime!.Value,
