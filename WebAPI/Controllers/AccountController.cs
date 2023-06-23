@@ -40,7 +40,7 @@ public sealed class AccountController : ControllerBase
             return validationResult;
         }
 
-        var company = await _databaseContext.Database.GetDbConnection().QuerySingleOrDefaultAsync<Company>(new CommandDefinition($@"
+        var company = await transaction.GetDbTransaction().Connection.QuerySingleOrDefaultAsync<Company>(new CommandDefinition($@"
             SELECT
                  [Id]      [{nameof(Company.Id)}]
                 ,[Email]   [{nameof(Company.Email)}]
@@ -48,7 +48,7 @@ public sealed class AccountController : ControllerBase
                 ,[Phone]   [{nameof(Company.Phone)}]
             FROM [company].[Company]
             WHERE [Email] = @{nameof(model.Email)} AND [Password] = @{nameof(model.Password)};
-        ", parameters: model, cancellationToken: cancellationToken));
+        ", parameters: model, transaction: transaction.GetDbTransaction(), cancellationToken: cancellationToken));
 
         if (company is null)
         {

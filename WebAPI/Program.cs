@@ -38,6 +38,15 @@ internal static class Program
         // Add filters
         builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, DatabasePublicationStartupFilter>());
 
+        // Configure CORS
+        builder.Services.AddCors(options => options.AddDefaultPolicy(cors =>
+        {
+            cors.WithOrigins("http://localhost:5173", "https://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials();
+        }));
+
         // Configure authentication and authorization
         builder.Services.AddTransient<AuthenticationEvents>();
         builder.Services
@@ -46,7 +55,8 @@ internal static class Program
             {
                 options.Cookie.Name = ".PharmacySystem.Cookies";
                 options.Cookie.MaxAge = TimeSpan.FromHours(1);
-                options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+                options.Cookie.SameSite = SameSiteMode.None;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
                 options.Cookie.HttpOnly = true;
                 options.SlidingExpiration = true;
                 options.EventsType = typeof(AuthenticationEvents);
@@ -103,6 +113,8 @@ internal static class Program
         }
 
         app.UseHttpsRedirection();
+
+        app.UseCors();
 
         app.UseAuthorization();
 

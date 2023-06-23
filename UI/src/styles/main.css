@@ -1,0 +1,30 @@
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: var(--font-family);
+    font-weight: normal;
+    background: var(--surface-ground);
+    color: var(--text-color);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    margin: 0;
+}
+
+#app {
+    min-height: 100vh;
+}
+
+.page {
+    background: var(--surface-card);
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.router-link-active-exact > svg, .router-link-active-exact > span {
+    color: var(--primary-color) !important;
+    transition: all;
+    transition-duration: 0.5s;
+}
