@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue'
-import SignInForm from '@/components/SignInForm.vue'
-import SignUpForm from '@/components/SignUpForm.vue'
+import SignInForm from '@/components/authentication/SignInForm.vue'
+import SignUpForm from '@/components/authentication/SignUpForm.vue'
 
 const value = ref(1)
 const options = ref([

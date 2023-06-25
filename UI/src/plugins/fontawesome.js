@@ -9,6 +9,8 @@ import {
     faHandHoldingMedical,
     faListCheck,
     faLock,
+    faPencil,
+    faPhone,
     faPlus,
     faTablets,
     faTriangleExclamation,
@@ -31,7 +33,9 @@ library.add(
     faCheck,
     faArrowsRotate,
     faPlus,
-    faEraser
+    faEraser,
+    faPhone,
+    faPencil
 )
 
 // <i> => <svg>

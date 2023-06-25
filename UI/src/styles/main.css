@@ -14,7 +14,7 @@ body {
 }
 
 #app {
-    min-height: 100vh;
+    height: 100vh;
 }
 
 .page {
@@ -32,4 +32,9 @@ body {
 /* Fix bug with visibility of clear filter button */
 .p-column-filter-clear-button {
     visibility: visible !important;
+}
+
+.form-field-icon {
+    align-content: center;
+    width: 20px;
 }

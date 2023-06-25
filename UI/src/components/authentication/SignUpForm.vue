@@ -1,38 +1,18 @@
 <script setup>
-import { useField, useForm } from 'vee-validate'
+import { useForm } from 'vee-validate'
+import { companyNameRule, emailRule, passwordRule } from '@/constants/validation'
 import { useAccountStore } from '@/stores/account'
+import { ref } from 'vue'
 
 const { handleSubmit } = useForm()
+const form = ref({
+    email: emailRule(),
+    name: companyNameRule(),
+    password: passwordRule()
+})
+
 const account = useAccountStore()
-
-const { value: email, errorMessage: emailErrorMessage } = useField('email', (value) => {
-    if (!value) {
-        return 'Email is required'
-    } else if (
-        !value.match(
-            /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i
-        )
-    ) {
-        return 'Input is not email'
-    }
-    return true
-})
-
-const { value: name, errorMessage: nameErrorMessage } = useField('name', (value) =>
-    !value ? 'Name is required' : true
-)
-
-const { value: password, errorMessage: passwordErrorMessage } = useField('password', (value) => {
-    if (!value) {
-        return 'Password is required'
-    } else if (value.length < 4) {
-        return 'Password length should be greater or equal 4'
-    }
-
-    return true
-})
-
-const onSubmit = handleSubmit(async (values) => await account.trySignUp(values))
+const onSubmit = handleSubmit.withControlled(async (values) => await account.trySignUp(values))
 </script>
 
 <template>
@@ -40,44 +20,44 @@ const onSubmit = handleSubmit(async (values) => await account.trySignUp(values))
         <form @submit="onSubmit" class="w-18rem">
             <div class="field">
                 <div class="p-input-icon-right">
-                    <fa class="field-icon" :icon="['fas', 'at']" />
+                    <fa class="form-field-icon" :icon="['fas', 'at']" />
                     <InputText
                         id="email"
-                        v-model="email"
+                        v-model="form.email.value"
                         type="text"
                         placeholder="Email"
-                        :class="{ 'p-invalid': emailErrorMessage }"
+                        :class="{ 'p-invalid': form.email.errorMessage }"
                         aria-describedby="text-error"
                         autofocus
                         autocomplete="email"
                     />
                 </div>
-                <small class="p-error" id="text-error">{{ emailErrorMessage || '&nbsp;' }}</small>
+                <small class="p-error" id="text-error">{{ form.email.errorMessage || '&nbsp;' }}</small>
             </div>
 
             <div class="field">
                 <div class="p-input-icon-right">
-                    <fa class="field-icon" :icon="['fas', 'users-between-lines']" />
+                    <fa class="form-field-icon" :icon="['fas', 'users-between-lines']" />
                     <InputText
                         id="name"
-                        v-model="name"
+                        v-model="form.name.value"
                         type="text"
                         placeholder="Company Name"
-                        :class="{ 'p-invalid': nameErrorMessage }"
+                        :class="{ 'p-invalid': form.name.errorMessage }"
                         aria-describedby="text-error"
                         autocomplete="name"
                     />
                 </div>
-                <small class="p-error" id="text-error">{{ nameErrorMessage || '&nbsp;' }}</small>
+                <small class="p-error" id="text-error">{{ form.name.errorMessage || '&nbsp;' }}</small>
             </div>
 
             <div class="field">
                 <Password
                     id="password"
                     input-id="password-input"
-                    v-model="password"
+                    v-model="form.password"
                     placeholder="Password"
-                    :class="{ 'p-invalid': passwordErrorMessage }"
+                    :class="{ 'p-invalid': form.password.errorMessage }"
                     aria-describedby="text-error"
                     toggle-mask
                 >
@@ -97,23 +77,16 @@ const onSubmit = handleSubmit(async (values) => await account.trySignUp(values))
                         </div>
                     </template>
                     <template #hideicon="scope">
-                        <fa class="field-icon" :icon="['fas', 'unlock']" @click="scope.onClick()" />
+                        <fa class="form-field-icon" :icon="['fas', 'unlock']" @click="scope.onClick()" />
                     </template>
                     <template #showicon="scope">
-                        <fa class="field-icon" :icon="['fas', 'lock']" @click="scope.onClick()" />
+                        <fa class="form-field-icon" :icon="['fas', 'lock']" @click="scope.onClick()" />
                     </template>
                 </Password>
-                <small class="p-error" id="text-error">{{ passwordErrorMessage || '&nbsp;' }}</small>
+                <small class="p-error" id="text-error">{{ form.password.errorMessage || '&nbsp;' }}</small>
             </div>
 
             <Button type="submit" label="Submit" class="mt-2" />
         </form>
     </div>
 </template>
-
-<style scoped>
-.field-icon {
-    align-content: center;
-    width: 20px;
-}
-</style>
