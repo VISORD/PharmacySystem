@@ -1,15 +1,11 @@
 <script setup>
 import { companyNameRule, emailRule, phoneRule } from '@/constants/validation'
 import { useForm } from 'vee-validate'
-import { update } from '@/api/company'
 import { ref } from 'vue'
-import { useToast } from 'primevue/usetoast'
-
-const active = ref(false)
-defineExpose({ active })
+import { useCompanyStore } from '@/stores/company'
 
 defineProps(['name', 'email', 'phone'])
-const emits = defineEmits(['apply', 'update:name', 'update:email', 'update:phone'])
+defineEmits(['update:name', 'update:email', 'update:phone'])
 
 const { handleSubmit } = useForm()
 const form = ref({
@@ -18,38 +14,12 @@ const form = ref({
     phone: phoneRule({ model: 'phone' })
 })
 
-const toast = useToast()
-const onSubmit = handleSubmit.withControlled(async (values) => {
-    const response = await update(values)
-
-    let notification
-    if (response.status < 400) {
-        active.value = false
-        emits('apply')
-
-        notification = {
-            severity: 'success',
-            summary: 'Company info updated',
-            detail: 'The operation has been successfully performed',
-            life: 3000
-        }
-    } else if (response.status !== 401) {
-        notification = {
-            severity: 'error',
-            summary: 'Company info update failed',
-            detail: response.data.error,
-            life: 3000
-        }
-    }
-
-    if (notification) {
-        toast.add(notification)
-    }
-})
+const company = useCompanyStore()
+const onSubmit = handleSubmit.withControlled(async (values) => await company.tryUpdate(values))
 </script>
 
 <template>
-    <Dialog v-model:visible="active" modal dismissable-mask header="Edit company" style="width: 50vw">
+    <Dialog v-model:visible="company.editDialog" modal dismissable-mask header="Edit company" style="width: 50vw">
         <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
             <form @submit="onSubmit" style="width: 95vw">
                 <div class="field">
@@ -103,7 +73,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => {
 
                 <div style="text-align: right">
                     <div class="buttons">
-                        <Button label="Cancel" icon="fa-solid fa-xmark" @click="active = false" text />
+                        <Button label="Cancel" icon="fa-solid fa-xmark" @click="company.editDialog = false" text />
                         <Button label="Apply" icon="fa-solid fa-check" type="submit" />
                     </div>
                 </div>

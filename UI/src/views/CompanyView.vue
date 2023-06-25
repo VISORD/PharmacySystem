@@ -1,34 +1,10 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import { get } from '@/api/company'
-import { useToast } from 'primevue/usetoast'
+import { onMounted } from 'vue'
 import CompanyInfoEditForm from '@/components/company/CompanyInfoEditForm.vue'
+import { useCompanyStore } from '@/stores/company'
 
-const loading = ref(true)
-const companyEditDialog = ref(null)
-
-const data = ref({})
-
-const toast = useToast()
-async function reload() {
-    loading.value = true
-
-    const response = await get()
-    if (response.status < 400) {
-        data.value = response.data.item
-    } else if (response.status !== 401) {
-        toast.add({
-            severity: 'error',
-            summary: 'Company info getting failed',
-            detail: response.data.error,
-            life: 3000
-        })
-    }
-
-    loading.value = false
-}
-
-onMounted(async () => await reload())
+const company = useCompanyStore()
+onMounted(async () => await company.reload())
 </script>
 
 <template>
@@ -44,10 +20,10 @@ onMounted(async () => await reload())
 
             <Transition name="company" mode="out-in">
                 <div
-                    v-if="!loading"
+                    v-if="!company.loading"
                     style="display: flex; align-items: center; height: 4rem; font-size: 2rem; font-weight: 700"
                 >
-                    {{ data.name }}
+                    {{ company.data.name }}
                 </div>
                 <Skeleton v-else width="40rem" height="3rem" style="margin-bottom: 0.5rem; margin-top: 0.5rem" />
             </Transition>
@@ -57,7 +33,7 @@ onMounted(async () => await reload())
             </div>
 
             <Transition name="company" mode="out-in">
-                <div v-if="!loading" style="display: flex; align-items: center">{{ data.email }}</div>
+                <div v-if="!company.loading" style="display: flex; align-items: center">{{ company.data.email }}</div>
                 <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
             </Transition>
 
@@ -66,20 +42,16 @@ onMounted(async () => await reload())
             </div>
 
             <Transition name="company" mode="out-in">
-                <div v-if="!loading" style="display: flex; align-items: center">{{ data.phone ?? '—' }}</div>
+                <div v-if="!company.loading" style="display: flex; align-items: center">
+                    {{ company.data.phone ?? '—' }}
+                </div>
                 <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
             </Transition>
         </div>
 
         <div style="display: flex; align-items: center; justify-content: center; width: 6rem">
-            <Button icon="fa-solid fa-pencil" @click="companyEditDialog.active = true" :disabled="loading" />
-            <CompanyInfoEditForm
-                ref="companyEditDialog"
-                :name="data.name"
-                :email="data.email"
-                :phone="data.phone"
-                @apply="reload()"
-            />
+            <Button icon="fa-solid fa-pencil" @click="company.editDialog = true" :disabled="company.loading" />
+            <CompanyInfoEditForm :name="company.data.name" :email="company.data.email" :phone="company.data.phone" />
         </div>
     </div>
 </template>
