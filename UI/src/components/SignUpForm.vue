@@ -74,12 +74,12 @@ const onSubmit = handleSubmit(async (values) => await account.trySignUp(values))
             <div class="field">
                 <Password
                     id="password"
-                    inputId="password-input"
+                    input-id="password-input"
                     v-model="password"
                     placeholder="Password"
                     :class="{ 'p-invalid': passwordErrorMessage }"
                     aria-describedby="text-error"
-                    toggleMask
+                    toggle-mask
                 >
                     <template #header>
                         <div style="padding-top: 20px" />

@@ -57,6 +57,7 @@ public sealed class DatabaseContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
+        optionsBuilder.UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()));
         optionsBuilder.UseSqlServer(_options.DbConnectionString);
     }
 }

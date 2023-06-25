@@ -1,4 +1,5 @@
 using PharmacySystem.WebAPI.Database.Entities.Order;
+using PharmacySystem.WebAPI.Extensions;
 using PharmacySystem.WebAPI.Models.Pharmacy;
 
 namespace PharmacySystem.WebAPI.Models.Order;
@@ -6,17 +7,19 @@ namespace PharmacySystem.WebAPI.Models.Order;
 public sealed class OrderItemPagingModel
 {
     public PharmacyShortModel Pharmacy { get; init; } = null!;
-    public int MedicamentItemsCount { get; init; }
+    public int MedicamentItemCount { get; init; }
     public OrderStatus Status { get; init; }
-    public DateTimeOffset? OrderedAt { get; init; }
-    public DateTimeOffset UpdatedAt { get; init; }
+    public DateTime? OrderedAt { get; init; }
+    public string? OrderedAtText => OrderedAt?.Format();
+    public DateTime UpdatedAt { get; init; }
+    public string UpdatedAtText => UpdatedAt.Format();
 
-    public static OrderItemPagingModel From(Database.Entities.Order.Order order, IReadOnlyDictionary<int, int> medicamentItemsCounts) => new()
+    public static OrderItemPagingModel From(Database.Entities.Order.Order order) => new()
     {
         Pharmacy = PharmacyShortModel.From(order.Pharmacy),
-        MedicamentItemsCount = medicamentItemsCounts.TryGetValue(order.Id, out var value) ? value : 0,
+        MedicamentItemCount = order.Medicaments.Count,
         Status = order.Status,
-        OrderedAt = order.OrderedAt,
-        UpdatedAt = order.UpdatedAt,
+        OrderedAt = order.OrderedAt?.LocalDateTime,
+        UpdatedAt = order.UpdatedAt.LocalDateTime,
     };
 }

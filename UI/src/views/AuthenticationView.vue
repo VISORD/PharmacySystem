@@ -24,8 +24,8 @@ const options = ref([
                     v-model="value"
                     :options="options"
                     aria-labelledby="basic"
-                    optionLabel="name"
-                    optionValue="value"
+                    option-label="name"
+                    option-value="value"
                     unselectable
                 />
             </header>

@@ -16,4 +16,6 @@ public sealed class Order
 
     [ForeignKey(nameof(PharmacyId))]
     public Pharmacy.Pharmacy Pharmacy { get; set; } = null!;
+
+    public ICollection<OrderMedicament> Medicaments { get; set; } = null!;
 }

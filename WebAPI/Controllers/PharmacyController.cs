@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PharmacySystem.WebAPI.Authentication.Claims;
 using PharmacySystem.WebAPI.Database;
+using PharmacySystem.WebAPI.Extensions;
 using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Models.Pharmacy;
 
@@ -30,11 +31,10 @@ public sealed class PharmacyController : ControllerBase
     {
         await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var query = _databaseContext.Pharmacies.Where(x => x.CompanyId == companyId);
-
-        query = request.Ordering.Aggregate(query, (current, field) => field.IsAscending
-            ? current.OrderBy(x => EF.Property<object>(x, field.FieldName))
-            : current.OrderByDescending(x => EF.Property<object>(x, field.FieldName)));
+        var query = _databaseContext.Pharmacies
+            .Where(x => x.CompanyId == companyId)
+            .FilterByRequest(request.Filtering)
+            .OrderByRequest(request.Ordering);
 
         var totalAmount = await query.CountAsync(cancellationToken);
         var pharmacies = await query
@@ -43,8 +43,6 @@ public sealed class PharmacyController : ControllerBase
             .ToArrayAsync(cancellationToken);
 
         return Ok(new ItemsPagingResponse(
-            request.Paging,
-            request.Ordering,
             totalAmount,
             pharmacies.Select(PharmacyItemPagingModel.From)
         ));

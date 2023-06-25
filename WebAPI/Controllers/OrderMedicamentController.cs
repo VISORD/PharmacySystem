@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using PharmacySystem.WebAPI.Authentication.Claims;
 using PharmacySystem.WebAPI.Database;
 using PharmacySystem.WebAPI.Database.Entities.Order;
+using PharmacySystem.WebAPI.Extensions;
 using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Models.Order;
 
@@ -40,11 +41,9 @@ public sealed class OrderMedicamentController : ControllerBase
 
         var query = _databaseContext.OrderMedicaments
             .Include(x => x.Medicament)
-            .Where(x => x.OrderId == orderId);
-
-        query = request.Ordering.Aggregate(query, (current, field) => field.IsAscending
-            ? current.OrderBy(x => EF.Property<object>(x, field.FieldName))
-            : current.OrderByDescending(x => EF.Property<object>(x, field.FieldName)));
+            .Where(x => x.OrderId == orderId)
+            .FilterByRequest(request.Filtering)
+            .OrderByRequest(request.Ordering);
 
         var totalAmount = await query.CountAsync(cancellationToken);
         var orderMedicaments = await query
@@ -53,8 +52,6 @@ public sealed class OrderMedicamentController : ControllerBase
             .ToArrayAsync(cancellationToken);
 
         return Ok(new ItemsPagingResponse(
-            request.Paging,
-            request.Ordering,
             totalAmount,
             orderMedicaments.Select(OrderMedicamentListItemModel.From)
         ));

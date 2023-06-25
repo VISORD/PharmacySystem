@@ -28,3 +28,8 @@ body {
     transition: all;
     transition-duration: 0.5s;
 }
+
+/* Fix bug with visibility of clear filter button */
+.p-column-filter-clear-button {
+    visibility: visible !important;
+}

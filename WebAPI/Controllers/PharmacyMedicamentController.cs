@@ -43,11 +43,9 @@ public sealed class PharmacyMedicamentController : ControllerBase
         var query = _databaseContext.PharmacyMedicaments
             .Include(x => x.Medicament)
             .Include(x => x.Rates)
-            .Where(x => x.PharmacyId == pharmacyId);
-
-        query = request.Ordering.Aggregate(query, (current, field) => field.IsAscending
-            ? current.OrderBy(x => EF.Property<object>(x, field.FieldName))
-            : current.OrderByDescending(x => EF.Property<object>(x, field.FieldName)));
+            .Where(x => x.PharmacyId == pharmacyId)
+            .FilterByRequest(request.Filtering)
+            .OrderByRequest(request.Ordering);
 
         var totalAmount = await query.CountAsync(cancellationToken);
         var pharmacyMedicaments = await query
@@ -56,8 +54,6 @@ public sealed class PharmacyMedicamentController : ControllerBase
             .ToArrayAsync(cancellationToken);
 
         return Ok(new ItemsPagingResponse(
-            request.Paging,
-            request.Ordering,
             totalAmount,
             pharmacyMedicaments.Select(x => PharmacyMedicamentListItemModel.From(x, request.AsOfDate))
         ));

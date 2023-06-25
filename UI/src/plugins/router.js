@@ -11,7 +11,6 @@ const router = createRouter({
             beforeEnter: (to, from, next) => {
                 const account = useAccountStore()
                 if (!account.isAuthenticated) {
-                    console.log(to)
                     if (to.fullPath !== '/') {
                         next({ path: '/auth', query: { redirect: to.fullPath } })
                     } else {

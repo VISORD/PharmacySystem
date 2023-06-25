@@ -2,11 +2,14 @@ import { dom, library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
     faArrowRightFromBracket,
+    faArrowsRotate,
     faAt,
     faCheck,
+    faEraser,
     faHandHoldingMedical,
     faListCheck,
     faLock,
+    faPlus,
     faTablets,
     faTriangleExclamation,
     faUnlock,
@@ -25,7 +28,10 @@ library.add(
     faLock,
     faUnlock,
     faXmark,
-    faCheck
+    faCheck,
+    faArrowsRotate,
+    faPlus,
+    faEraser
 )
 
 // <i> => <svg>
