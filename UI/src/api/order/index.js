@@ -1,6 +1,6 @@
 import api from '@/api'
 
-export function list({ paging, ordering, filtering }) {
+export function list({ filtering, ordering, paging }) {
     return api.post(
         '/api/order/list',
         {
@@ -14,4 +14,12 @@ export function list({ paging, ordering, filtering }) {
             }
         }
     )
+}
+
+export function get(orderId) {
+    return api.get(`/api/order/${orderId}`)
+}
+
+export function remove(orderId) {
+    return api.delete(`/api/order/${orderId}`)
 }

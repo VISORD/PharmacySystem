@@ -1,8 +1,8 @@
 <script setup>
 import { useForm } from 'vee-validate'
 import { emailRule, passwordRule } from '@/utils/validation'
-import { useAccountStore } from '@/stores/account'
 import { ref } from 'vue'
+import { useAccountStore } from '@/stores/account'
 
 const { handleSubmit } = useForm()
 const form = ref({

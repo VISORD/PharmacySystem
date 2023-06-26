@@ -15,6 +15,7 @@ const menu = ref([
 
 const confirmSignOut = () => {
     confirm.require({
+        group: 'sign-out',
         message: 'Are you sure you want to sign out?',
         header: 'Confirmation',
         icon: 'fa-solid fa-triangle-exclamation',
@@ -29,7 +30,7 @@ const confirmSignOut = () => {
 <template>
     <Menubar class="main-menu" :model="menu">
         <template #end>
-            <ConfirmDialog />
+            <ConfirmDialog group="sign-out" />
             <Button
                 class="sign-out"
                 @click="confirmSignOut()"

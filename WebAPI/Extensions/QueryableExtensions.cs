@@ -5,9 +5,9 @@ namespace PharmacySystem.WebAPI.Extensions;
 
 public static class QueryableExtensions
 {
-    public static IQueryable<T> FilterByRequest<T>(this IQueryable<T> query, IDictionary<string, Filter> filtering) where T : notnull
+    public static IQueryable<T> FilterByRequest<T>(this IQueryable<T> query, IEnumerable<Filter> filtering) where T : notnull
     {
-        foreach (var (column, (value, matchMode)) in filtering)
+        foreach (var (column, value, matchMode) in filtering)
         {
             if (value is null)
             {
@@ -112,10 +112,11 @@ public static class QueryableExtensions
 
     public static IQueryable<T> OrderByRequest<T>(this IQueryable<T> query, IEnumerable<Ordering> ordering) where T : notnull
     {
-        return ordering.Aggregate(query, (current, column) => column.IsAscending switch
+        // TODO: Refactor
+        return ordering.Aggregate(query, (current, order) => order.IsAscending switch
         {
-            true => current.OrderBy(x => EF.Property<object>(x, column.Field)),
-            false => current.OrderByDescending(x => EF.Property<object>(x, column.Field)),
+            true => current.OrderBy(x => EF.Property<object>(x, order.Field)),
+            false => current.OrderByDescending(x => EF.Property<object>(x, order.Field)),
             _ => current
         });
     }

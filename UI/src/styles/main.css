@@ -38,3 +38,19 @@ body {
     align-content: center;
     width: 20px;
 }
+
+.profile-enter-active {
+    transition: opacity 0.3s ease;
+}
+
+.profile-enter-from {
+    opacity: 0;
+}
+
+.profile-view-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 4rem;
+}

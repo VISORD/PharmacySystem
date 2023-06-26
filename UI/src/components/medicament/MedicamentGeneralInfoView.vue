@@ -1,18 +1,29 @@
 <script setup>
-import CompanyInfoEditForm from '@/components/company/CompanyInfoEditForm.vue'
-import { useCompanyStore } from '@/stores/company'
-import { onMounted } from 'vue'
+import { useMedicamentStore } from '@/stores/medicament'
+import { useConfirm } from 'primevue/useconfirm'
 
-const company = useCompanyStore()
-onMounted(async () => await company.reload())
+const confirm = useConfirm()
+const medicament = useMedicamentStore()
+
+const confirmDelete = () => {
+    confirm.require({
+        group: 'medicament-delete',
+        header: 'Confirmation',
+        icon: 'fa-solid fa-triangle-exclamation',
+        acceptIcon: 'fa-solid fa-check',
+        rejectIcon: 'fa-solid fa-xmark',
+        accept: async () => await medicament.table.tryDelete(),
+        reject: () => {}
+    })
+}
 </script>
 
 <template>
     <div style="display: flex; justify-content: space-between">
-        <div class="company">
+        <div class="medicament">
             <div style="display: flex; align-items: center; justify-content: center">
                 <Avatar
-                    icon="fa-solid fa-users-between-lines"
+                    icon="fa-solid fa-tablets"
                     size="large"
                     style="background-color: var(--text-color); color: var(--primary-color-text)"
                 />
@@ -20,48 +31,44 @@ onMounted(async () => await company.reload())
 
             <Transition name="profile" mode="out-in">
                 <div
-                    v-if="!company.loading"
+                    v-if="!medicament.view.loading"
                     style="display: flex; align-items: center; height: 4rem; font-size: 2rem; font-weight: 700"
                 >
-                    {{ company.data.name }}
+                    {{ medicament.view.profile.name }}
                 </div>
                 <Skeleton v-else width="40rem" height="3rem" style="margin-bottom: 0.5rem; margin-top: 0.5rem" />
             </Transition>
 
             <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
-                <fa :icon="['fas', 'fa-at']" />
+                <fa :icon="['fas', 'fa-money-bill-wave']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!company.loading" style="display: flex; align-items: center">{{ company.data.email }}</div>
+                <div v-if="!medicament.view.loading" style="display: flex; align-items: center">
+                    {{ medicament.view.profile.vendorPriceText }}
+                </div>
                 <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
             </Transition>
 
             <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
-                <fa :icon="['fas', 'fa-phone']" />
+                <fa :icon="['fas', 'fa-quote-right']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!company.loading" style="display: flex; align-items: center">
-                    {{ company.data.phone ?? '—' }}
+                <div v-if="!medicament.view.loading" style="display: flex; align-items: center">
+                    {{ medicament.view.profile.description ?? '—' }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="40rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
             </Transition>
         </div>
 
         <div style="display: flex; justify-content: center; width: 6rem">
             <div style="display: flex; flex-direction: column">
-                <div
-                    style="
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        justify-content: center;
-                        height: 4rem;
-                    "
-                >
-                    <Button icon="fa-solid fa-pencil" @click="company.dialog = true" :disabled="company.loading" />
-                    <CompanyInfoEditForm />
+                <div class="profile-view-button">
+                    <Button icon="fa-solid fa-pencil" />
+                </div>
+                <div class="profile-view-button">
+                    <Button icon="fa-solid fa-trash-can" severity="danger" @click="confirmDelete()" />
                 </div>
             </div>
         </div>
@@ -69,7 +76,7 @@ onMounted(async () => await company.reload())
 </template>
 
 <style scoped>
-.company {
+.medicament {
     flex: 1;
     display: grid;
     grid-template-columns: 6rem fit-content(100%);

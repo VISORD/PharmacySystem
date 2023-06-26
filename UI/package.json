@@ -19,7 +19,8 @@
     "primevue": "^3.29.2",
     "vee-validate": "^4.10.0",
     "vue": "^3.3.4",
-    "vue-router": "^4.2.2"
+    "vue-router": "^4.2.2",
+    "vue-yandex-maps": "^0.12.7"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.2.0",

@@ -1,32 +1,56 @@
 <script setup>
-import { ref } from 'vue'
 import ListTable from '@/components/ListTable.vue'
-import { FilterMatchMode } from 'primevue/api'
-import { list } from '@/api/medicament'
+import MedicamentProfileView from '@/components/medicament/MedicamentProfileView.vue'
+import { useMedicamentStore } from '@/stores/medicament'
+import { ref } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
 
-const name = ref({
-    key: 'name',
-    field: 'Name',
-    header: 'Name',
-    matchMode: FilterMatchMode.EQUALS
-})
+const medicament = useMedicamentStore()
+const confirm = useConfirm()
 
-const vendorPrice = ref({
-    key: 'vendorPrice',
-    field: 'VendorPrice',
-    header: 'Vendor Price',
-    matchMode: FilterMatchMode.EQUALS
-})
+const menu = ref([
+    {
+        label: 'View',
+        icon: 'fa-solid fa-magnifying-glass',
+        command: async () => await medicament.table.showInfo()
+    },
+    {
+        label: 'Delete',
+        icon: 'fa-solid fa-trash-can',
+        command: () => {
+            confirm.require({
+                group: 'medicament-delete',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                acceptIcon: 'fa-solid fa-check',
+                rejectIcon: 'fa-solid fa-xmark',
+                accept: async () => await medicament.table.tryDelete(),
+                reject: () => {}
+            })
+        }
+    }
+])
 </script>
 
 <template>
-    <ListTable :columns="[name, vendorPrice]" :list="list">
+    <ConfirmDialog group="medicament-delete">
+        <template #message>
+            <div>
+                Are you sure you want to delete '<b>{{ medicament.table.selection.name }}</b
+                >' medicament?
+            </div>
+        </template>
+    </ConfirmDialog>
+
+    <MedicamentProfileView />
+
+    <ListTable :store="medicament" :menu="menu">
         <Column
-            :key="name.key"
-            :field="name.key"
-            :header="name.header"
-            :sort-field="name.field"
-            :filter-field="name.field"
+            :key="medicament.table.columns.name.key"
+            :field="medicament.table.columns.name.key"
+            :header="medicament.table.columns.name.header"
+            :sort-field="medicament.table.columns.name.field"
+            :filter-field="medicament.table.columns.name.field"
             :sortable="true"
             filter
             style="min-width: 30rem; max-width: 30rem"
@@ -45,11 +69,11 @@ const vendorPrice = ref({
         </Column>
 
         <Column
-            :key="vendorPrice.key"
-            :field="vendorPrice.key"
-            :header="vendorPrice.header"
-            :sort-field="vendorPrice.field"
-            :filter-field="vendorPrice.field"
+            :key="medicament.table.columns.vendorPrice.key"
+            :field="medicament.table.columns.vendorPrice.key"
+            :header="medicament.table.columns.vendorPrice.header"
+            :sort-field="medicament.table.columns.vendorPrice.field"
+            :filter-field="medicament.table.columns.vendorPrice.field"
             :sortable="true"
             dataType="numeric"
             filter

@@ -1,6 +1,6 @@
 import api from '@/api'
 
-export function list({ paging, ordering, filtering }) {
+export function list({ filtering, ordering, paging }) {
     return api.post(
         '/api/pharmacy/list',
         {
@@ -14,4 +14,12 @@ export function list({ paging, ordering, filtering }) {
             }
         }
     )
+}
+
+export function get(pharmacyId) {
+    return api.get(`/api/pharmacy/${pharmacyId}`)
+}
+
+export function remove(pharmacyId) {
+    return api.delete(`/api/pharmacy/${pharmacyId}`)
 }

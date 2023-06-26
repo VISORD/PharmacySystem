@@ -28,7 +28,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
         @show="setInitialValues"
         modal
         dismissable-mask
-        header="Edit company info"
+        :header="company.data ? `Edit company info: ${company.data.name}` : 'Edit company info'"
         style="width: 30rem; margin: 5rem"
     >
         <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">

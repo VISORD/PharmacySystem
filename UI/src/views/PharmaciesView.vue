@@ -1,32 +1,56 @@
 <script setup>
-import { ref } from 'vue'
-import { FilterMatchMode } from 'primevue/api'
-import { list } from '@/api/pharmacy'
 import ListTable from '@/components/ListTable.vue'
+import PharmacyProfileView from '@/components/pharmacy/PharmacyProfileView.vue'
+import { usePharmacyStore } from '@/stores/pharmacy'
+import { ref } from 'vue'
+import { useConfirm } from 'primevue/useconfirm'
 
-const name = ref({
-    key: 'name',
-    field: 'Name',
-    header: 'Name',
-    matchMode: FilterMatchMode.EQUALS
-})
+const pharmacy = usePharmacyStore()
+const confirm = useConfirm()
 
-const address = ref({
-    key: 'address',
-    field: 'Address',
-    header: 'Address',
-    matchMode: FilterMatchMode.EQUALS
-})
+const menu = ref([
+    {
+        label: 'View',
+        icon: 'fa-solid fa-magnifying-glass',
+        command: async () => await pharmacy.table.showInfo()
+    },
+    {
+        label: 'Delete',
+        icon: 'fa-solid fa-trash-can',
+        command: () => {
+            confirm.require({
+                group: 'pharmacy-delete',
+                header: 'Confirmation',
+                icon: 'fa-solid fa-triangle-exclamation',
+                acceptIcon: 'fa-solid fa-check',
+                rejectIcon: 'fa-solid fa-xmark',
+                accept: async () => await pharmacy.table.tryDelete(),
+                reject: () => {}
+            })
+        }
+    }
+])
 </script>
 
 <template>
-    <ListTable :columns="[name, address]" :list="list">
+    <ConfirmDialog group="pharmacy-delete">
+        <template #message>
+            <div>
+                Are you sure you want to delete '<b>{{ pharmacy.table.selection.name }}</b
+                >' pharmacy?
+            </div>
+        </template>
+    </ConfirmDialog>
+
+    <PharmacyProfileView />
+
+    <ListTable :store="pharmacy" :menu="menu">
         <Column
-            :key="name.key"
-            :field="name.key"
-            :header="name.header"
-            :sort-field="name.field"
-            :filter-field="name.field"
+            :key="pharmacy.table.columns.name.key"
+            :field="pharmacy.table.columns.name.key"
+            :header="pharmacy.table.columns.name.header"
+            :sort-field="pharmacy.table.columns.name.field"
+            :filter-field="pharmacy.table.columns.name.field"
             :sortable="true"
             filter
             style="min-width: 20rem; max-width: 20rem"
@@ -45,11 +69,11 @@ const address = ref({
         </Column>
 
         <Column
-            :key="address.key"
-            :field="address.key"
-            :header="address.header"
-            :sort-field="address.field"
-            :filter-field="address.field"
+            :key="pharmacy.table.columns.address.key"
+            :field="pharmacy.table.columns.address.key"
+            :header="pharmacy.table.columns.address.header"
+            :sort-field="pharmacy.table.columns.address.field"
+            :filter-field="pharmacy.table.columns.address.field"
             :sortable="true"
             filter
             style="min-width: 40rem; max-width: 40rem"

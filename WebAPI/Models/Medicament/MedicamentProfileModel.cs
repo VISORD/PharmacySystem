@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Globalization;
 
 namespace PharmacySystem.WebAPI.Models.Medicament;
 
@@ -13,6 +14,8 @@ public sealed class MedicamentProfileModel
 
     [Required]
     public decimal? VendorPrice { get; init; }
+
+    public string VendorPriceText => VendorPrice!.Value.ToString("0.#####", CultureInfo.CurrentCulture);
 
     public static MedicamentProfileModel From(Database.Entities.Medicament.Medicament medicament) => new()
     {
