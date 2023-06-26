@@ -1,7 +1,7 @@
 <script setup>
-import { onMounted } from 'vue'
 import CompanyInfoEditForm from '@/components/company/CompanyInfoEditForm.vue'
 import { useCompanyStore } from '@/stores/company'
+import { onMounted } from 'vue'
 
 const company = useCompanyStore()
 onMounted(async () => await company.reload())
@@ -50,8 +50,8 @@ onMounted(async () => await company.reload())
         </div>
 
         <div style="display: flex; align-items: center; justify-content: center; width: 6rem">
-            <Button icon="fa-solid fa-pencil" @click="company.editDialog = true" :disabled="company.loading" />
-            <CompanyInfoEditForm :name="company.data.name" :email="company.data.email" :phone="company.data.phone" />
+            <Button icon="fa-solid fa-pencil" @click="company.dialog = true" :disabled="company.loading" />
+            <CompanyInfoEditForm />
         </div>
     </div>
 </template>

@@ -5,7 +5,7 @@ import { get, update } from '@/api/company'
 
 export const useCompanyStore = defineStore('company', () => {
     const loading = ref(true)
-    const editDialog = ref(false)
+    const dialog = ref(false)
     const data = ref({})
 
     const toast = useToast()
@@ -33,7 +33,7 @@ export const useCompanyStore = defineStore('company', () => {
 
         let notification
         if (response.status < 400) {
-            editDialog.value = false
+            dialog.value = false
             await reload()
 
             notification = {
@@ -56,5 +56,5 @@ export const useCompanyStore = defineStore('company', () => {
         }
     }
 
-    return { editDialog, loading, data, reload, tryUpdate }
+    return { dialog, loading, data, reload, tryUpdate }
 })

@@ -1,27 +1,38 @@
 <script setup>
-import { companyNameRule, emailRule, phoneRule } from '@/constants/validation'
+import { companyNameRule, emailRule, phoneRule } from '@/utils/validation'
 import { useForm } from 'vee-validate'
 import { ref } from 'vue'
 import { useCompanyStore } from '@/stores/company'
 
-defineProps(['name', 'email', 'phone'])
-defineEmits(['update:name', 'update:email', 'update:phone'])
-
 const { handleSubmit } = useForm()
 const form = ref({
-    name: companyNameRule({ model: 'name' }),
-    email: emailRule({ model: 'email' }),
-    phone: phoneRule({ model: 'phone' })
+    name: companyNameRule(),
+    email: emailRule(),
+    phone: phoneRule()
 })
 
 const company = useCompanyStore()
+
+function setInitialValues() {
+    form.value.name.setValue(company.data.name)
+    form.value.email.setValue(company.data.email)
+    form.value.phone.setValue(company.data.phone)
+}
+
 const onSubmit = handleSubmit.withControlled(async (values) => await company.tryUpdate(values))
 </script>
 
 <template>
-    <Dialog v-model:visible="company.editDialog" modal dismissable-mask header="Edit company" style="width: 50vw">
+    <Dialog
+        v-model:visible="company.dialog"
+        @show="setInitialValues"
+        modal
+        dismissable-mask
+        header="Edit company info"
+        style="width: 30rem; margin: 5rem"
+    >
         <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
-            <form @submit="onSubmit" style="width: 95vw">
+            <form @submit="onSubmit" style="width: 100%">
                 <div class="field">
                     <div class="p-input-icon-right">
                         <fa class="form-field-icon" :icon="['fas', 'users-between-lines']" />
@@ -73,7 +84,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
 
                 <div style="text-align: right">
                     <div class="buttons">
-                        <Button label="Cancel" icon="fa-solid fa-xmark" @click="company.editDialog = false" text />
+                        <Button label="Cancel" icon="fa-solid fa-xmark" @click="company.dialog = false" text />
                         <Button label="Apply" icon="fa-solid fa-check" type="submit" />
                     </div>
                 </div>

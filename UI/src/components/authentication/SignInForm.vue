@@ -1,6 +1,6 @@
 <script setup>
 import { useForm } from 'vee-validate'
-import { emailRule, passwordRule } from '@/constants/validation'
+import { emailRule, passwordRule } from '@/utils/validation'
 import { useAccountStore } from '@/stores/account'
 import { ref } from 'vue'
 
