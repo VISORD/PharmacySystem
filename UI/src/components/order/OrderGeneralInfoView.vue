@@ -2,24 +2,36 @@
 import { useConfirm } from 'primevue/useconfirm'
 import { useOrderStore } from '@/stores/order'
 import { resolveOrderStatus } from '@/constants/order-statuses'
+import { onMounted } from 'vue'
 
 const confirm = useConfirm()
 const order = useOrderStore()
 
 const confirmDelete = () => {
     confirm.require({
-        group: 'order-delete',
+        group: 'order-view-delete',
         header: 'Confirmation',
         icon: 'fa-solid fa-triangle-exclamation',
         acceptIcon: 'fa-solid fa-check',
         rejectIcon: 'fa-solid fa-xmark',
-        accept: async () => await order.table.tryDelete(),
+        accept: async () => await order.view.tryDelete(),
         reject: () => {}
     })
 }
+
+onMounted(async () => await order.view.reload())
 </script>
 
 <template>
+    <ConfirmDialog group="order-view-delete">
+        <template #message>
+            <div>
+                Are you sure you want to delete order<b>#{{ order.view.orderId }}</b
+                >?
+            </div>
+        </template>
+    </ConfirmDialog>
+
     <div style="display: flex; justify-content: space-between">
         <div class="order">
             <div style="display: flex; align-items: center; justify-content: center">

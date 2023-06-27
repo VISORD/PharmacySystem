@@ -8,7 +8,7 @@ onMounted(async () => await props.store.table.reset())
 </script>
 
 <template>
-    <ContextMenu ref="contextMenu" :model="menu" />
+    <ContextMenu ref="contextMenu" :model="menu" style="width: 15rem" />
     <DataTable
         :value="store.table.data.items"
         data-key="id"

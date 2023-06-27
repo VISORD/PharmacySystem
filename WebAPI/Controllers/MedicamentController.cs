@@ -144,9 +144,10 @@ public sealed class MedicamentController : ControllerBase
     }
 
     [HttpPost("{medicamentId:int}/analogue/list")]
-    public async Task<IActionResult> List(
+    public async Task<IActionResult> Analogues(
         int medicamentId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        [FromBody] MedicamentAnalogueItemsPagingRequest request,
         CancellationToken cancellationToken
     )
     {
@@ -158,17 +159,30 @@ public sealed class MedicamentController : ControllerBase
             return validationResult;
         }
 
-        var medicamentAnalogues = await _databaseContext.MedicamentAnalogues
+        var query = _databaseContext.MedicamentAnalogues
+            .Include(x => x.Original)
             .Include(x => x.Analogue)
-            .Where(x => x.OriginalId == medicamentId)
+            .Where(x => x.OriginalId == medicamentId || x.AnalogueId == medicamentId)
+            .FilterByRequest(request.Filtering)
+            .OrderByRequest(request.Ordering);
+
+        var totalAmount = await query.CountAsync(cancellationToken);
+        var medicamentAnalogues = await query
+            .Skip(request.Paging.Offset!.Value)
+            .Take(request.Paging.Size!.Value)
             .ToArrayAsync(cancellationToken);
 
-        return medicamentAnalogues.Any()
-            ? Ok(new ItemsResponse(medicamentAnalogues.Select(x => MedicamentItemPagingModel.From(x.Analogue))))
-            : NoContent();
+        return Ok(new ItemsPagingResponse(
+            totalAmount,
+            medicamentAnalogues.Select(x =>
+            {
+                var isAnalogue = x.OriginalId == medicamentId;
+                return MedicamentAnalogueItemPagingModel.From(isAnalogue ? x.Analogue : x.Original, isAnalogue);
+            })
+        ));
     }
 
-    [HttpPost("{medicamentId:int}/analogue")]
+    [HttpPut("{medicamentId:int}/analogue/associate")]
     public async Task<IActionResult> Associate(
         int medicamentId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
@@ -196,7 +210,7 @@ public sealed class MedicamentController : ControllerBase
         return NoContent();
     }
 
-    [HttpDelete("{medicamentId:int}/analogue")]
+    [HttpPut("{medicamentId:int}/analogue/disassociate")]
     public async Task<IActionResult> Disassociate(
         int medicamentId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,

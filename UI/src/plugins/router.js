@@ -1,5 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAccountStore } from '@/stores/account'
+import { useCompanyStore } from '@/stores/company'
+import { usePharmacyStore } from '@/stores/pharmacy'
+import { useMedicamentStore } from '@/stores/medicament'
+import { useOrderStore } from '@/stores/order'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -22,22 +26,45 @@ const router = createRouter({
                 {
                     path: '',
                     name: 'company',
-                    component: () => import('@/views/CompanyView.vue')
+                    component: () => import('@/views/CompanyView.vue'),
+                    beforeEnter: (to, from, next) => {
+                        const company = useCompanyStore()
+                        company.dialog = !!to.query.companyEditForm
+                        next()
+                    }
                 },
                 {
                     path: 'pharmacy',
                     name: 'pharmacies',
-                    component: () => import('@/views/PharmaciesView.vue')
+                    component: () => import('@/views/PharmaciesView.vue'),
+                    beforeEnter: (to, from, next) => {
+                        const pharmacy = usePharmacyStore()
+                        pharmacy.view.dialog = !!to.query.pharmacyId
+                        pharmacy.view.pharmacyId = to.query.pharmacyId
+                        next()
+                    }
                 },
                 {
                     path: 'medicament',
                     name: 'medicaments',
-                    component: () => import('@/views/MedicamentsView.vue')
+                    component: () => import('@/views/MedicamentsView.vue'),
+                    beforeEnter: (to, from, next) => {
+                        const medicament = useMedicamentStore()
+                        medicament.view.dialog = !!to.query.medicamentId
+                        medicament.view.medicamentId = to.query.medicamentId
+                        next()
+                    }
                 },
                 {
                     path: 'order',
                     name: 'orders',
-                    component: () => import('@/views/OrdersView.vue')
+                    component: () => import('@/views/OrdersView.vue'),
+                    beforeEnter: (to, from, next) => {
+                        const order = useOrderStore()
+                        order.view.dialog = !!to.query.orderId
+                        order.view.orderId = to.query.orderId
+                        next()
+                    }
                 }
             ]
         },

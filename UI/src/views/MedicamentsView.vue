@@ -19,7 +19,7 @@ const menu = ref([
         icon: 'fa-solid fa-trash-can',
         command: () => {
             confirm.require({
-                group: 'medicament-delete',
+                group: 'medicament-table-delete',
                 header: 'Confirmation',
                 icon: 'fa-solid fa-triangle-exclamation',
                 acceptIcon: 'fa-solid fa-check',
@@ -33,7 +33,7 @@ const menu = ref([
 </script>
 
 <template>
-    <ConfirmDialog group="medicament-delete">
+    <ConfirmDialog group="medicament-table-delete">
         <template #message>
             <div>
                 Are you sure you want to delete '<b>{{ medicament.table.selection.name }}</b

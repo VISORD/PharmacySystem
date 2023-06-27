@@ -1,9 +1,10 @@
 <script setup>
-import CompanyInfoEditForm from '@/components/company/CompanyInfoEditForm.vue'
+import CompanyInfoForm from '@/components/company/CompanyInfoForm.vue'
 import { useCompanyStore } from '@/stores/company'
 import { onMounted } from 'vue'
 
 const company = useCompanyStore()
+
 onMounted(async () => await company.reload())
 </script>
 
@@ -61,7 +62,7 @@ onMounted(async () => await company.reload())
                     "
                 >
                     <Button icon="fa-solid fa-pencil" @click="company.dialog = true" :disabled="company.loading" />
-                    <CompanyInfoEditForm />
+                    <CompanyInfoForm />
                 </div>
             </div>
         </div>

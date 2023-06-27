@@ -7,6 +7,7 @@ export const useCompanyStore = defineStore('company', () => {
     const loading = ref(true)
     const dialog = ref(false)
     const data = ref({})
+    const afterLoading = ref(() => {})
 
     const toast = useToast()
 
@@ -26,6 +27,8 @@ export const useCompanyStore = defineStore('company', () => {
         }
 
         loading.value = false
+
+        afterLoading.value(data.value)
     }
 
     async function tryUpdate(values) {
@@ -56,5 +59,5 @@ export const useCompanyStore = defineStore('company', () => {
         }
     }
 
-    return { dialog, loading, data, reload, tryUpdate }
+    return { dialog, loading, data, afterLoading, reload, tryUpdate }
 })

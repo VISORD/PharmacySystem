@@ -3,8 +3,10 @@ import { FilterMatchMode } from 'primevue/api'
 import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { preparePagingRequest } from '@/utils/paging'
-import { get, list, remove } from '@/api/medicament'
+import { analogues, associate, disassociate } from '@/api/medicament'
 import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
+import { useMedicamentStore } from '@/stores/medicament'
+import router from '@/plugins/router'
 
 const columns = {
     name: {
@@ -12,6 +14,12 @@ const columns = {
         field: 'Name',
         header: 'Name',
         matchMode: FilterMatchMode.EQUALS
+    },
+    type: {
+        key: 'type',
+        field: 'Type',
+        header: 'Type',
+        matchMode: FilterMatchMode.IN
     },
     vendorPrice: {
         key: 'vendorPrice',
@@ -21,8 +29,10 @@ const columns = {
     }
 }
 
-export const useMedicamentStore = defineStore('medicament', () => {
+export const useMedicamentAnaloguesStore = defineStore('medicament-analogues', () => {
     const toast = useToast()
+
+    const medicament = useMedicamentStore()
 
     const table = ref({
         loading: true,
@@ -46,14 +56,14 @@ export const useMedicamentStore = defineStore('medicament', () => {
             this.selection = null
 
             const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
-            const response = await list(request)
+            const response = await analogues(medicament.view.medicamentId, request)
 
             if (response.status < 400) {
                 this.data = response.data
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
-                    summary: 'Medicaments load failed',
+                    summary: 'Medicament analogues load failed',
                     detail: response.data.error,
                     life: 3000
                 })
@@ -73,31 +83,39 @@ export const useMedicamentStore = defineStore('medicament', () => {
         selectForContextMenu(selection) {
             this.selection = selection
         },
-        async showInfo() {
-            if (!this.selection?.id) {
+        showInfo() {
+            if (!this.selection) {
                 return
             }
 
-            view.value.dialog = true
-            view.value.medicamentId = this.selection.id
+            window.open(
+                router.resolve({
+                    path: 'medicament',
+                    query: { medicamentId: this.selection.id }
+                }).href,
+                '_blank'
+            )
         },
-        async tryDelete() {
-            if (!this.selection?.id) {
-                return
-            }
-
-            const response = await remove(this.selection.id)
-            if (response.status < 400) {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Medicament deleted',
-                    detail: 'The operation has been successfully performed',
-                    life: 3000
-                })
-            } else if (response.status !== 401) {
+        async tryAssociate(medicamentIds) {
+            const response = await associate(medicament.view.medicamentId, medicamentIds)
+            if (response.status < 400 && response.status !== 401) {
                 toast.add({
                     severity: 'error',
-                    summary: 'Medicament delete failed',
+                    summary: 'Medicament analogue association failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+
+            this.paging = defaultPaging()
+            await this.reload()
+        },
+        async tryDisassociate(medicamentIds) {
+            const response = await disassociate(medicament.view.medicamentId, medicamentIds)
+            if (response.status < 400 && response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Medicament analogue disassociation failed',
                     detail: response.data.error,
                     life: 3000
                 })
@@ -108,54 +126,5 @@ export const useMedicamentStore = defineStore('medicament', () => {
         }
     })
 
-    const view = ref({
-        medicamentId: null,
-        dialog: false,
-        loading: true,
-        profile: {},
-        async reload() {
-            this.loading = true
-
-            const response = await get(this.medicamentId)
-            if (response.status < 400) {
-                this.profile = response.data.item
-            } else if (response.status !== 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Medicament info getting failed',
-                    detail: response.data.error,
-                    life: 3000
-                })
-            }
-
-            this.loading = false
-        },
-        async tryDelete() {
-            if (!this.medicamentId) {
-                return
-            }
-
-            const response = await remove(this.medicamentId)
-            if (response.status < 400) {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Medicament deleted',
-                    detail: 'The operation has been successfully performed',
-                    life: 3000
-                })
-            } else if (response.status !== 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Medicament delete failed',
-                    detail: response.data.error,
-                    life: 3000
-                })
-            }
-
-            this.dialog = false
-            this.medicamentId = null
-        }
-    })
-
-    return { table, view }
+    return { table }
 })

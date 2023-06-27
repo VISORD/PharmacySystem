@@ -20,7 +20,7 @@ const menu = ref([
         icon: 'fa-solid fa-trash-can',
         command: () => {
             confirm.require({
-                group: 'order-delete',
+                group: 'order-table-delete',
                 header: 'Confirmation',
                 icon: 'fa-solid fa-triangle-exclamation',
                 acceptIcon: 'fa-solid fa-check',
@@ -34,7 +34,7 @@ const menu = ref([
 </script>
 
 <template>
-    <ConfirmDialog group="order-delete">
+    <ConfirmDialog group="order-table-delete">
         <template #message>
             <div>
                 Are you sure you want to delete order

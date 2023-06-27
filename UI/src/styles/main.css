@@ -54,3 +54,9 @@ body {
     justify-content: center;
     height: 4rem;
 }
+
+.profile-view-tab .p-tabview-panels {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    padding-bottom: 0 !important;
+}

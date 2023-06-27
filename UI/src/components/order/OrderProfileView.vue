@@ -3,27 +3,51 @@ import OrderGeneralInfoView from '@/components/order/OrderGeneralInfoView.vue'
 import OrderMedicamentsView from '@/components/order/OrderMedicamentsView.vue'
 import OrderHistoryView from '@/components/order/OrderHistoryView.vue'
 import { useOrderStore } from '@/stores/order'
+import { ref } from 'vue'
+import router from '@/plugins/router'
 
 const order = useOrderStore()
+
+const tab = ref(0)
+
+async function show() {
+    await router.push({
+        fullPath: router.currentRoute.value.fullPath,
+        query: { orderId: order.view.orderId }
+    })
+
+    tab.value = 0
+}
+
+async function hide() {
+    await router.push({
+        fullPath: router.currentRoute.value.fullPath,
+        query: { orderId: undefined }
+    })
+}
 </script>
 
 <template>
     <Dialog
         v-model:visible="order.view.dialog"
         modal
+        position="top"
+        :draggable="false"
         dismissable-mask
+        @show="show()"
+        @hide="hide()"
         :header="order.view.profile ? `Order info: Order #${order.view.profile.id}` : 'Order info'"
         style="width: 85vw; margin: 5rem"
     >
-        <TabView>
+        <TabView class="profile-view-tab" @tab-change="(event) => (tab = event.index)">
             <TabPanel header="General Info">
-                <OrderGeneralInfoView />
+                <OrderGeneralInfoView v-if="tab === 0" />
             </TabPanel>
             <TabPanel header="Medicaments">
-                <OrderMedicamentsView />
+                <OrderMedicamentsView v-if="tab === 1" />
             </TabPanel>
             <TabPanel header="History">
-                <OrderHistoryView />
+                <OrderHistoryView v-if="tab === 2" />
             </TabPanel>
         </TabView>
     </Dialog>

@@ -97,13 +97,13 @@ export const useOrderStore = defineStore('order', () => {
         selectForContextMenu(selection) {
             this.selection = selection
         },
-        async showInfo() {
+        showInfo() {
             if (!this.selection?.id) {
                 return
             }
 
             view.value.dialog = true
-            await view.value.reload(this.selection.id)
+            view.value.orderId = this.selection.id
         },
         async tryDelete() {
             if (!this.selection?.id) {
@@ -111,7 +111,14 @@ export const useOrderStore = defineStore('order', () => {
             }
 
             const response = await remove(this.selection.id)
-            if (response.status < 400 && response.status !== 401) {
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Order deleted',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+            } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
                     summary: 'Order delete failed',
@@ -120,21 +127,20 @@ export const useOrderStore = defineStore('order', () => {
                 })
             }
 
-            view.value.dialog = false
-
             this.paging = defaultPaging()
             await this.reload()
         }
     })
 
     const view = ref({
+        orderId: null,
         dialog: false,
         loading: true,
         profile: {},
-        async reload(orderId) {
+        async reload() {
             this.loading = true
 
-            const response = await get(orderId)
+            const response = await get(this.orderId)
             if (response.status < 400) {
                 this.profile = response.data.item
             } else if (response.status !== 401) {
@@ -147,6 +153,31 @@ export const useOrderStore = defineStore('order', () => {
             }
 
             this.loading = false
+        },
+        async tryDelete() {
+            if (!this.orderId) {
+                return
+            }
+
+            const response = await remove(this.orderId)
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Order deleted',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Order delete failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+
+            this.dialog = false
+            this.orderId = null
         }
     })
 

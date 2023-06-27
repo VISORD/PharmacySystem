@@ -73,13 +73,13 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
         selectForContextMenu(selection) {
             this.selection = selection
         },
-        async showInfo() {
+        showInfo() {
             if (!this.selection?.id) {
                 return
             }
 
             view.value.dialog = true
-            await view.value.reload(this.selection.id)
+            view.value.pharmacyId = this.selection.id
         },
         async tryDelete() {
             if (!this.selection?.id) {
@@ -87,7 +87,14 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
             }
 
             const response = await remove(this.selection.id)
-            if (response.status < 400 && response.status !== 401) {
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Pharmacy deleted',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+            } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
                     summary: 'Pharmacy delete failed',
@@ -96,21 +103,20 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
                 })
             }
 
-            view.value.dialog = false
-
             this.paging = defaultPaging()
             await this.reload()
         }
     })
 
     const view = ref({
+        pharmacyId: null,
         dialog: false,
         loading: true,
         profile: {},
-        async reload(pharmacyId) {
+        async reload() {
             this.loading = true
 
-            const response = await get(pharmacyId)
+            const response = await get(this.pharmacyId)
             if (response.status < 400) {
                 this.profile = response.data.item
             } else if (response.status !== 401) {
@@ -123,6 +129,31 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
             }
 
             this.loading = false
+        },
+        async tryDelete() {
+            if (!this.pharmacyId) {
+                return
+            }
+
+            const response = await remove(this.pharmacyId)
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Pharmacy deleted',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Pharmacy delete failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+
+            this.dialog = false
+            this.pharmacyId = null
         }
     })
 

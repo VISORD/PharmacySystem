@@ -3,6 +3,7 @@ import { companyNameRule, emailRule, phoneRule } from '@/utils/validation'
 import { useForm } from 'vee-validate'
 import { ref } from 'vue'
 import { useCompanyStore } from '@/stores/company'
+import router from '@/plugins/router'
 
 const { handleSubmit } = useForm()
 const form = ref({
@@ -12,11 +13,24 @@ const form = ref({
 })
 
 const company = useCompanyStore()
+company.afterLoading = function (data) {
+    form.value.name.setValue(data.name)
+    form.value.email.setValue(data.email)
+    form.value.phone.setValue(data.phone)
+}
 
-function setInitialValues() {
-    form.value.name.setValue(company.data.name)
-    form.value.email.setValue(company.data.email)
-    form.value.phone.setValue(company.data.phone)
+async function show() {
+    await router.push({
+        fullPath: router.currentRoute.value.fullPath,
+        query: { companyEditForm: true }
+    })
+}
+
+async function hide() {
+    await router.push({
+        fullPath: router.currentRoute.value.fullPath,
+        query: { companyEditForm: undefined }
+    })
 }
 
 const onSubmit = handleSubmit.withControlled(async (values) => await company.tryUpdate(values))
@@ -25,9 +39,11 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
 <template>
     <Dialog
         v-model:visible="company.dialog"
-        @show="setInitialValues"
         modal
+        :draggable="false"
         dismissable-mask
+        @show="show()"
+        @hide="hide()"
         :header="company.data ? `Edit company info: ${company.data.name}` : 'Edit company info'"
         style="width: 30rem; margin: 5rem"
     >

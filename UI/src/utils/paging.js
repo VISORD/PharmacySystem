@@ -43,6 +43,9 @@ export function preparePagingRequest(
     return {
         filtering: Object.keys(minimizedFilters).length > 0 ? minimizedFilters : undefined,
         ordering: table.ordering.length > 0 ? table.ordering : undefined,
-        paging: table.paging
+        paging: {
+            number: table.paging.number,
+            size: table.paging.size
+        }
     }
 }
