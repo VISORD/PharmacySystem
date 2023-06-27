@@ -79,6 +79,7 @@ const menu = ref([
             :sortable="true"
             filter
             style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputText
@@ -92,7 +93,7 @@ const menu = ref([
             </template>
 
             <template #body="{ data }">
-                <div style="font-weight: 600">{{ data.pharmacy.name }}</div>
+                <div>{{ data.pharmacy.name }}</div>
                 <div style="font-size: 10px">{{ data.pharmacy.address }}</div>
             </template>
         </Column>
@@ -107,6 +108,7 @@ const menu = ref([
             dataType="numeric"
             filter
             style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputNumber
@@ -130,6 +132,7 @@ const menu = ref([
             :showFilterMenu="false"
             filter
             style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <MultiSelect
@@ -163,6 +166,7 @@ const menu = ref([
             data-type="date"
             filter
             style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel }">
                 <Calendar
@@ -189,6 +193,7 @@ const menu = ref([
             data-type="date"
             filter
             style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel }">
                 <Calendar

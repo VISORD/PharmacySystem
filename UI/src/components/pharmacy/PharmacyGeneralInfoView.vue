@@ -33,7 +33,7 @@ onMounted(async () => await pharmacy.view.reload())
     </ConfirmDialog>
 
     <div style="display: flex; justify-content: space-between">
-        <div class="pharmacy">
+        <div class="profile-view">
             <div style="display: flex; align-items: center; justify-content: center">
                 <Avatar
                     icon="fa-solid fa-hand-holding-medical"
@@ -166,10 +166,4 @@ onMounted(async () => await pharmacy.view.reload())
     </Transition>
 </template>
 
-<style scoped>
-.pharmacy {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 6rem fit-content(100%);
-}
-</style>
+<style scoped></style>

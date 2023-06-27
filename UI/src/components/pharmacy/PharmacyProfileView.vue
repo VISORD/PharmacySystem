@@ -11,8 +11,8 @@ const tab = ref(0)
 
 async function show() {
     await router.push({
-        fullPath: router.currentRoute.value.fullPath,
-        query: { pharmacyId: pharmacy.view.pharmacyId }
+        path: router.currentRoute.value.path,
+        query: { ...router.currentRoute.value.query, pharmacyId: pharmacy.view.pharmacyId }
     })
 
     tab.value = 0
@@ -20,8 +20,8 @@ async function show() {
 
 async function hide() {
     await router.push({
-        fullPath: router.currentRoute.value.fullPath,
-        query: { pharmacyId: undefined }
+        path: router.currentRoute.value.path,
+        query: { ...router.currentRoute.value.query, pharmacyId: undefined }
     })
 }
 </script>
@@ -35,7 +35,7 @@ async function hide() {
         dismissable-mask
         @show="show()"
         @hide="hide()"
-        :header="pharmacy.view.profile ? `Pharmacy info: ${pharmacy.view.profile.name}` : 'Pharmacy info'"
+        :header="pharmacy.view.profile.name ? `Pharmacy info: ${pharmacy.view.profile.name}` : 'Pharmacy info'"
         style="width: 85vw; margin: 5rem"
     >
         <TabView class="profile-view-tab" @tab-change="(event) => (tab = event.index)">

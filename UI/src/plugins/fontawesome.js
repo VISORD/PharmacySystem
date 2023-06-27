@@ -3,7 +3,9 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
     faArrowRightFromBracket,
     faArrowsRotate,
+    faArrowUpRightFromSquare,
     faAt,
+    faCalculator,
     faCalendarCheck,
     faCalendarDay,
     faCheck,
@@ -51,7 +53,9 @@ library.add(
     faQuoteRight,
     faCalendarCheck,
     faCalendarDay,
-    faSpinner
+    faSpinner,
+    faCalculator,
+    faArrowUpRightFromSquare
 )
 
 // <i> => <svg>

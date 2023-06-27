@@ -1,32 +1,32 @@
 <script setup>
 import ListTable from '@/components/ListTable.vue'
-import { useMedicamentAnaloguesStore } from '@/stores/medicament-analogues'
+import { useMedicamentAnalogueStore } from '@/stores/medicament/analogue'
 import { ref } from 'vue'
 import { allMedicamentAnalogueTypes, resolveMedicamentAnalogueType } from '@/constants/medicament-analogue-types'
 
-const medicamentAnalogues = useMedicamentAnaloguesStore()
+const medicamentAnalogue = useMedicamentAnalogueStore()
 
 const menu = ref([
     {
         label: 'View in new window',
-        icon: 'fa-solid fa-magnifying-glass',
-        command: () => medicamentAnalogues.table.showInfo()
+        icon: 'fa-solid fa-arrow-up-right-from-square',
+        command: () => medicamentAnalogue.table.showInfo()
     }
 ])
 </script>
 
 <template>
-    <ListTable :store="medicamentAnalogues" :menu="menu">
+    <ListTable :store="medicamentAnalogue" :menu="menu">
         <Column
-            :key="medicamentAnalogues.table.columns.name.key"
-            :field="medicamentAnalogues.table.columns.name.key"
-            :header="medicamentAnalogues.table.columns.name.header"
-            :sort-field="medicamentAnalogues.table.columns.name.field"
-            :filter-field="medicamentAnalogues.table.columns.name.field"
+            :key="medicamentAnalogue.table.columns.name.key"
+            :field="medicamentAnalogue.table.columns.name.key"
+            :header="medicamentAnalogue.table.columns.name.header"
+            :sort-field="medicamentAnalogue.table.columns.name.field"
+            :filter-field="medicamentAnalogue.table.columns.name.field"
             :sortable="true"
             filter
-            style="min-width: 30rem; max-width: 30rem"
-            body-style="font-weight: 600"
+            style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 700"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputText
@@ -41,15 +41,16 @@ const menu = ref([
         </Column>
 
         <Column
-            :key="medicamentAnalogues.table.columns.type.key"
-            :field="medicamentAnalogues.table.columns.type.key"
-            :header="medicamentAnalogues.table.columns.type.header"
-            :sortField="medicamentAnalogues.table.columns.type.field"
-            :filterField="medicamentAnalogues.table.columns.type.field"
+            :key="medicamentAnalogue.table.columns.type.key"
+            :field="medicamentAnalogue.table.columns.type.key"
+            :header="medicamentAnalogue.table.columns.type.header"
+            :sortField="medicamentAnalogue.table.columns.type.field"
+            :filterField="medicamentAnalogue.table.columns.type.field"
             :sortable="true"
             :showFilterMenu="false"
             filter
             style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <MultiSelect
@@ -74,15 +75,16 @@ const menu = ref([
         </Column>
 
         <Column
-            :key="medicamentAnalogues.table.columns.vendorPrice.key"
-            :field="medicamentAnalogues.table.columns.vendorPrice.key"
-            :header="medicamentAnalogues.table.columns.vendorPrice.header"
-            :sort-field="medicamentAnalogues.table.columns.vendorPrice.field"
-            :filter-field="medicamentAnalogues.table.columns.vendorPrice.field"
+            :key="medicamentAnalogue.table.columns.vendorPrice.key"
+            :field="medicamentAnalogue.table.columns.vendorPrice.key"
+            :header="medicamentAnalogue.table.columns.vendorPrice.header"
+            :sort-field="medicamentAnalogue.table.columns.vendorPrice.field"
+            :filter-field="medicamentAnalogue.table.columns.vendorPrice.field"
             :sortable="true"
             dataType="numeric"
             filter
-            style="min-width: 30rem; max-width: 30rem"
+            style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputNumber

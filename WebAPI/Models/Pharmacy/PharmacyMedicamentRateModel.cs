@@ -10,8 +10,12 @@ public sealed class PharmacyMedicamentRateModel
     [Range(0, 1_000_000_000)]
     public decimal? RetailPrice { get; init; }
 
+    public string RetailPriceText => RetailPrice!.Value.Format();
+
     public DateTime? StartDate { get; init; }
+    public string? StartDateText => StartDate?.FormatDate();
     public DateTime? StopDate { get; init; }
+    public string? StopDateText => StopDate?.FormatDate();
 
     public static PharmacyMedicamentRateModel? From(PharmacyMedicamentRate? rate) => rate is not null
         ? new PharmacyMedicamentRateModel

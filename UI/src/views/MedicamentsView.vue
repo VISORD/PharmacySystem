@@ -54,7 +54,7 @@ const menu = ref([
             :sortable="true"
             filter
             style="min-width: 30rem; max-width: 30rem"
-            body-style="font-weight: 600"
+            body-style="font-weight: 700"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputText
@@ -78,6 +78,7 @@ const menu = ref([
             dataType="numeric"
             filter
             style="min-width: 30rem; max-width: 30rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputNumber

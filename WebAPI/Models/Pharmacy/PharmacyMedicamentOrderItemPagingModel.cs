@@ -1,23 +1,20 @@
 using PharmacySystem.WebAPI.Database.Entities.Order;
 using PharmacySystem.WebAPI.Extensions;
-using PharmacySystem.WebAPI.Models.Pharmacy;
 
-namespace PharmacySystem.WebAPI.Models.Order;
+namespace PharmacySystem.WebAPI.Models.Pharmacy;
 
-public sealed class OrderProfileModel
+public sealed class PharmacyMedicamentOrderItemPagingModel
 {
-    public int Id { get; init; }
-    public PharmacyShortModel Pharmacy { get; init; } = null!;
+    public int OrderId { get; init; }
     public OrderStatus Status { get; init; }
     public DateTime? OrderedAt { get; init; }
     public string? OrderedAtText => OrderedAt?.FormatDateTime();
     public DateTime UpdatedAt { get; init; }
     public string UpdatedAtText => UpdatedAt.FormatDateTime();
 
-    public static OrderProfileModel From(Database.Entities.Order.Order order) => new()
+    public static PharmacyMedicamentOrderItemPagingModel From(Database.Entities.Order.Order order) => new()
     {
-        Id = order.Id,
-        Pharmacy = PharmacyShortModel.From(order.Pharmacy),
+        OrderId = order.Id,
         Status = order.Status,
         OrderedAt = order.OrderedAt?.LocalDateTime,
         UpdatedAt = order.UpdatedAt.LocalDateTime,

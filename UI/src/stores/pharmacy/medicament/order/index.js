@@ -3,36 +3,44 @@ import { FilterMatchMode } from 'primevue/api'
 import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { preparePagingRequest } from '@/utils/paging'
-import { analogues, associate, disassociate } from '@/api/medicament'
 import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
-import { useMedicamentStore } from '@/stores/medicament'
+import { usePharmacyStore } from '@/stores/pharmacy'
+import { usePharmacyMedicamentStore } from '@/stores/pharmacy/medicament'
+import { orderList } from '@/api/pharmacy/medicament'
 import router from '@/plugins/router'
 
 const columns = {
-    name: {
-        key: 'name',
-        field: 'Name',
-        header: 'Name',
+    orderId: {
+        key: 'orderId',
+        field: 'OrderId',
+        header: 'Order #',
         matchMode: FilterMatchMode.EQUALS
     },
-    type: {
-        key: 'type',
-        field: 'Type',
-        header: 'Type',
+    status: {
+        key: 'status',
+        field: 'Status',
+        header: 'Status',
         matchMode: FilterMatchMode.IN
     },
-    vendorPrice: {
-        key: 'vendorPrice',
-        field: 'VendorPrice',
-        header: 'Vendor Price',
-        matchMode: FilterMatchMode.EQUALS
+    orderedAt: {
+        key: 'orderedAt',
+        field: 'OrderedAt',
+        header: 'Ordered At',
+        matchMode: FilterMatchMode.DATE_IS
+    },
+    updatedAt: {
+        key: 'updatedAt',
+        field: 'UpdatedAt',
+        header: 'Updated At',
+        matchMode: FilterMatchMode.DATE_IS
     }
 }
 
-export const useMedicamentAnaloguesStore = defineStore('medicament-analogues', () => {
+export const usePharmacyMedicamentOrderStore = defineStore('pharmacy-medicament-order', () => {
     const toast = useToast()
 
-    const medicament = useMedicamentStore()
+    const pharmacy = usePharmacyStore()
+    const pharmacyMedicament = usePharmacyMedicamentStore()
 
     const table = ref({
         loading: true,
@@ -56,14 +64,14 @@ export const useMedicamentAnaloguesStore = defineStore('medicament-analogues', (
             this.selection = null
 
             const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
-            const response = await analogues(medicament.view.medicamentId, request)
+            const response = await orderList(pharmacy.view.pharmacyId, pharmacyMedicament.view.medicamentId, request)
 
             if (response.status < 400) {
                 this.data = response.data
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
-                    summary: 'Medicament analogues load failed',
+                    summary: 'Pharmacy medicament orders load failed',
                     detail: response.data.error,
                     life: 3000
                 })
@@ -90,39 +98,11 @@ export const useMedicamentAnaloguesStore = defineStore('medicament-analogues', (
 
             window.open(
                 router.resolve({
-                    path: 'medicament',
-                    query: { medicamentId: this.selection.id }
+                    path: 'order',
+                    query: { orderId: this.selection.orderId }
                 }).href,
                 '_blank'
             )
-        },
-        async tryAssociate(medicamentIds) {
-            const response = await associate(medicament.view.medicamentId, medicamentIds)
-            if (response.status < 400 && response.status !== 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Medicament analogue association failed',
-                    detail: response.data.error,
-                    life: 3000
-                })
-            }
-
-            this.paging = defaultPaging()
-            await this.reload()
-        },
-        async tryDisassociate(medicamentIds) {
-            const response = await disassociate(medicament.view.medicamentId, medicamentIds)
-            if (response.status < 400 && response.status !== 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Medicament analogue disassociation failed',
-                    detail: response.data.error,
-                    life: 3000
-                })
-            }
-
-            this.paging = defaultPaging()
-            await this.reload()
         }
     })
 

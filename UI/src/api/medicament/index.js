@@ -24,7 +24,7 @@ export function remove(medicamentId) {
     return api.delete(`/api/medicament/${medicamentId}`)
 }
 
-export function analogues(medicamentId, { filtering, ordering, paging }) {
+export function analogueList(medicamentId, { filtering, ordering, paging }) {
     return api.post(
         `/api/medicament/${medicamentId}/analogue/list`,
         {

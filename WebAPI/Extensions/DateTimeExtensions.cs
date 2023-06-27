@@ -13,5 +13,6 @@ public static class DateTimeExtensions
     public static DateTime? AsStopDate(this DateTime date) => date.Date >= LatestStopDate ? null : date;
     public static DateTime AsStopDate(this DateTime? date) => date is null || date >= LatestStopDate ? LatestStopDate : date.Value;
 
-    public static string Format(this DateTime dateTime) => dateTime.ToString("HH:mm:ss dd.MM.yyyy");
+    public static string FormatDateTime(this DateTime dateTime) => dateTime.ToString("HH:mm:ss dd.MM.yyyy");
+    public static string FormatDate(this DateTime dateTime) => dateTime.ToString("dd.MM.yyyy");
 }

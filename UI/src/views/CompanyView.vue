@@ -10,7 +10,7 @@ onMounted(async () => await company.reload())
 
 <template>
     <div style="display: flex; justify-content: space-between">
-        <div class="company">
+        <div class="profile-view">
             <div style="display: flex; align-items: center; justify-content: center">
                 <Avatar
                     icon="fa-solid fa-users-between-lines"
@@ -34,7 +34,9 @@ onMounted(async () => await company.reload())
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!company.loading" style="display: flex; align-items: center">{{ company.data.email }}</div>
+                <div v-if="!company.loading" style="display: flex; align-items: center">
+                    {{ company.data.email }}
+                </div>
                 <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
             </Transition>
 
@@ -69,10 +71,4 @@ onMounted(async () => await company.reload())
     </div>
 </template>
 
-<style scoped>
-.company {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 6rem fit-content(100%);
-}
-</style>
+<style scoped></style>

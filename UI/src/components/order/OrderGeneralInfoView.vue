@@ -33,7 +33,7 @@ onMounted(async () => await order.view.reload())
     </ConfirmDialog>
 
     <div style="display: flex; justify-content: space-between">
-        <div class="order">
+        <div class="profile-view">
             <div style="display: flex; align-items: center; justify-content: center">
                 <Avatar
                     icon="fa-solid fa-list-check"
@@ -110,10 +110,4 @@ onMounted(async () => await order.view.reload())
     </div>
 </template>
 
-<style scoped>
-.order {
-    flex: 1;
-    display: grid;
-    grid-template-columns: 6rem fit-content(100%);
-}
-</style>
+<style scoped></style>

@@ -4,6 +4,7 @@ import { useCompanyStore } from '@/stores/company'
 import { usePharmacyStore } from '@/stores/pharmacy'
 import { useMedicamentStore } from '@/stores/medicament'
 import { useOrderStore } from '@/stores/order'
+import { usePharmacyMedicamentStore } from '@/stores/pharmacy/medicament'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
@@ -30,6 +31,7 @@ const router = createRouter({
                     beforeEnter: (to, from, next) => {
                         const company = useCompanyStore()
                         company.dialog = !!to.query.companyEditForm
+
                         next()
                     }
                 },
@@ -41,6 +43,11 @@ const router = createRouter({
                         const pharmacy = usePharmacyStore()
                         pharmacy.view.dialog = !!to.query.pharmacyId
                         pharmacy.view.pharmacyId = to.query.pharmacyId
+
+                        const pharmacyMedicament = usePharmacyMedicamentStore()
+                        pharmacyMedicament.view.dialog = !!to.query.medicamentId
+                        pharmacyMedicament.view.medicamentId = to.query.medicamentId
+
                         next()
                     }
                 },
@@ -52,6 +59,7 @@ const router = createRouter({
                         const medicament = useMedicamentStore()
                         medicament.view.dialog = !!to.query.medicamentId
                         medicament.view.medicamentId = to.query.medicamentId
+
                         next()
                     }
                 },
@@ -63,6 +71,7 @@ const router = createRouter({
                         const order = useOrderStore()
                         order.view.dialog = !!to.query.orderId
                         order.view.orderId = to.query.orderId
+
                         next()
                     }
                 }

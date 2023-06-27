@@ -11,9 +11,9 @@ public sealed class OrderItemPagingModel
     public int MedicamentItemCount { get; init; }
     public OrderStatus Status { get; init; }
     public DateTime? OrderedAt { get; init; }
-    public string? OrderedAtText => OrderedAt?.Format();
+    public string? OrderedAtText => OrderedAt?.FormatDateTime();
     public DateTime UpdatedAt { get; init; }
-    public string UpdatedAtText => UpdatedAt.Format();
+    public string UpdatedAtText => UpdatedAt.FormatDateTime();
 
     public static OrderItemPagingModel From(Database.Entities.Order.Order order) => new()
     {

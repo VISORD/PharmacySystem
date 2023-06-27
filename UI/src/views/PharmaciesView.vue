@@ -4,6 +4,7 @@ import PharmacyProfileView from '@/components/pharmacy/PharmacyProfileView.vue'
 import { usePharmacyStore } from '@/stores/pharmacy'
 import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
+import PharmacyMedicamentProfileView from '@/components/pharmacy/medicament/PharmacyMedicamentProfileView.vue'
 
 const pharmacy = usePharmacyStore()
 const confirm = useConfirm()
@@ -43,6 +44,7 @@ const menu = ref([
     </ConfirmDialog>
 
     <PharmacyProfileView />
+    <PharmacyMedicamentProfileView />
 
     <ListTable :store="pharmacy" :menu="menu">
         <Column
@@ -54,7 +56,7 @@ const menu = ref([
             :sortable="true"
             filter
             style="min-width: 20rem; max-width: 20rem"
-            body-style="font-weight: 600"
+            body-style="font-weight: 700"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputText
@@ -77,6 +79,7 @@ const menu = ref([
             :sortable="true"
             filter
             style="min-width: 40rem; max-width: 40rem"
+            body-style="font-weight: 500"
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputText

@@ -4,7 +4,7 @@ html {
 
 body {
     font-family: var(--font-family);
-    font-weight: normal;
+    font-weight: 500;
     background: var(--surface-ground);
     color: var(--text-color);
     -webkit-font-smoothing: antialiased;
@@ -45,6 +45,12 @@ body {
 
 .profile-enter-from {
     opacity: 0;
+}
+
+.profile-view {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 6rem fit-content(100%);
 }
 
 .profile-view-button {

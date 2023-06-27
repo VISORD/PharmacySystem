@@ -78,10 +78,11 @@ public sealed class PharmacyMedicamentController : ControllerBase
         var pharmacyMedicament = await _databaseContext.PharmacyMedicaments
             .Include(x => x.Pharmacy)
             .Include(x => x.Medicament)
+            .Include(x => x.Rates)
             .SingleOrDefaultAsync(x => x.PharmacyId == pharmacyId && x.MedicamentId == medicamentId, cancellationToken);
 
         return pharmacyMedicament is not null
-            ? Ok(new ItemResponse(PharmacyMedicamentProfileModel.From(pharmacyMedicament)))
+            ? Ok(new ItemResponse(PharmacyMedicamentProfileModel.From(pharmacyMedicament, DateTime.Today)))
             : NotFound();
     }
 
@@ -90,6 +91,7 @@ public sealed class PharmacyMedicamentController : ControllerBase
         int pharmacyId,
         int medicamentId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        [FromBody] PharmacyMedicamentRateItemsPagingRequest request,
         CancellationToken cancellationToken
     )
     {
@@ -101,11 +103,21 @@ public sealed class PharmacyMedicamentController : ControllerBase
             return validationResult;
         }
 
-        var rates = await _databaseContext.PharmacyMedicamentRates
+        var query = _databaseContext.PharmacyMedicamentRates
             .Where(x => x.PharmacyId == pharmacyId && x.MedicamentId == medicamentId)
+            .FilterByRequest(request.Filtering)
+            .OrderByRequest(request.Ordering);
+
+        var totalAmount = await query.CountAsync(cancellationToken);
+        var rates = await query
+            .Skip(request.Paging.Offset!.Value)
+            .Take(request.Paging.Size!.Value)
             .ToArrayAsync(cancellationToken);
 
-        return Ok(new ItemsResponse(rates.Select(PharmacyMedicamentRateListItemModel.From)));
+        return Ok(new ItemsPagingResponse(
+            totalAmount,
+            rates.Select(PharmacyMedicamentRateItemPagingModel.From)
+        ));
     }
 
     [HttpPut("{medicamentId:int}/rate")]
@@ -137,6 +149,11 @@ public sealed class PharmacyMedicamentController : ControllerBase
         if (rate.StartDate > rate.StopDate)
         {
             return BadRequest(new ItemResponse(Error: "Start date should be earlier than stop date or equal it"));
+        }
+
+        if (rate.StartDate < DateTime.Today)
+        {
+            return BadRequest(new ItemResponse(Error: "Rate can't be modified in the past"));
         }
 
         var pharmacyMedicament = await _databaseContext.PharmacyMedicaments
@@ -210,6 +227,7 @@ public sealed class PharmacyMedicamentController : ControllerBase
         int pharmacyId,
         int medicamentId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        [FromBody] PharmacyMedicamentSaleItemsPagingRequest request,
         CancellationToken cancellationToken
     )
     {
@@ -221,11 +239,21 @@ public sealed class PharmacyMedicamentController : ControllerBase
             return validationResult;
         }
 
-        var sales = await _databaseContext.PharmacyMedicamentSales
+        var query = _databaseContext.PharmacyMedicamentSales
             .Where(x => x.PharmacyId == pharmacyId && x.MedicamentId == medicamentId)
+            .FilterByRequest(request.Filtering)
+            .OrderByRequest(request.Ordering);
+
+        var totalAmount = await query.CountAsync(cancellationToken);
+        var sales = await query
+            .Skip(request.Paging.Offset!.Value)
+            .Take(request.Paging.Size!.Value)
             .ToArrayAsync(cancellationToken);
 
-        return Ok(new ItemsResponse(sales.Select(PharmacyMedicamentSaleListItemModel.From)));
+        return Ok(new ItemsPagingResponse(
+            totalAmount,
+            sales.Select(PharmacyMedicamentSaleItemPagingModel.From)
+        ));
     }
 
     [HttpPut("{medicamentId:int}/sale")]
@@ -288,6 +316,7 @@ public sealed class PharmacyMedicamentController : ControllerBase
         int pharmacyId,
         int medicamentId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        [FromBody] PharmacyMedicamentOrderItemsPagingRequest request,
         CancellationToken cancellationToken
     )
     {
@@ -299,12 +328,22 @@ public sealed class PharmacyMedicamentController : ControllerBase
             return validationResult;
         }
 
-        var orderMedicaments = await _databaseContext.OrderMedicaments
+        var query = _databaseContext.OrderMedicaments
             .Include(x => x.Order)
             .Where(x => x.Order.PharmacyId == pharmacyId && x.MedicamentId == medicamentId)
+            .FilterByRequest(request.Filtering)
+            .OrderByRequest(request.Ordering);
+
+        var totalAmount = await query.CountAsync(cancellationToken);
+        var orders = await query
+            .Skip(request.Paging.Offset!.Value)
+            .Take(request.Paging.Size!.Value)
             .ToArrayAsync(cancellationToken);
 
-        return Ok(new ItemsResponse(orderMedicaments.Select(x => OrderShortModel.From(x.Order))));
+        return Ok(new ItemsPagingResponse(
+            totalAmount,
+            orders.Select(x => PharmacyMedicamentOrderItemPagingModel.From(x.Order))
+        ));
     }
 
     #region Validation

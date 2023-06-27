@@ -82,7 +82,7 @@ export const useMedicamentStore = defineStore('medicament', () => {
             view.value.medicamentId = this.selection.id
         },
         async tryDelete() {
-            if (!this.selection?.id) {
+            if (!this.selection) {
                 return
             }
 

@@ -1,28 +1,44 @@
 import { defineStore } from 'pinia'
+import { FilterMatchMode } from 'primevue/api'
 import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
-import { get, list, remove } from '@/api/pharmacy'
-import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
-import { FilterMatchMode } from 'primevue/api'
 import { preparePagingRequest } from '@/utils/paging'
+import { list, get } from '@/api/pharmacy/medicament'
+import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
+import { usePharmacyStore } from '@/stores/pharmacy'
+import router from '@/plugins/router'
 
 const columns = {
-    name: {
-        key: 'name',
-        field: 'Name',
-        header: 'Name',
+    medicament: {
+        key: 'medicament',
+        field: 'MedicamentId',
+        header: 'Medicament',
         matchMode: FilterMatchMode.EQUALS
     },
-    address: {
-        key: 'address',
-        field: 'Address',
-        header: 'Address',
+    vendorPrice: {
+        key: 'vendorPrice',
+        field: 'VendorPrice',
+        header: 'Vendor Price',
+        matchMode: FilterMatchMode.EQUALS
+    },
+    retailPrice: {
+        key: 'retailPrice',
+        field: 'RetailPrice',
+        header: 'Retail Price',
+        matchMode: FilterMatchMode.EQUALS
+    },
+    quantityOnHand: {
+        key: 'quantityOnHand',
+        field: 'QuantityOnHand',
+        header: 'Quantity on Hand',
         matchMode: FilterMatchMode.EQUALS
     }
 }
 
-export const usePharmacyStore = defineStore('pharmacy', () => {
+export const usePharmacyMedicamentStore = defineStore('pharmacy-medicament', () => {
     const toast = useToast()
+
+    const pharmacy = usePharmacyStore()
 
     const table = ref({
         loading: true,
@@ -46,14 +62,14 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
             this.selection = null
 
             const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
-            const response = await list(request)
+            const response = await list(pharmacy.view.pharmacyId, request)
 
             if (response.status < 400) {
                 this.data = response.data
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
-                    summary: 'Pharmacies load failed',
+                    summary: 'Pharmacy medicaments load failed',
                     detail: response.data.error,
                     life: 3000
                 })
@@ -74,55 +90,30 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
             this.selection = selection
         },
         showInfo() {
-            if (!this.selection?.id) {
+            if (!this.selection) {
                 return
             }
 
             view.value.dialog = true
-            view.value.pharmacyId = this.selection.id
-        },
-        async tryDelete() {
-            if (!this.selection?.id) {
-                return
-            }
-
-            const response = await remove(this.selection.id)
-            if (response.status < 400) {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Pharmacy deleted',
-                    detail: 'The operation has been successfully performed',
-                    life: 3000
-                })
-            } else if (response.status !== 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Pharmacy delete failed',
-                    detail: response.data.error,
-                    life: 3000
-                })
-            }
-
-            this.paging = defaultPaging()
-            await this.reload()
+            view.value.medicamentId = this.selection.medicament.id
         }
     })
 
     const view = ref({
-        pharmacyId: null,
+        medicamentId: null,
         dialog: false,
         loading: true,
         profile: {},
         async reload() {
             this.loading = true
 
-            const response = await get(this.pharmacyId)
+            const response = await get(pharmacy.view.pharmacyId, this.medicamentId)
             if (response.status < 400) {
                 this.profile = response.data.item
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
-                    summary: 'Pharmacy info getting failed',
+                    summary: 'Pharmacy medicament info getting failed',
                     detail: response.data.error,
                     life: 3000
                 })
@@ -130,30 +121,18 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
 
             this.loading = false
         },
-        async tryDelete() {
-            if (!this.pharmacyId) {
+        showInfo() {
+            if (!this.medicamentId) {
                 return
             }
 
-            const response = await remove(this.pharmacyId)
-            if (response.status < 400) {
-                toast.add({
-                    severity: 'success',
-                    summary: 'Pharmacy deleted',
-                    detail: 'The operation has been successfully performed',
-                    life: 3000
-                })
-            } else if (response.status !== 401) {
-                toast.add({
-                    severity: 'error',
-                    summary: 'Pharmacy delete failed',
-                    detail: response.data.error,
-                    life: 3000
-                })
-            }
-
-            this.dialog = false
-            this.pharmacyId = null
+            window.open(
+                router.resolve({
+                    path: 'medicament',
+                    query: { medicamentId: this.medicamentId }
+                }).href,
+                '_blank'
+            )
         }
     })
 

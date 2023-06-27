@@ -12,8 +12,8 @@ const tab = ref(0)
 
 async function show() {
     await router.push({
-        fullPath: router.currentRoute.value.fullPath,
-        query: { orderId: order.view.orderId }
+        path: router.currentRoute.value.path,
+        query: { ...router.currentRoute.value.query, orderId: order.view.orderId }
     })
 
     tab.value = 0
@@ -21,8 +21,8 @@ async function show() {
 
 async function hide() {
     await router.push({
-        fullPath: router.currentRoute.value.fullPath,
-        query: { orderId: undefined }
+        path: router.currentRoute.value.path,
+        query: { ...router.currentRoute.value.query, orderId: undefined }
     })
 }
 </script>
@@ -36,7 +36,7 @@ async function hide() {
         dismissable-mask
         @show="show()"
         @hide="hide()"
-        :header="order.view.profile ? `Order info: Order #${order.view.profile.id}` : 'Order info'"
+        :header="order.view.profile.id ? `Order info: Order #${order.view.profile.id}` : 'Order info'"
         style="width: 85vw; margin: 5rem"
     >
         <TabView class="profile-view-tab" @tab-change="(event) => (tab = event.index)">

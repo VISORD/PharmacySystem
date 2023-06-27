@@ -106,7 +106,7 @@ export const useOrderStore = defineStore('order', () => {
             view.value.orderId = this.selection.id
         },
         async tryDelete() {
-            if (!this.selection?.id) {
+            if (!this.selection) {
                 return
             }
 
