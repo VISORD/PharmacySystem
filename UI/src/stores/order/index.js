@@ -4,7 +4,7 @@ import { FilterMatchMode } from 'primevue/api'
 import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
 import { useToast } from 'primevue/usetoast'
 import { preparePagingRequest } from '@/utils/paging'
-import { get, list, remove } from '@/api/order'
+import { get, history, list, remove } from '@/api/order'
 
 const columns = {
     id: {
@@ -137,6 +137,7 @@ export const useOrderStore = defineStore('order', () => {
         dialog: false,
         loading: true,
         profile: {},
+        history: [],
         async reload() {
             this.loading = true
 
@@ -178,6 +179,23 @@ export const useOrderStore = defineStore('order', () => {
 
             this.dialog = false
             this.orderId = null
+        },
+        async tryGetHistory() {
+            if (!this.orderId) {
+                return
+            }
+
+            const response = await history(this.orderId)
+            if (response.status < 400) {
+                this.history = response.data.items
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Order history getting failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
         }
     })
 

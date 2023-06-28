@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using PharmacySystem.WebAPI.Database.Entities.Pharmacy;
 
 namespace PharmacySystem.WebAPI.Database.Entities.Medicament;
 
@@ -12,4 +13,6 @@ public sealed class Medicament
 
     [Column(TypeName = "MONEY")]
     public decimal VendorPrice { get; set; }
+
+    public ICollection<PharmacyMedicament> PharmacyMedicaments { get; set; } = null!;
 }

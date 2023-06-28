@@ -23,3 +23,7 @@ export function get(orderId) {
 export function remove(orderId) {
     return api.delete(`/api/order/${orderId}`)
 }
+
+export function history(orderId) {
+    return api.get(`/api/order/${orderId}/history`)
+}

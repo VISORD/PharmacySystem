@@ -1,7 +1,21 @@
-<script setup></script>
+<script setup>
+import { useOrderStore } from '@/stores/order'
+import { onMounted } from 'vue'
+
+const order = useOrderStore()
+
+onMounted(async () => await order.view.tryGetHistory())
+</script>
 
 <template>
-    <div></div>
+    <Timeline :value="order.view.history">
+        <template #opposite="{ item }">
+            <div class="p-text-secondary">{{ item.timestampText }}</div>
+        </template>
+        <template #content="{ item }">
+            <p>{{ item.event }}</p>
+        </template>
+    </Timeline>
 </template>
 
 <style scoped></style>

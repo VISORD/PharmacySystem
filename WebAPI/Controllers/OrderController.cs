@@ -342,6 +342,7 @@ public sealed class OrderController : ControllerBase
 
         var historyRecords = await _databaseContext.OrderHistory
             .Where(x => x.OrderId == orderId)
+            .OrderByDescending(x => x.Id)
             .ToArrayAsync(cancellationToken);
 
         return Ok(new ItemsResponse(historyRecords.Select(OrderHistoryRecordModel.From)));

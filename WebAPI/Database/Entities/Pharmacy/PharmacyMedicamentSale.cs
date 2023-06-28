@@ -15,10 +15,6 @@ public sealed class PharmacyMedicamentSale
     public decimal SalePrice { get; set; }
 
     public int UnitsSold { get; set; }
-
-    [ForeignKey(nameof(PharmacyId))]
     public Pharmacy Pharmacy { get; set; } = null!;
-
-    [ForeignKey(nameof(MedicamentId))]
     public Medicament.Medicament Medicament { get; set; } = null!;
 }
