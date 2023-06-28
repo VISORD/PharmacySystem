@@ -15,6 +15,7 @@ public sealed class MedicamentProfileModel
     public string? Description { get; init; }
 
     [Required]
+    [Range(0, 1_000_000_000)]
     public decimal? VendorPrice { get; init; }
 
     public string VendorPriceText => VendorPrice!.Value.Format();

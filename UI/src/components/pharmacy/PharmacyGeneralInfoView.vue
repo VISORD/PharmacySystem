@@ -34,66 +34,59 @@ onMounted(async () => await pharmacy.view.reload())
 
     <div style="display: flex; justify-content: space-between">
         <div class="profile-view">
-            <div style="display: flex; align-items: center; justify-content: center">
-                <Avatar
-                    icon="fa-solid fa-hand-holding-medical"
-                    size="large"
-                    style="background-color: var(--text-color); color: var(--primary-color-text)"
-                />
+            <div class="profile-view-header-icon">
+                <Avatar icon="fa-solid fa-hand-holding-medical" size="large" class="profile-view-header-icon-avatar" />
             </div>
 
             <Transition name="pharmacy" mode="out-in">
-                <div
-                    v-if="!pharmacy.view.loading"
-                    style="display: flex; align-items: center; height: 4rem; font-size: 2rem; font-weight: 700"
-                >
+                <div v-if="!pharmacy.view.loading" class="profile-view-header">
                     {{ pharmacy.view.profile.name }}
                 </div>
-                <Skeleton v-else width="40rem" height="3rem" style="margin-bottom: 0.5rem; margin-top: 0.5rem" />
+                <Skeleton v-else width="40rem" class="profile-view-header-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-at']" />
             </div>
 
             <Transition name="pharmacy" mode="out-in">
-                <div v-if="!pharmacy.view.loading" style="display: flex; align-items: center">
+                <div v-if="!pharmacy.view.loading" class="profile-view-item">
                     {{ pharmacy.view.profile.email ?? '—' }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-phone']" />
             </div>
 
             <Transition name="pharmacy" mode="out-in">
-                <div v-if="!pharmacy.view.loading" style="display: flex; align-items: center">
+                <div v-if="!pharmacy.view.loading" class="profile-view-item">
                     {{ pharmacy.view.profile.phone ?? '—' }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-map-location-dot']" />
             </div>
 
             <Transition name="pharmacy" mode="out-in">
-                <div v-if="!pharmacy.view.loading" style="display: flex; align-items: center">
+                <div v-if="!pharmacy.view.loading" class="profile-view-item">
                     {{ pharmacy.view.profile.address ?? '—' }}
                 </div>
-                <Skeleton v-else width="40rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="40rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-quote-right']" />
             </div>
 
             <Transition name="pharmacy" mode="out-in">
-                <div v-if="!pharmacy.view.loading" style="display: flex; align-items: center">
+                <div v-if="!pharmacy.view.loading" class="profile-view-item">
                     {{ pharmacy.view.profile.description ?? '—' }}
                 </div>
-                <Skeleton v-else width="40rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="40rem" class="profile-view-item-skeleton" />
             </Transition>
         </div>
 

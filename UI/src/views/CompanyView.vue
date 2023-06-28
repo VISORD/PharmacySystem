@@ -11,44 +11,37 @@ onMounted(async () => await company.reload())
 <template>
     <div style="display: flex; justify-content: space-between">
         <div class="profile-view">
-            <div style="display: flex; align-items: center; justify-content: center">
-                <Avatar
-                    icon="fa-solid fa-users-between-lines"
-                    size="large"
-                    style="background-color: var(--text-color); color: var(--primary-color-text)"
-                />
+            <div class="profile-view-header-icon">
+                <Avatar icon="fa-solid fa-users-between-lines" size="large" class="profile-view-header-icon-avatar" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div
-                    v-if="!company.loading"
-                    style="display: flex; align-items: center; height: 4rem; font-size: 2rem; font-weight: 700"
-                >
+                <div v-if="!company.loading" class="profile-view-header">
                     {{ company.data.name }}
                 </div>
-                <Skeleton v-else width="40rem" height="3rem" style="margin-bottom: 0.5rem; margin-top: 0.5rem" />
+                <Skeleton v-else width="40rem" class="profile-view-header-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-at']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!company.loading" style="display: flex; align-items: center">
+                <div v-if="!company.loading" class="profile-view-item">
                     {{ company.data.email }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-phone']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!company.loading" style="display: flex; align-items: center">
+                <div v-if="!company.loading" class="profile-view-item">
                     {{ company.data.phone ?? '—' }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
         </div>
 

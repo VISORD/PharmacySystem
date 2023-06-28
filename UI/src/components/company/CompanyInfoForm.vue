@@ -13,7 +13,7 @@ const form = ref({
 })
 
 const company = useCompanyStore()
-company.afterLoading = function (data) {
+company.before = function (data) {
     form.value.name.setValue(data.name)
     form.value.email.setValue(data.email)
     form.value.phone.setValue(data.phone)
@@ -21,15 +21,15 @@ company.afterLoading = function (data) {
 
 async function show() {
     await router.push({
-        fullPath: router.currentRoute.value.fullPath,
-        query: { companyEditForm: true }
+        path: router.currentRoute.value.path,
+        query: { ...router.currentRoute.value.query, companyEditForm: true }
     })
 }
 
 async function hide() {
     await router.push({
-        fullPath: router.currentRoute.value.fullPath,
-        query: { companyEditForm: undefined }
+        path: router.currentRoute.value.path,
+        query: { ...router.currentRoute.value.query, companyEditForm: undefined }
     })
 }
 

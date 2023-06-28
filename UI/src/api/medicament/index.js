@@ -16,8 +16,40 @@ export function list({ filtering, ordering, paging }) {
     )
 }
 
+export function add({ name, vendorPrice, description }) {
+    return api.post(
+        '/api/medicament',
+        {
+            name: name,
+            vendorPrice: vendorPrice,
+            description: description || null
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    )
+}
+
 export function get(medicamentId) {
     return api.get(`/api/medicament/${medicamentId}`)
+}
+
+export function update(medicamentId, { name, vendorPrice, description }) {
+    return api.put(
+        `/api/medicament/${medicamentId}`,
+        {
+            name: name,
+            vendorPrice: vendorPrice,
+            description: description || null
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    )
 }
 
 export function remove(medicamentId) {

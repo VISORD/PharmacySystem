@@ -34,66 +34,57 @@ onMounted(async () => await order.view.reload())
 
     <div style="display: flex; justify-content: space-between">
         <div class="profile-view">
-            <div style="display: flex; align-items: center; justify-content: center">
-                <Avatar
-                    icon="fa-solid fa-list-check"
-                    size="large"
-                    style="background-color: var(--text-color); color: var(--primary-color-text)"
-                />
+            <div class="profile-view-header-icon">
+                <Avatar icon="fa-solid fa-list-check" size="large" class="profile-view-header-icon-avatar" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div
-                    v-if="!order.view.loading"
-                    style="display: flex; align-items: center; height: 4rem; font-size: 2rem; font-weight: 700"
-                >
-                    Order #{{ order.view.profile.id }}
-                </div>
-                <Skeleton v-else width="40rem" height="3rem" style="margin-bottom: 0.5rem; margin-top: 0.5rem" />
+                <div v-if="!order.view.loading" class="profile-view-header">Order #{{ order.view.profile.id }}</div>
+                <Skeleton v-else width="40rem" class="profile-view-header-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-hand-holding-medical']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!order.view.loading" style="display: flex; align-items: center">
+                <div v-if="!order.view.loading" class="profile-view-item">
                     {{ order.view.profile.pharmacy.name }} ({{ order.view.profile.pharmacy.address }})
                 </div>
-                <Skeleton v-else width="40rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="40rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-spinner']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!order.view.loading" style="display: flex; align-items: center">
+                <div v-if="!order.view.loading" class="profile-view-item">
                     {{ resolveOrderStatus(order.view.profile.status) }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-calendar-check']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!order.view.loading" style="display: flex; align-items: center">
+                <div v-if="!order.view.loading" class="profile-view-item">
                     {{ order.view.profile.orderedAtText ?? '—' }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-calendar-day']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!order.view.loading" style="display: flex; align-items: center">
+                <div v-if="!order.view.loading" class="profile-view-item">
                     {{ order.view.profile.updatedAtText }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
         </div>
 

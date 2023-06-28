@@ -53,6 +53,49 @@ body {
     grid-template-columns: 6rem fit-content(100%);
 }
 
+.profile-view-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-view-header-icon-avatar {
+    background-color: var(--text-color) !important;
+    color: var(--primary-color-text) !important;
+}
+
+.profile-view-header {
+    display: flex;
+    align-items: center;
+    height: 4rem;
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.profile-view-header-skeleton {
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+    height: 3rem !important;
+}
+
+.profile-view-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 2rem;
+}
+
+.profile-view-item {
+    margin-bottom: 0.4rem;
+    margin-top: 0.4rem;
+}
+
+.profile-view-item-skeleton {
+    height: 1.5rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
 .profile-view-button {
     display: flex;
     flex-direction: column;

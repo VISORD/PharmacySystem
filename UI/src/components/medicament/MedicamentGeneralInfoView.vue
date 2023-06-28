@@ -33,54 +33,56 @@ onMounted(async () => await medicament.view.reload())
 
     <div style="display: flex; justify-content: space-between">
         <div class="profile-view">
-            <div style="display: flex; align-items: center; justify-content: center">
-                <Avatar
-                    icon="fa-solid fa-tablets"
-                    size="large"
-                    style="background-color: var(--text-color); color: var(--primary-color-text)"
-                />
+            <div class="profile-view-header-icon">
+                <Avatar icon="fa-solid fa-tablets" size="large" class="profile-view-header-icon-avatar" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div
-                    v-if="!medicament.view.loading"
-                    style="display: flex; align-items: center; height: 4rem; font-size: 2rem; font-weight: 700"
-                >
+                <div v-if="!medicament.view.loading" class="profile-view-header">
                     {{ medicament.view.profile.name }}
                 </div>
-                <Skeleton v-else width="40rem" height="3rem" style="margin-bottom: 0.5rem; margin-top: 0.5rem" />
+                <Skeleton v-else width="40rem" class="profile-view-header-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-money-bill-wave']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!medicament.view.loading" style="display: flex; align-items: center">
+                <div v-if="!medicament.view.loading" class="profile-view-item">
                     {{ medicament.view.profile.vendorPriceText }}
                 </div>
-                <Skeleton v-else width="20rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
             </Transition>
 
-            <div style="display: flex; align-items: center; justify-content: center; height: 2rem">
+            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-quote-right']" />
             </div>
 
             <Transition name="profile" mode="out-in">
-                <div v-if="!medicament.view.loading" style="display: flex; align-items: center">
+                <div v-if="!medicament.view.loading" class="profile-view-item">
                     {{ medicament.view.profile.description ?? '—' }}
                 </div>
-                <Skeleton v-else width="40rem" height="1.5rem" style="margin-bottom: 0.25rem; margin-top: 0.25rem" />
+                <Skeleton v-else width="40rem" class="profile-view-item-skeleton" />
             </Transition>
         </div>
 
         <div style="display: flex; justify-content: center; width: 6rem">
             <div style="display: flex; flex-direction: column">
                 <div class="profile-view-button">
-                    <Button icon="fa-solid fa-pencil" />
+                    <Button
+                        icon="fa-solid fa-pencil"
+                        @click="medicament.edit.dialog = true"
+                        :disabled="medicament.view.loading"
+                    />
                 </div>
                 <div class="profile-view-button">
-                    <Button icon="fa-solid fa-trash-can" severity="danger" @click="confirmDelete()" />
+                    <Button
+                        icon="fa-solid fa-trash-can"
+                        severity="danger"
+                        @click="confirmDelete()"
+                        :disabled="medicament.view.loading"
+                    />
                 </div>
             </div>
         </div>
