@@ -1,4 +1,3 @@
-using System.Globalization;
 using PharmacySystem.WebAPI.Extensions;
 
 namespace PharmacySystem.WebAPI.Models.Medicament;

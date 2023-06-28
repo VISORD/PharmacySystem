@@ -15,9 +15,14 @@ public sealed class PharmacyMedicamentRate
     [Column(TypeName = "MONEY")]
     public decimal RetailPrice { get; set; }
 
-    [ForeignKey(nameof(PharmacyId))]
     public Pharmacy Pharmacy { get; set; } = null!;
-
-    [ForeignKey(nameof(MedicamentId))]
     public Medicament.Medicament Medicament { get; set; } = null!;
+}
+
+public static class PharmacyMedicamentRateExtensions
+{
+    public static PharmacyMedicamentRate? RetailPrice(this IEnumerable<PharmacyMedicamentRate> rates, DateTime asOfDate)
+    {
+        return rates.FirstOrDefault(x => x.StartDate <= asOfDate && asOfDate <= x.StopDate);
+    }
 }

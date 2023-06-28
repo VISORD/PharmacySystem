@@ -5,6 +5,7 @@ namespace PharmacySystem.WebAPI.Models.Pharmacy;
 
 public sealed class PharmacyMedicamentOrderItemPagingModel
 {
+    public string Id { get; init; } = null!;
     public int OrderId { get; init; }
     public OrderStatus Status { get; init; }
     public DateTime? OrderedAt { get; init; }
@@ -12,11 +13,12 @@ public sealed class PharmacyMedicamentOrderItemPagingModel
     public DateTime UpdatedAt { get; init; }
     public string UpdatedAtText => UpdatedAt.FormatDateTime();
 
-    public static PharmacyMedicamentOrderItemPagingModel From(Database.Entities.Order.Order order) => new()
+    public static PharmacyMedicamentOrderItemPagingModel From(OrderMedicament orderMedicament) => new()
     {
-        OrderId = order.Id,
-        Status = order.Status,
-        OrderedAt = order.OrderedAt?.LocalDateTime,
-        UpdatedAt = order.UpdatedAt.LocalDateTime,
+        Id = $"{orderMedicament.Order.PharmacyId}:{orderMedicament.OrderId}:{orderMedicament.MedicamentId}",
+        OrderId = orderMedicament.Order.Id,
+        Status = orderMedicament.Order.Status,
+        OrderedAt = orderMedicament.Order.OrderedAt?.LocalDateTime,
+        UpdatedAt = orderMedicament.Order.UpdatedAt.LocalDateTime,
     };
 }

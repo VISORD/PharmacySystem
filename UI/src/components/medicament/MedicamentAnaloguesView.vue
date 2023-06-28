@@ -70,7 +70,7 @@ const menu = ref([
             </template>
 
             <template #body="{ data }">
-                {{ resolveMedicamentAnalogueType(data.type) }}
+                {{ resolveMedicamentAnalogueType(data.isAnalogue) }}
             </template>
         </Column>
 

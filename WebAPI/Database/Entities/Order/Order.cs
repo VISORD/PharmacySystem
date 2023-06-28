@@ -13,8 +13,6 @@ public sealed class Order
 
     public DateTimeOffset? OrderedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
-
-    [ForeignKey(nameof(PharmacyId))]
     public Pharmacy.Pharmacy Pharmacy { get; set; } = null!;
 
     public ICollection<OrderMedicament> Medicaments { get; set; } = null!;

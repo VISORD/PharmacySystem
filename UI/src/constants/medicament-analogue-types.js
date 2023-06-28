@@ -1,11 +1,11 @@
-export const ORIGINAL = { id: 0, name: 'Original' }
-export const ANALOGUE = { id: 1, name: 'Analogue' }
+export const ORIGINAL = { id: false, name: 'Original' }
+export const ANALOGUE = { id: true, name: 'Analogue' }
 
 export const allMedicamentAnalogueTypes = [ORIGINAL, ANALOGUE]
 
-export function resolveMedicamentAnalogueType(type) {
+export function resolveMedicamentAnalogueType(value) {
     for (const item of allMedicamentAnalogueTypes) {
-        if (item.id === type) {
+        if (item.id === value) {
             return item.name
         }
     }

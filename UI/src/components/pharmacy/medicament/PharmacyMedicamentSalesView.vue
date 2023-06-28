@@ -6,7 +6,7 @@ const pharmacyMedicamentSale = usePharmacyMedicamentSaleStore()
 </script>
 
 <template>
-    <ListTable :store="pharmacyMedicamentSale" :menu="[]">
+    <ListTable :store="pharmacyMedicamentSale">
         <Column
             :key="pharmacyMedicamentSale.table.columns.soldAt.key"
             :field="pharmacyMedicamentSale.table.columns.soldAt.key"

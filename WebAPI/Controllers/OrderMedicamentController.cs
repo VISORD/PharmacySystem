@@ -40,7 +40,9 @@ public sealed class OrderMedicamentController : ControllerBase
         }
 
         var query = _databaseContext.OrderMedicaments
+            .Include(x => x.Order)
             .Include(x => x.Medicament)
+            .ThenInclude(x => x.PharmacyMedicaments)
             .Where(x => x.OrderId == orderId)
             .FilterByRequest(request.Filtering)
             .OrderByRequest(request.Ordering);
@@ -53,34 +55,8 @@ public sealed class OrderMedicamentController : ControllerBase
 
         return Ok(new ItemsPagingResponse(
             totalAmount,
-            orderMedicaments.Select(OrderMedicamentListItemModel.From)
+            orderMedicaments.Select(OrderMedicamentItemPagingModel.From)
         ));
-    }
-
-    [HttpGet("{medicamentId:int}")]
-    public async Task<IActionResult> Get(
-        int orderId,
-        int medicamentId,
-        [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        CancellationToken cancellationToken
-    )
-    {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
-
-        var validationResult = await ValidateCompanyOrderMedicamentRelation(companyId, orderId, medicamentId, cancellationToken);
-        if (validationResult is not null)
-        {
-            return validationResult;
-        }
-
-        var orderMedicament = await _databaseContext.OrderMedicaments
-            .Include(x => x.Order)
-            .Include(x => x.Medicament)
-            .SingleOrDefaultAsync(x => x.OrderId == orderId && x.MedicamentId == medicamentId, cancellationToken);
-
-        return orderMedicament is not null
-            ? Ok(new ItemResponse(OrderMedicamentProfileModel.From(orderMedicament)))
-            : NotFound();
     }
 
     [HttpPut("{medicamentId:int}/request")]
@@ -109,20 +85,39 @@ public sealed class OrderMedicamentController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Non-draft order medicament can't be modified"));
         }
 
-        var orderMedicament = _databaseContext.OrderMedicaments.Update(new OrderMedicament
+        if (model.Count > 0)
         {
-            OrderId = orderId,
-            MedicamentId = medicamentId,
-            RequestedCount = model.Count!.Value
-        });
+            var orderMedicament = _databaseContext.OrderMedicaments.Update(new OrderMedicament
+            {
+                OrderId = orderId,
+                MedicamentId = medicamentId,
+                RequestedCount = model.Count.Value
+            });
 
-        var hasManyItems = orderMedicament.Entity.RequestedCount > 1;
-        await _databaseContext.OrderHistory.AddAsync(new OrderHistory
+            var hasManyItems = orderMedicament.Entity.RequestedCount > 1;
+            await _databaseContext.OrderHistory.AddAsync(new OrderHistory
+            {
+                OrderId = orderId,
+                Event = $"{orderMedicament.Entity.RequestedCount} item{(hasManyItems ? "s" : "")} of \"{orderMedicament.Entity.Medicament.Name}\" medicament {(hasManyItems ? "were" : "was")} requested",
+                Timestamp = DateTimeOffset.Now,
+            }, cancellationToken);
+        }
+        else
         {
-            OrderId = orderId,
-            Event = $"{orderMedicament.Entity.RequestedCount} item{(hasManyItems ? "s" : "")} of \"{orderMedicament.Entity.Medicament.Name}\" medicament {(hasManyItems ? "were" : "was")} requested",
-            Timestamp = DateTimeOffset.Now,
-        }, cancellationToken);
+            await _databaseContext.OrderMedicaments
+                .Where(x => x.OrderId == orderId && x.MedicamentId == medicamentId)
+                .ExecuteDeleteAsync(cancellationToken);
+
+            var medicament = await _databaseContext.Medicaments
+                .SingleAsync(x => x.Id == medicamentId, cancellationToken);
+
+            await _databaseContext.OrderHistory.AddAsync(new OrderHistory
+            {
+                OrderId = orderId,
+                Event = $"\"{medicament.Name}\" medicament request was canceled",
+                Timestamp = DateTimeOffset.Now,
+            }, cancellationToken);
+        }
 
         await _databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);

@@ -12,10 +12,6 @@ public sealed class OrderMedicament
     public int RequestedCount { get; set; }
     public int? ApprovedCount { get; set; }
     public bool IsApproved { get; set; }
-
-    [ForeignKey(nameof(OrderId))]
     public Order Order { get; set; } = null!;
-
-    [ForeignKey(nameof(MedicamentId))]
     public Medicament.Medicament Medicament { get; set; } = null!;
 }

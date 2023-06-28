@@ -5,6 +5,7 @@ namespace PharmacySystem.WebAPI.Models.Pharmacy;
 
 public sealed class PharmacyMedicamentRateItemPagingModel
 {
+    public string Id { get; init; } = null!;
     public decimal RetailPrice { get; init; }
     public string RetailPriceText => RetailPrice.Format();
     public DateTime? StartDate { get; init; }
@@ -14,6 +15,7 @@ public sealed class PharmacyMedicamentRateItemPagingModel
 
     public static PharmacyMedicamentRateItemPagingModel From(PharmacyMedicamentRate rate) => new()
     {
+        Id = $"{rate.PharmacyId}:{rate.MedicamentId}",
         RetailPrice = rate.RetailPrice,
         StartDate = rate.StartDate.AsStartDate(),
         StopDate = rate.StopDate.AsStopDate()

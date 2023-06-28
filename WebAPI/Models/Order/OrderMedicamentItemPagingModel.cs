@@ -3,18 +3,23 @@ using PharmacySystem.WebAPI.Models.Medicament;
 
 namespace PharmacySystem.WebAPI.Models.Order;
 
-public sealed class OrderMedicamentProfileModel
+public sealed class OrderMedicamentItemPagingModel
 {
-    public OrderShortModel Order { get; init; } = null!;
+    public string Id { get; init; } = null!;
     public MedicamentShortModel Medicament { get; init; } = null!;
+    public int QuantityOnHand { get; init; }
     public int RequestedCount { get; init; }
     public int? ApprovedCount { get; init; }
     public bool IsApproved { get; init; }
 
-    public static OrderMedicamentProfileModel From(OrderMedicament orderMedicament) => new()
+    public static OrderMedicamentItemPagingModel From(OrderMedicament orderMedicament) => new()
     {
-        Order = OrderShortModel.From(orderMedicament.Order),
+        Id = $"{orderMedicament.OrderId}:{orderMedicament.MedicamentId}",
         Medicament = MedicamentShortModel.From(orderMedicament.Medicament),
+        QuantityOnHand = orderMedicament.Medicament
+            .PharmacyMedicaments
+            .SingleOrDefault(x => x.PharmacyId == orderMedicament.Order.PharmacyId)?
+            .QuantityOnHand ?? 0,
         RequestedCount = orderMedicament.RequestedCount,
         ApprovedCount = orderMedicament.ApprovedCount,
         IsApproved = orderMedicament.IsApproved,

@@ -8,7 +8,7 @@ onMounted(async () => await props.store.table.reset())
 </script>
 
 <template>
-    <ContextMenu ref="contextMenu" :model="menu" style="width: 15rem" />
+    <ContextMenu ref="contextMenu" v-if="!!menu" :model="menu" style="width: 15rem" />
     <DataTable
         :value="store.table.data.items"
         data-key="id"
@@ -25,10 +25,10 @@ onMounted(async () => await props.store.table.reset())
         :selection="store.table.selection"
         @update:selection="(selection) => store.table.selectRow(selection)"
         @row-dblclick="store.table.showInfo()"
-        context-menu
+        :context-menu="!!menu && menu.length > 0"
         :context-menu-selection="store.table.selection"
         @update:context-menu-selection="(selection) => store.table.selectForContextMenu(selection)"
-        @row-contextmenu="(event) => contextMenu.show(event.originalEvent)"
+        @row-contextmenu="(event) => contextMenu?.show(event.originalEvent)"
         lazy
         :loading="store.table.loading"
         paginator

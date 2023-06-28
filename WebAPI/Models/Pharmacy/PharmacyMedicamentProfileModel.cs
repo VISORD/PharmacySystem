@@ -14,7 +14,7 @@ public sealed class PharmacyMedicamentProfileModel
     {
         Pharmacy = PharmacyShortModel.From(pharmacyMedicament.Pharmacy),
         Medicament = MedicamentShortModel.From(pharmacyMedicament.Medicament),
-        Rate = PharmacyMedicamentRateModel.From(pharmacyMedicament.RetailPrice(asOfDate)),
+        Rate = PharmacyMedicamentRateModel.From(pharmacyMedicament.Rates.RetailPrice(asOfDate)),
         QuantityOnHand = pharmacyMedicament.QuantityOnHand,
     };
 }

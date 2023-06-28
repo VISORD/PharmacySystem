@@ -191,6 +191,13 @@ public sealed class OrderController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Non-draft order can't be launched"));
         }
 
+        var hasRequestedMedicaments = await _databaseContext.OrderMedicaments
+            .AnyAsync(x => x.OrderId == orderId, cancellationToken);
+        if (hasRequestedMedicaments)
+        {
+            return BadRequest(new ItemResponse(Error: "No requested medicaments"));
+        }
+
         order.Status = OrderStatus.Ordered;
         _databaseContext.Orders.Update(order);
 

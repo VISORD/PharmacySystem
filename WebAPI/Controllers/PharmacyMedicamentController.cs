@@ -7,7 +7,6 @@ using PharmacySystem.WebAPI.Database;
 using PharmacySystem.WebAPI.Database.Entities.Pharmacy;
 using PharmacySystem.WebAPI.Extensions;
 using PharmacySystem.WebAPI.Models.Common;
-using PharmacySystem.WebAPI.Models.Order;
 using PharmacySystem.WebAPI.Models.Pharmacy;
 
 namespace PharmacySystem.WebAPI.Controllers;
@@ -55,7 +54,7 @@ public sealed class PharmacyMedicamentController : ControllerBase
 
         return Ok(new ItemsPagingResponse(
             totalAmount,
-            pharmacyMedicaments.Select(x => PharmacyMedicamentListItemModel.From(x, request.AsOfDate))
+            pharmacyMedicaments.Select(x => PharmacyMedicamentItemPagingModel.From(x, request.AsOfDate))
         ));
     }
 
@@ -287,7 +286,7 @@ public sealed class PharmacyMedicamentController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Not enough units to sale"));
         }
 
-        var salePrice = pharmacyMedicament.RetailPrice(model.SoldAt.LocalDateTime);
+        var salePrice = pharmacyMedicament.Rates.RetailPrice(model.SoldAt.LocalDateTime);
         if (salePrice is null)
         {
             return BadRequest(new ItemResponse(Error: "No retail price for specified date"));
@@ -342,7 +341,7 @@ public sealed class PharmacyMedicamentController : ControllerBase
 
         return Ok(new ItemsPagingResponse(
             totalAmount,
-            orders.Select(x => PharmacyMedicamentOrderItemPagingModel.From(x.Order))
+            orders.Select(PharmacyMedicamentOrderItemPagingModel.From)
         ));
     }
 
