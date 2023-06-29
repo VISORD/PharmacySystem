@@ -60,6 +60,11 @@ export const useMedicamentStore = defineStore('medicament', () => {
             }
 
             this.loading = false
+
+            if (edit.value.pending && !view.value.dialog) {
+                edit.value.pending = false
+                edit.value.dialog = true
+            }
         },
         async reset() {
             this.filtering = defaultFiltering(columns)
@@ -175,7 +180,6 @@ export const useMedicamentStore = defineStore('medicament', () => {
         pending: false,
         async tryApply(values) {
             const response = view.value.medicamentId ? await update(view.value.medicamentId, values) : await add(values)
-
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',

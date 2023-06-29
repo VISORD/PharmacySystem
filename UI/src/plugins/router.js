@@ -43,6 +43,7 @@ const router = createRouter({
                         const pharmacy = usePharmacyStore()
                         pharmacy.view.dialog = !!to.query.pharmacyId
                         pharmacy.view.pharmacyId = to.query.pharmacyId
+                        pharmacy.edit.pending = !!to.query.pharmacyEditForm
 
                         const pharmacyMedicament = usePharmacyMedicamentStore()
                         pharmacyMedicament.view.dialog = !!to.query.medicamentId

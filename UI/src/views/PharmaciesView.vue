@@ -5,6 +5,7 @@ import { usePharmacyStore } from '@/stores/pharmacy'
 import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import PharmacyMedicamentProfileView from '@/components/pharmacy/medicament/PharmacyMedicamentProfileView.vue'
+import PharmacyInfoForm from '@/components/pharmacy/PharmacyInfoForm.vue'
 
 const pharmacy = usePharmacyStore()
 const confirm = useConfirm()
@@ -14,6 +15,14 @@ const menu = ref([
         label: 'View',
         icon: 'fa-solid fa-magnifying-glass',
         command: async () => await pharmacy.table.showInfo()
+    },
+    {
+        label: 'Edit',
+        icon: 'fa-solid fa-pencil',
+        command: async () => {
+            await pharmacy.table.showInfo()
+            pharmacy.edit.pending = true
+        }
     },
     {
         label: 'Delete',
@@ -45,6 +54,7 @@ const menu = ref([
 
     <PharmacyProfileView />
     <PharmacyMedicamentProfileView />
+    <PharmacyInfoForm />
 
     <ListTable :store="pharmacy" :menu="menu">
         <Column
@@ -94,7 +104,12 @@ const menu = ref([
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-plus" aria-label="Add new pharmacy" />
+            <Button
+                type="button"
+                icon="fa-solid fa-plus"
+                aria-label="Add new pharmacy"
+                @click="pharmacy.edit.dialog = true"
+            />
         </template>
     </ListTable>
 </template>

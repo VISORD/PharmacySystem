@@ -12,6 +12,7 @@ import {
     faEraser,
     faHandHoldingMedical,
     faListCheck,
+    faLocationDot,
     faLock,
     faMagnifyingGlass,
     faMapLocationDot,
@@ -55,7 +56,8 @@ library.add(
     faCalendarDay,
     faSpinner,
     faCalculator,
-    faArrowUpRightFromSquare
+    faArrowUpRightFromSquare,
+    faLocationDot
 )
 
 // <i> => <svg>

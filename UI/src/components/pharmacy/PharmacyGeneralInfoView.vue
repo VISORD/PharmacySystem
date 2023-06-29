@@ -32,7 +32,7 @@ onMounted(async () => await pharmacy.view.reload())
         </template>
     </ConfirmDialog>
 
-    <div style="display: flex; justify-content: space-between">
+    <div style="display: flex; justify-content: space-between" v-if="pharmacy.view.dialog">
         <div class="profile-view">
             <div class="profile-view-header-icon">
                 <Avatar icon="fa-solid fa-hand-holding-medical" size="large" class="profile-view-header-icon-avatar" />
@@ -93,10 +93,19 @@ onMounted(async () => await pharmacy.view.reload())
         <div style="display: flex; justify-content: center; width: 6rem">
             <div style="display: flex; flex-direction: column">
                 <div class="profile-view-button">
-                    <Button icon="fa-solid fa-pencil" />
+                    <Button
+                        icon="fa-solid fa-pencil"
+                        @click="pharmacy.edit.dialog = true"
+                        :disabled="pharmacy.view.loading"
+                    />
                 </div>
                 <div class="profile-view-button">
-                    <Button icon="fa-solid fa-trash-can" severity="danger" @click="confirmDelete()" />
+                    <Button
+                        icon="fa-solid fa-trash-can"
+                        severity="danger"
+                        @click="confirmDelete()"
+                        :disabled="pharmacy.view.loading"
+                    />
                 </div>
             </div>
         </div>
@@ -114,7 +123,10 @@ onMounted(async () => await pharmacy.view.reload())
                 :header-style="{
                     'align-items': 'center',
                     'justify-content': 'center',
-                    'background-color': pharmacy.view.profile.workingHours[weekday.name] ? '#a1c30d' : '#ea5455',
+                    'background-color':
+                        pharmacy.view.profile.workingHours && pharmacy.view.profile.workingHours[weekday.name]
+                            ? '#a1c30d'
+                            : '#ea5455',
                     color: 'var(--primary-color-text)',
                     height: '25px'
                 }"
@@ -126,11 +138,19 @@ onMounted(async () => await pharmacy.view.reload())
                 </template>
                 <template #body>
                     <div style="display: flex; flex-direction: column; align-items: center; justify-content: center">
-                        <div v-if="pharmacy.view.profile.workingHours[weekday.name]">
+                        <div
+                            v-if="
+                                pharmacy.view.profile.workingHours && pharmacy.view.profile.workingHours[weekday.name]
+                            "
+                        >
                             {{ pharmacy.view.profile.workingHours[weekday.name].startTime }}
                         </div>
                         <div>—</div>
-                        <div v-if="pharmacy.view.profile.workingHours[weekday.name]">
+                        <div
+                            v-if="
+                                pharmacy.view.profile.workingHours && pharmacy.view.profile.workingHours[weekday.name]
+                            "
+                        >
                             {{ pharmacy.view.profile.workingHours[weekday.name].stopTime }}
                         </div>
                     </div>
@@ -144,7 +164,7 @@ onMounted(async () => await pharmacy.view.reload())
 
     <Transition name="pharmacy" mode="out-in">
         <yandex-map
-            v-if="!pharmacy.view.loading"
+            v-if="!pharmacy.view.loading && pharmacy.view.profile.latitude && pharmacy.view.profile.longitude"
             :coords="[pharmacy.view.profile.latitude, pharmacy.view.profile.longitude]"
             zoom="17"
             style="width: 100%; height: 200px"
@@ -152,6 +172,7 @@ onMounted(async () => await pharmacy.view.reload())
             <ymap-marker
                 marker-id="pharmacy-marker"
                 marker-type="placemark"
+                :icon="{ color: 'violet', glyph: 'dot' }"
                 :coords="[pharmacy.view.profile.latitude, pharmacy.view.profile.longitude]"
             />
         </yandex-map>

@@ -52,10 +52,10 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
                 ? `Edit medicament info: ${medicament.view.profile.name}`
                 : 'Add new medicament'
         "
-        style="width: 30rem; margin: 5rem"
+        style="width: 60rem; margin: 5rem"
     >
         <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
-            <form @submit="onSubmit" style="width: 100%">
+            <form @submit="onSubmit" style="width: 100%" @keydown.enter.prevent>
                 <div class="field">
                     <div class="p-input-icon-right">
                         <fa class="form-field-icon" :icon="['fas', 'tablets']" />
@@ -65,7 +65,6 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
                             type="text"
                             placeholder="Medicament Name"
                             :class="{ 'p-invalid': form.name.errorMessage }"
-                            aria-describedby="text-error"
                             autofocus
                             autocomplete="name"
                         />
@@ -83,7 +82,6 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
                             :max-fraction-digits="4"
                             placeholder="Vendor Price"
                             :class="{ 'p-invalid': form.vendorPrice.errorMessage }"
-                            aria-describedby="text-error"
                             autocomplete="email"
                         />
                     </div>
@@ -99,7 +97,6 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
                             type="text"
                             placeholder="Description"
                             :class="{ 'p-invalid': form.description.errorMessage }"
-                            aria-describedby="text-error"
                             autocomplete="description"
                             autoResize
                             rows="5"

@@ -19,9 +19,11 @@ async function show() {
 }
 
 async function hide() {
+    pharmacy.view.close()
+
     await router.push({
         path: router.currentRoute.value.path,
-        query: { ...router.currentRoute.value.query, pharmacyId: undefined }
+        query: { ...router.currentRoute.value.query, pharmacyId: undefined, pharmacyEditForm: undefined }
     })
 }
 </script>

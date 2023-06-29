@@ -45,10 +45,10 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
         @show="show()"
         @hide="hide()"
         :header="company.data ? `Edit company info: ${company.data.name}` : 'Edit company info'"
-        style="width: 30rem; margin: 5rem"
+        style="width: 60rem; margin: 5rem"
     >
         <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
-            <form @submit="onSubmit" style="width: 100%">
+            <form @submit="onSubmit" style="width: 100%" @keydown.enter.prevent>
                 <div class="field">
                     <div class="p-input-icon-right">
                         <fa class="form-field-icon" :icon="['fas', 'users-between-lines']" />
@@ -58,7 +58,6 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
                             type="text"
                             placeholder="Company Name"
                             :class="{ 'p-invalid': form.name.errorMessage }"
-                            aria-describedby="text-error"
                             autofocus
                             autocomplete="name"
                         />
@@ -75,7 +74,6 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
                             type="text"
                             placeholder="Email"
                             :class="{ 'p-invalid': form.email.errorMessage }"
-                            aria-describedby="text-error"
                             autocomplete="email"
                         />
                     </div>
@@ -91,7 +89,6 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
                             type="text"
                             placeholder="Phone"
                             :class="{ 'p-invalid': form.phone.errorMessage }"
-                            aria-describedby="text-phone"
                             autocomplete="phone"
                         />
                     </div>

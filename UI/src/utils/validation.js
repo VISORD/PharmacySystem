@@ -11,18 +11,20 @@ export const companyNameRule = (field = undefined) =>
         return true
     })
 
-export const emailRule = (field = undefined) =>
+export const emailRule = (isRequired = true, field = undefined) =>
     useField(field ?? 'email', (value) => {
-        if (!value) {
+        if (value) {
+            if (
+                !value.match(
+                    /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i
+                )
+            ) {
+                return 'Input is not Email'
+            } else if (value.length > 255) {
+                return 'Email length should be less or equal 255'
+            }
+        } else if (isRequired) {
             return 'Email is required'
-        } else if (
-            !value.match(
-                /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/i
-            )
-        ) {
-            return 'Input is not Email'
-        } else if (value.length > 255) {
-            return 'Email length should be less or equal 255'
         }
 
         return true
@@ -82,6 +84,28 @@ export const medicamentVendorPriceRule = (field = undefined) =>
             return 'Medicament Vendor Price should be non-negative value'
         } else if (value > 1_000_000_000) {
             return 'Medicament Vendor Price should less or equal 1 000 000 000'
+        }
+
+        return true
+    })
+
+export const pharmacyNameRule = (field = undefined) =>
+    useField(field ?? 'name', (value) => {
+        if (!value) {
+            return 'Pharmacy Name is required'
+        } else if (value.length > 50) {
+            return 'Pharmacy Name length should be less or equal 50'
+        }
+
+        return true
+    })
+
+export const addressRule = (field = undefined) =>
+    useField(field ?? 'address', (value) => {
+        if (!value) {
+            return 'Address is required'
+        } else if (value.length > 512) {
+            return 'Address length should be less or equal 512'
         }
 
         return true
