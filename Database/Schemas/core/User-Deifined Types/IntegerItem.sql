@@ -1,0 +1,4 @@
+CREATE TYPE [core].[IntegerItem] AS TABLE (
+    [Value] INT NOT NULL PRIMARY KEY CLUSTERED
+);
+GO;

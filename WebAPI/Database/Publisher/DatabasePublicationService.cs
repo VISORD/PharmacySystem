@@ -1,5 +1,6 @@
 using System.Diagnostics;
-using Microsoft.EntityFrameworkCore;
+using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using Microsoft.SqlServer.Dac;
 using PharmacySystem.WebAPI.Extensions;
@@ -11,17 +12,20 @@ public sealed class DatabasePublicationService : IDatabasePublicationService
 {
     private readonly ILogger<DatabasePublicationService> _logger;
     private readonly IApplicationOptions _options;
-    private readonly DatabaseContext _databaseContext;
+    private readonly string _databaseName;
 
     public DatabasePublicationService(
         ILogger<DatabasePublicationService> logger,
-        IOptions<ApplicationOptions> options,
-        DatabaseContext databaseContext
+        IOptions<ApplicationOptions> options
     )
     {
         _logger = logger;
         _options = options.Value;
-        _databaseContext = databaseContext;
+
+        var sqlConnectionStringBuilder = new SqlConnectionStringBuilder(_options.DbConnectionString);
+        _databaseName = string.IsNullOrWhiteSpace(sqlConnectionStringBuilder.InitialCatalog)
+            ? "master"
+            : sqlConnectionStringBuilder.InitialCatalog;
     }
 
     public DatabasePublicationResult Publish(DatabasePublicationOptions options)
@@ -41,7 +45,7 @@ public sealed class DatabasePublicationService : IDatabasePublicationService
 
     private PublishResult PublishDatabase(DatabasePublicationOptions options)
     {
-        _logger.LogInformation("[DB: {Target}] [1] […] Database publishing", _databaseContext.DatabaseName);
+        _logger.LogInformation("[DB: {Target}] [1] […] Database publishing", _databaseName);
 
         var stopwatch = Stopwatch.StartNew();
 
@@ -55,22 +59,22 @@ public sealed class DatabasePublicationService : IDatabasePublicationService
                 dacService.Message += (_, args) =>
                 {
                     // Print each messages from DB
-                    _logger.LogInformation("[DB: {Target}]  *  [-] {Message}", _databaseContext.DatabaseName, args.Message.Message);
+                    _logger.LogInformation("[DB: {Target}]  *  [-] {Message}", _databaseName, args.Message.Message);
                 };
             }
 
             var publishOptions = PreparePublishOptions(options);
-            var result = dacService.Publish(dacPackage, _databaseContext.DatabaseName, publishOptions);
+            var result = dacService.Publish(dacPackage, _databaseName, publishOptions);
 
             PrintResult(result);
 
-            _logger.LogInformation("[DB: {Target}] [1] [✓] Publishing was completed (elapsed: {TimeElapsed})", _databaseContext.DatabaseName, stopwatch.FormatElapsed());
+            _logger.LogInformation("[DB: {Target}] [1] [✓] Publishing was completed (elapsed: {TimeElapsed})", _databaseName, stopwatch.FormatElapsed());
 
             return result;
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "[DB: {Target}] [1] [✗] Failed to publish database (elapsed: {TimeElapsed})", _databaseContext.DatabaseName, stopwatch.FormatElapsed());
+            _logger.LogError(e, "[DB: {Target}] [1] [✗] Failed to publish database (elapsed: {TimeElapsed})", _databaseName, stopwatch.FormatElapsed());
             throw;
         }
         finally
@@ -81,19 +85,22 @@ public sealed class DatabasePublicationService : IDatabasePublicationService
 
     private void AllowSnapshotIsolation()
     {
-        _logger.LogInformation("[DB: {Target}] [2] […] Altering database to allow snapshot isolation", _databaseContext.DatabaseName);
+        _logger.LogInformation("[DB: {Target}] [2] […] Altering database to allow snapshot isolation", _databaseName);
 
         var stopwatch = Stopwatch.StartNew();
 
         try
         {
-            _databaseContext.Database.ExecuteSqlRawAsync($"ALTER DATABASE [{_databaseContext.DatabaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON;");
+            using var connection = new SqlConnection(_options.DbConnectionString);
+            connection.Open();
 
-            _logger.LogInformation("[DB: {Target}] [2] [✓] Setting was applied successfully (elapsed: {TimeElapsed})", _databaseContext.DatabaseName, stopwatch.FormatElapsed());
+            connection.Execute($"ALTER DATABASE [{_databaseName}] SET ALLOW_SNAPSHOT_ISOLATION ON;");
+
+            _logger.LogInformation("[DB: {Target}] [2] [✓] Setting was applied successfully (elapsed: {TimeElapsed})", _databaseName, stopwatch.FormatElapsed());
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "[DB: {Target}] [2] [✗] Failed to modify setting (elapsed: {TimeElapsed})", _databaseContext.DatabaseName, stopwatch.FormatElapsed());
+            _logger.LogError(e, "[DB: {Target}] [2] [✗] Failed to modify setting (elapsed: {TimeElapsed})", _databaseName, stopwatch.FormatElapsed());
             throw;
         }
         finally
@@ -165,13 +172,13 @@ public sealed class DatabasePublicationService : IDatabasePublicationService
         if (!string.IsNullOrWhiteSpace(result.DeploymentReport))
         {
             const string message = "[DB: {Target}]  *  [-] Deployment report:{NewLine}{Report}";
-            _logger.LogInformation(message, _databaseContext.DatabaseName, Environment.NewLine, result.DeploymentReport);
+            _logger.LogInformation(message, _databaseName, Environment.NewLine, result.DeploymentReport);
         }
 
         if (!string.IsNullOrWhiteSpace(result.DatabaseScript))
         {
             const string message = "[DB: {Target}]  *  [-] Deployment script:{NewLine}{Script}";
-            _logger.LogInformation(message, _databaseContext.DatabaseName, Environment.NewLine, result.DatabaseScript);
+            _logger.LogInformation(message, _databaseName, Environment.NewLine, result.DatabaseScript);
         }
     }
 }

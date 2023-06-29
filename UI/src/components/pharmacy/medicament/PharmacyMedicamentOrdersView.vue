@@ -30,8 +30,32 @@ const menu = ref([
         >
             <template #filter="{ filterModel, filterCallback }">
                 <InputNumber
-                    id="filter-order-id"
-                    inputId="filter-order-id-input"
+                    id="filter-pharmacy-medicament-orders-id"
+                    inputId="filter-pharmacy-medicament-orders-id-input"
+                    v-model="filterModel.value"
+                    v-tooltip.top.focus="'Hit enter key to filter'"
+                    @keydown.enter="filterCallback()"
+                    class="p-column-filter"
+                />
+            </template>
+        </Column>
+
+        <Column
+            :key="pharmacyMedicamentOrder.table.columns.orderCount.key"
+            :field="pharmacyMedicamentOrder.table.columns.orderCount.key"
+            :header="pharmacyMedicamentOrder.table.columns.orderCount.header"
+            :sortField="pharmacyMedicamentOrder.table.columns.orderCount.field"
+            :filterField="pharmacyMedicamentOrder.table.columns.orderCount.field"
+            :sortable="true"
+            dataType="numeric"
+            filter
+            style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
+        >
+            <template #filter="{ filterModel, filterCallback }">
+                <InputNumber
+                    id="filter-pharmacy-medicament-orders-orderCount"
+                    inputId="filter-pharmacy-medicament-orders-orderCount-input"
                     v-model="filterModel.value"
                     v-tooltip.top.focus="'Hit enter key to filter'"
                     @keydown.enter="filterCallback()"
@@ -55,7 +79,7 @@ const menu = ref([
             <template #filter="{ filterModel, filterCallback }">
                 <MultiSelect
                     id="filter-order-status"
-                    inputId="filter-order-status-input"
+                    inputId="filter-pharmacy-medicament-orders-status-input"
                     v-model="filterModel.value"
                     :options="allOrderStatuses"
                     optionValue="id"
@@ -88,7 +112,7 @@ const menu = ref([
         >
             <template #filter="{ filterModel }">
                 <Calendar
-                    input-id="filter-order-orderedAt-input"
+                    input-id="filter-pharmacy-medicament-orders-orderedAt-input"
                     v-model="filterModel.value"
                     date-format="dd.mm.yy"
                     placeholder="dd.MM.yyyy"
@@ -115,7 +139,7 @@ const menu = ref([
         >
             <template #filter="{ filterModel }">
                 <Calendar
-                    input-id="filter-order-updatedAt-input"
+                    input-id="filter-pharmacy-medicament-orders-updatedAt-input"
                     v-model="filterModel.value"
                     date-format="dd.mm.yy"
                     placeholder="dd.MM.yyyy"

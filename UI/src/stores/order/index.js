@@ -27,7 +27,7 @@ const columns = {
     },
     status: {
         key: 'status',
-        field: 'Status',
+        field: 'StatusId',
         header: 'Status',
         matchMode: FilterMatchMode.IN
     },

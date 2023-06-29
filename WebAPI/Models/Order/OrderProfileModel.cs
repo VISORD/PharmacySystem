@@ -14,10 +14,15 @@ public sealed class OrderProfileModel
     public DateTime UpdatedAt { get; init; }
     public string UpdatedAtText => UpdatedAt.FormatDateTime();
 
-    public static OrderProfileModel From(Database.Entities.Order.Order order) => new()
+    public static OrderProfileModel From(OrderProfile order) => new()
     {
         Id = order.Id,
-        Pharmacy = PharmacyShortModel.From(order.Pharmacy),
+        Pharmacy = new PharmacyShortModel
+        {
+            Id = order.PharmacyId,
+            Name = order.PharmacyName,
+            Address = order.PharmacyAddress,
+        },
         Status = order.Status,
         OrderedAt = order.OrderedAt?.LocalDateTime,
         UpdatedAt = order.UpdatedAt.LocalDateTime,

@@ -1,3 +1,4 @@
+using PharmacySystem.WebAPI.Database.Entities.Medicament;
 using PharmacySystem.WebAPI.Extensions;
 
 namespace PharmacySystem.WebAPI.Models.Medicament;
@@ -10,11 +11,11 @@ public sealed class MedicamentAnalogueItemPagingModel
     public decimal VendorPrice { get; init; }
     public string VendorPriceText => VendorPrice.Format();
 
-    public static MedicamentAnalogueItemPagingModel From(Database.Entities.Medicament.Medicament medicament, bool isAnalogue) => new()
+    public static MedicamentAnalogueItemPagingModel From(MedicamentAnalogue medicamentAnalogue) => new()
     {
-        Id = medicament.Id,
-        Name = medicament.Name,
-        IsAnalogue = isAnalogue,
-        VendorPrice = medicament.VendorPrice,
+        Id = medicamentAnalogue.Id,
+        IsAnalogue = medicamentAnalogue.IsAnalogue,
+        Name = medicamentAnalogue.Name,
+        VendorPrice = medicamentAnalogue.VendorPrice,
     };
 }

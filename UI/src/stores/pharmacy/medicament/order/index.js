@@ -16,9 +16,15 @@ const columns = {
         header: 'Order #',
         matchMode: FilterMatchMode.EQUALS
     },
+    orderCount: {
+        key: 'orderCount',
+        field: 'OrderCount',
+        header: 'Order Count',
+        matchMode: FilterMatchMode.EQUALS
+    },
     status: {
         key: 'status',
-        field: 'Status',
+        field: 'StatusId',
         header: 'Status',
         matchMode: FilterMatchMode.IN
     },

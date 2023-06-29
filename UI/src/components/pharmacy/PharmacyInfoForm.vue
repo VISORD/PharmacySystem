@@ -93,6 +93,18 @@ function setWorkingHours(weekday, isChecked = true) {
     }
 }
 
+function onStartTimeShow(weekday) {
+    if (!form.value.workingHours[weekday.name].startTime) {
+        form.value.workingHours[weekday.name].startTime = new Date()
+    }
+}
+
+function onStopTimeShow(weekday) {
+    if (!form.value.workingHours[weekday.name].stopTime) {
+        form.value.workingHours[weekday.name].stopTime = new Date()
+    }
+}
+
 const onSubmit = handleSubmit.withControlled(async (values) => {
     const workingHours = {}
     for (const weekday in form.value.workingHours) {
@@ -277,6 +289,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => {
                                             show-seconds
                                             :disabled="!form.weekDays[weekday.name]"
                                             placeholder="From"
+                                            @show="onStartTimeShow(weekday)"
                                         />
                                     </div>
                                     <div style="margin: 0.5rem"></div>
@@ -288,6 +301,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => {
                                             show-seconds
                                             :disabled="!form.weekDays[weekday.name]"
                                             placeholder="To"
+                                            @show="onStopTimeShow(weekday)"
                                         />
                                     </div>
                                 </div>

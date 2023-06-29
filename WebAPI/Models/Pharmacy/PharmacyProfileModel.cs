@@ -29,10 +29,9 @@ public sealed class PharmacyProfileModel
     [StringLength(1024)]
     public string? Description { get; init; }
 
-    [Required]
-    public IDictionary<DayOfWeek, PharmacyWorkingHoursModel> WorkingHours { get; init; } = null!;
+    public IDictionary<DayOfWeek, PharmacyWorkingHoursModel> WorkingHours { get; init; } = new Dictionary<DayOfWeek, PharmacyWorkingHoursModel>();
 
-    public static PharmacyProfileModel From(Database.Entities.Pharmacy.Pharmacy pharmacy) => new()
+    public static PharmacyProfileModel From(Database.Entities.Pharmacy.Pharmacy pharmacy, IEnumerable<PharmacyWorkingHours> workingHours) => new()
     {
         Name = pharmacy.Name,
         Email = pharmacy.Email,
@@ -41,7 +40,7 @@ public sealed class PharmacyProfileModel
         Latitude = pharmacy.Latitude,
         Longitude = pharmacy.Longitude,
         Description = pharmacy.Description,
-        WorkingHours = pharmacy.WorkingHours.ToDictionary(x => x.Weekday, PharmacyWorkingHoursModel.From)
+        WorkingHours = workingHours.ToDictionary(x => x.Weekday, PharmacyWorkingHoursModel.From)
     };
 
     public Database.Entities.Pharmacy.Pharmacy To(int companyId, int? id = null) => new()
@@ -54,13 +53,14 @@ public sealed class PharmacyProfileModel
         Address = Address,
         Latitude = Latitude!.Value,
         Longitude = Longitude!.Value,
-        Description = Description,
-        WorkingHours = WorkingHours.Select(x => new PharmacyWorkingHours
-        {
-            PharmacyId = id ?? 0,
-            Weekday = x.Key,
-            StartTime = x.Value.StartTime!.Value,
-            StopTime = x.Value.StopTime!.Value,
-        }).ToList()
+        Description = Description
     };
+
+    public IEnumerable<PharmacyWorkingHours> ToWorkingHours(int pharmacyId) => WorkingHours.Select(x => new PharmacyWorkingHours
+    {
+        PharmacyId = pharmacyId,
+        Weekday = x.Key,
+        StartTime = x.Value.StartTime!.Value,
+        StopTime = x.Value.StopTime!.Value,
+    });
 }

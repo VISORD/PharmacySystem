@@ -1,4 +1,5 @@
 using PharmacySystem.WebAPI.Database.Entities.Pharmacy;
+using PharmacySystem.WebAPI.Extensions;
 using PharmacySystem.WebAPI.Models.Medicament;
 
 namespace PharmacySystem.WebAPI.Models.Pharmacy;
@@ -10,11 +11,28 @@ public sealed class PharmacyMedicamentProfileModel
     public PharmacyMedicamentRateModel? Rate { get; init; } = null!;
     public int QuantityOnHand { get; init; }
 
-    public static PharmacyMedicamentProfileModel From(PharmacyMedicament pharmacyMedicament, DateTime asOfDate) => new()
+    public static PharmacyMedicamentProfileModel From(PharmacyMedicamentProfile pharmacyMedicament) => new()
     {
-        Pharmacy = PharmacyShortModel.From(pharmacyMedicament.Pharmacy),
-        Medicament = MedicamentShortModel.From(pharmacyMedicament.Medicament),
-        Rate = PharmacyMedicamentRateModel.From(pharmacyMedicament.Rates.RetailPrice(asOfDate)),
+        Pharmacy = new PharmacyShortModel
+        {
+            Id = pharmacyMedicament.PharmacyId,
+            Name = pharmacyMedicament.PharmacyName,
+            Address = pharmacyMedicament.PharmacyAddress,
+        },
+        Medicament = new MedicamentShortModel
+        {
+            Id = pharmacyMedicament.MedicamentId,
+            Name = pharmacyMedicament.MedicamentName,
+            VendorPrice = pharmacyMedicament.VendorPrice,
+        },
+        Rate = pharmacyMedicament.RetailPrice is not null
+            ? new PharmacyMedicamentRateModel
+            {
+                RetailPrice = pharmacyMedicament.RetailPrice,
+                StartDate = pharmacyMedicament.RateStartDate!.Value.AsStartDate(),
+                StopDate = pharmacyMedicament.RateStopDate!.Value.AsStartDate(),
+            }
+            : null,
         QuantityOnHand = pharmacyMedicament.QuantityOnHand,
     };
 }

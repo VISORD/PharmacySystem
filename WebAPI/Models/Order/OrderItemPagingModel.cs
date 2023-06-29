@@ -15,11 +15,16 @@ public sealed class OrderItemPagingModel
     public DateTime UpdatedAt { get; init; }
     public string UpdatedAtText => UpdatedAt.FormatDateTime();
 
-    public static OrderItemPagingModel From(Database.Entities.Order.Order order) => new()
+    public static OrderItemPagingModel From(OrderItem order) => new()
     {
         Id = order.Id,
-        Pharmacy = PharmacyShortModel.From(order.Pharmacy),
-        MedicamentItemCount = order.Medicaments.Count,
+        Pharmacy = new PharmacyShortModel
+        {
+            Id = order.PharmacyId,
+            Name = order.PharmacyName,
+            Address = order.PharmacyAddress,
+        },
+        MedicamentItemCount = order.MedicamentItemCount,
         Status = order.Status,
         OrderedAt = order.OrderedAt?.LocalDateTime,
         UpdatedAt = order.UpdatedAt.LocalDateTime,

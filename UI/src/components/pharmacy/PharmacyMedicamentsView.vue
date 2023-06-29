@@ -145,6 +145,10 @@ function buildRateDatesFrameMessage(rate) {
                 />
             </template>
         </Column>
+
+        <template #header>
+            <Button type="button" icon="fa-solid fa-plus" aria-label="Create order" />
+        </template>
     </ListTable>
 </template>
 

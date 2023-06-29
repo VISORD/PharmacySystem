@@ -5,8 +5,9 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.OpenApi.Models;
 using PharmacySystem.WebAPI.Authentication;
 using PharmacySystem.WebAPI.Authentication.Claims;
-using PharmacySystem.WebAPI.Database;
+using PharmacySystem.WebAPI.Database.Connection;
 using PharmacySystem.WebAPI.Database.Publisher;
+using PharmacySystem.WebAPI.Database.Repositories;
 using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Options;
 
@@ -32,7 +33,19 @@ internal static class Program
 
         // Configure database context
         builder.Services
-            .AddDbContext<DatabaseContext>()
+            .AddScoped<IAccountRepository, AccountRepository>()
+            .AddScoped<ICompanyRepository, CompanyRepository>()
+            .AddScoped<IMedicamentRepository, MedicamentRepository>()
+            .AddScoped<IMedicamentAnalogueRepository, MedicamentAnalogueRepository>()
+            .AddScoped<IOrderRepository, OrderRepository>()
+            .AddScoped<IOrderHistoryRepository, OrderHistoryRepository>()
+            .AddScoped<IOrderMedicamentRepository, OrderMedicamentRepository>()
+            .AddScoped<IPharmacyRepository, PharmacyRepository>()
+            .AddScoped<IPharmacyWorkingHoursRepository, PharmacyWorkingHoursRepository>()
+            .AddScoped<IPharmacyMedicamentRepository, PharmacyMedicamentRepository>()
+            .AddScoped<IPharmacyMedicamentRateRepository, PharmacyMedicamentRateRepository>()
+            .AddScoped<IPharmacyMedicamentSaleRepository, PharmacyMedicamentSaleRepository>()
+            .AddScoped<IPharmacyMedicamentOrderRepository, PharmacyMedicamentOrderRepository>()
             .AddScoped<IDatabasePublicationService, DatabasePublicationService>();
 
         // Add filters
@@ -67,8 +80,9 @@ internal static class Program
         // Configure controllers and routing
         builder.Services.AddControllers(options =>
         {
-            // Include context provider
+            // Include providers
             options.ModelBinderProviders.Insert(0, new ClaimProvider());
+            options.ModelBinderProviders.Insert(1, new DatabaseConnectionProvider());
         }).ConfigureApiBehaviorOptions(options => options.InvalidModelStateResponseFactory = context =>
         {
             var response = new ItemResponse(new SerializableError(context.ModelState), "One or more model validation errors occured");

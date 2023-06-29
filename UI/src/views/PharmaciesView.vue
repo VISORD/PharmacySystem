@@ -81,6 +81,60 @@ const menu = ref([
         </Column>
 
         <Column
+            :key="pharmacy.table.columns.email.key"
+            :field="pharmacy.table.columns.email.key"
+            :header="pharmacy.table.columns.email.header"
+            :sort-field="pharmacy.table.columns.email.field"
+            :filter-field="pharmacy.table.columns.email.field"
+            :sortable="true"
+            filter
+            style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
+        >
+            <template #filter="{ filterModel, filterCallback }">
+                <InputText
+                    id="filter-pharmacy-email"
+                    v-model="filterModel.value"
+                    v-tooltip.top.focus="'Hit enter key to filter'"
+                    type="text"
+                    @keydown.enter="filterCallback()"
+                    class="p-column-filter"
+                />
+            </template>
+
+            <template #body="{ data }">
+                {{ data.email ?? '—' }}
+            </template>
+        </Column>
+
+        <Column
+            :key="pharmacy.table.columns.phone.key"
+            :field="pharmacy.table.columns.phone.key"
+            :header="pharmacy.table.columns.phone.header"
+            :sort-field="pharmacy.table.columns.phone.field"
+            :filter-field="pharmacy.table.columns.phone.field"
+            :sortable="true"
+            filter
+            style="min-width: 20rem; max-width: 20rem"
+            body-style="font-weight: 500"
+        >
+            <template #filter="{ filterModel, filterCallback }">
+                <InputText
+                    id="filter-pharmacy-phone"
+                    v-model="filterModel.value"
+                    v-tooltip.top.focus="'Hit enter key to filter'"
+                    type="text"
+                    @keydown.enter="filterCallback()"
+                    class="p-column-filter"
+                />
+            </template>
+
+            <template #body="{ data }">
+                {{ data.phone ?? '—' }}
+            </template>
+        </Column>
+
+        <Column
             :key="pharmacy.table.columns.address.key"
             :field="pharmacy.table.columns.address.key"
             :header="pharmacy.table.columns.address.header"

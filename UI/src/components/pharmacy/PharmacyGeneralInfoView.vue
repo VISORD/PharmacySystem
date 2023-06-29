@@ -165,6 +165,7 @@ onMounted(async () => await pharmacy.view.reload())
     <Transition name="pharmacy" mode="out-in">
         <yandex-map
             v-if="!pharmacy.view.loading && pharmacy.view.profile.latitude && pharmacy.view.profile.longitude"
+            :controls="['fullscreenControl', 'geolocationControl', 'typeSelector', 'zoomControl']"
             :coords="[pharmacy.view.profile.latitude, pharmacy.view.profile.longitude]"
             zoom="17"
             style="width: 100%; height: 200px"

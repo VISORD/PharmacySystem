@@ -12,14 +12,16 @@ public sealed class OrderMedicamentItemPagingModel
     public int? ApprovedCount { get; init; }
     public bool IsApproved { get; init; }
 
-    public static OrderMedicamentItemPagingModel From(OrderMedicament orderMedicament) => new()
+    public static OrderMedicamentItemPagingModel From(OrderMedicamentItem orderMedicament) => new()
     {
         Id = $"{orderMedicament.OrderId}:{orderMedicament.MedicamentId}",
-        Medicament = MedicamentShortModel.From(orderMedicament.Medicament),
-        QuantityOnHand = orderMedicament.Medicament
-            .PharmacyMedicaments
-            .SingleOrDefault(x => x.PharmacyId == orderMedicament.Order.PharmacyId)?
-            .QuantityOnHand ?? 0,
+        Medicament = new MedicamentShortModel
+        {
+            Id = orderMedicament.MedicamentId,
+            Name = orderMedicament.MedicamentName,
+            VendorPrice = orderMedicament.VendorPrice,
+        },
+        QuantityOnHand = orderMedicament.QuantityOnHand,
         RequestedCount = orderMedicament.RequestedCount,
         ApprovedCount = orderMedicament.ApprovedCount,
         IsApproved = orderMedicament.IsApproved,

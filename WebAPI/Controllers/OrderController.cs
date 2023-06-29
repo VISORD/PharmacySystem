@@ -1,12 +1,11 @@
 using System.Data;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Data.SqlClient;
 using PharmacySystem.WebAPI.Authentication.Claims;
-using PharmacySystem.WebAPI.Database;
+using PharmacySystem.WebAPI.Database.Connection;
 using PharmacySystem.WebAPI.Database.Entities.Order;
-using PharmacySystem.WebAPI.Database.Entities.Pharmacy;
-using PharmacySystem.WebAPI.Extensions;
+using PharmacySystem.WebAPI.Database.Repositories;
 using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Models.Order;
 
@@ -17,43 +16,44 @@ namespace PharmacySystem.WebAPI.Controllers;
 [Authorize]
 public sealed class OrderController : ControllerBase
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IOrderRepository _orderRepository;
+    private readonly IOrderHistoryRepository _orderHistoryRepository;
+    private readonly IPharmacyRepository _pharmacyRepository;
+    private readonly IOrderMedicamentRepository _orderMedicamentRepository;
 
-    public OrderController(DatabaseContext databaseContext)
+    public OrderController(
+        IOrderRepository orderRepository,
+        IOrderHistoryRepository orderHistoryRepository,
+        IPharmacyRepository pharmacyRepository,
+        IOrderMedicamentRepository orderMedicamentRepository
+    )
     {
-        _databaseContext = databaseContext;
+        _orderRepository = orderRepository;
+        _orderHistoryRepository = orderHistoryRepository;
+        _pharmacyRepository = pharmacyRepository;
+        _orderMedicamentRepository = orderMedicamentRepository;
     }
 
     [HttpPost("list")]
     public async Task<IActionResult> List(
+        [Database(isReadOnly: true)] SqlConnection connection,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         [FromBody] OrderItemsPagingRequest request,
         CancellationToken cancellationToken
     )
     {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var query = _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .Include(x => x.Medicaments)
-            .Where(x => x.Pharmacy.CompanyId == companyId)
-            .FilterByRequest(request.Filtering)
-            .OrderByRequest(request.Ordering);
-
-        var totalAmount = await query.CountAsync(cancellationToken);
-        var orders = await query
-            .Skip(request.Paging.Offset!.Value)
-            .Take(request.Paging.Size!.Value)
-            .ToArrayAsync(cancellationToken);
-
+        var result = await _orderRepository.ListAsync(transaction, companyId, request, cancellationToken);
         return Ok(new ItemsPagingResponse(
-            totalAmount,
-            orders.Select(OrderItemPagingModel.From)
+            result.TotalAmount,
+            result.Items.Select(OrderItemPagingModel.From)
         ));
     }
 
     [HttpPost]
     public async Task<IActionResult> Add(
+        [Database] SqlConnection connection,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         [FromBody] OrderCreationModel model,
         CancellationToken cancellationToken
@@ -61,108 +61,67 @@ public sealed class OrderController : ControllerBase
     {
         var order = model.To();
 
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var validationResult = await ValidateCompanyPharmacyRelation(companyId, order.PharmacyId, cancellationToken);
+        var validationResult = await ValidateCompanyPharmacyRelation(transaction, companyId, order.PharmacyId, cancellationToken);
         if (validationResult is not null)
         {
             return validationResult;
         }
 
-        var result = await _databaseContext.Orders.AddAsync(order, cancellationToken);
-
-        await _databaseContext.OrderHistory.AddAsync(new OrderHistory
+        var orderId = await _orderRepository.AddAsync(transaction, order, cancellationToken);
+        await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
-            OrderId = result.Entity.Id,
+            OrderId = orderId,
             Event = "Order was created",
             Timestamp = DateTimeOffset.Now,
         }, cancellationToken);
 
-        await _databaseContext.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
-
-        return Ok(new ItemResponse(result.Entity.Id));
-    }
-
-    [HttpGet("{orderId:int}")]
-    public async Task<IActionResult> Get(
-        int orderId,
-        [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        CancellationToken cancellationToken
-    )
-    {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
-
-        var order = await _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.Pharmacy.CompanyId == companyId, cancellationToken);
-
-        return order is not null
-            ? Ok(new ItemResponse(OrderProfileModel.From(order)))
-            : NotFound();
-    }
-
-    [HttpPut("{orderId:int}")]
-    public async Task<IActionResult> Update(
-        int orderId,
-        [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        [FromBody] OrderUpdateModel model,
-        CancellationToken cancellationToken
-    )
-    {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
-
-        var existing = await _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.Pharmacy.CompanyId == companyId, cancellationToken);
-
-        if (existing is null)
-        {
-            return NotFound();
-        }
-
-        if (existing.Status != OrderStatus.Draft)
-        {
-            return BadRequest(new ItemResponse(Error: "Non-draft order can't be changed"));
-        }
-
-        var order = model.To(orderId, existing.PharmacyId);
-        _databaseContext.Orders.Update(order);
-
-        await _databaseContext.OrderHistory.AddAsync(new OrderHistory
-        {
-            OrderId = orderId,
-            Event = "Order was updated",
-            Timestamp = DateTimeOffset.Now,
-        }, cancellationToken);
-
-        await _databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return NoContent();
     }
 
-    [HttpDelete("{orderId:int}")]
-    public async Task<IActionResult> Delete(
+    [HttpGet("{orderId:int}")]
+    public async Task<IActionResult> Get(
+        [Database(isReadOnly: true)] SqlConnection connection,
         int orderId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         CancellationToken cancellationToken
     )
     {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var order = await _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.Pharmacy.CompanyId == companyId, cancellationToken);
-
-        if (order is null)
+        var validationResult = await ValidateCompanyOrderRelation(transaction, companyId, orderId, cancellationToken);
+        if (validationResult is not null)
         {
-            return NotFound();
+            return validationResult;
         }
 
-        _databaseContext.Orders.Remove(order);
+        var order = await _orderRepository.GetProfileAsync(transaction, orderId, cancellationToken);
+        return order is not null
+            ? Ok(new ItemResponse(OrderProfileModel.From(order)))
+            : NotFound();
+    }
 
-        await _databaseContext.SaveChangesAsync(cancellationToken);
+    [HttpDelete("{orderId:int}")]
+    public async Task<IActionResult> Delete(
+        [Database] SqlConnection connection,
+        int orderId,
+        [FromClaim(ClaimTypes.CompanyId)] int companyId,
+        CancellationToken cancellationToken
+    )
+    {
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+
+        var validationResult = await ValidateCompanyOrderRelation(transaction, companyId, orderId, cancellationToken);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
+
+        await _orderRepository.DeleteAsync(transaction, orderId, cancellationToken);
+
         await transaction.CommitAsync(cancellationToken);
 
         return NoContent();
@@ -170,17 +129,21 @@ public sealed class OrderController : ControllerBase
 
     [HttpPut("{orderId:int}/launch")]
     public async Task<IActionResult> Launch(
+        [Database] SqlConnection connection,
         int orderId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         CancellationToken cancellationToken
     )
     {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var order = await _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.Pharmacy.CompanyId == companyId, cancellationToken);
+        var validationResult = await ValidateCompanyOrderRelation(transaction, companyId, orderId, cancellationToken);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
 
+        var order = await _orderRepository.GetAsync(transaction, orderId, cancellationToken);
         if (order is null)
         {
             return NotFound();
@@ -191,24 +154,23 @@ public sealed class OrderController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Non-draft order can't be launched"));
         }
 
-        var hasRequestedMedicaments = await _databaseContext.OrderMedicaments
-            .AnyAsync(x => x.OrderId == orderId, cancellationToken);
-        if (hasRequestedMedicaments)
+        if (!await _orderMedicamentRepository.HasRequested(transaction, orderId, cancellationToken))
         {
             return BadRequest(new ItemResponse(Error: "No requested medicaments"));
         }
 
         order.Status = OrderStatus.Ordered;
-        _databaseContext.Orders.Update(order);
+        order.OrderedAt = DateTimeOffset.Now;
+        order.UpdatedAt = DateTimeOffset.Now;
+        await _orderRepository.UpdateAsync(transaction, order, cancellationToken);
 
-        await _databaseContext.OrderHistory.AddAsync(new OrderHistory
+        await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
             OrderId = orderId,
             Event = "Order was launched",
             Timestamp = DateTimeOffset.Now,
         }, cancellationToken);
 
-        await _databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return NoContent();
@@ -216,17 +178,21 @@ public sealed class OrderController : ControllerBase
 
     [HttpPut("{orderId:int}/ship")]
     public async Task<IActionResult> Ship(
+        [Database] SqlConnection connection,
         int orderId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         CancellationToken cancellationToken
     )
     {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var order = await _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.Pharmacy.CompanyId == companyId, cancellationToken);
+        var validationResult = await ValidateCompanyOrderRelation(transaction, companyId, orderId, cancellationToken);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
 
+        var order = await _orderRepository.GetAsync(transaction, orderId, cancellationToken);
         if (order is null)
         {
             return NotFound();
@@ -237,24 +203,22 @@ public sealed class OrderController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Non-processed order can't be shipped"));
         }
 
-        var hasNonProcessedMedicaments = await _databaseContext.OrderMedicaments
-            .AnyAsync(x => x.OrderId == orderId && !x.IsApproved, cancellationToken);
-        if (hasNonProcessedMedicaments)
+        if (await _orderMedicamentRepository.HasNonApproved(transaction, orderId, cancellationToken))
         {
             return BadRequest(new ItemResponse(Error: "All order medicaments should be approved before"));
         }
 
         order.Status = OrderStatus.Shipped;
-        _databaseContext.Orders.Update(order);
+        order.UpdatedAt = DateTimeOffset.Now;
+        await _orderRepository.UpdateAsync(transaction, order, cancellationToken);
 
-        await _databaseContext.OrderHistory.AddAsync(new OrderHistory
+        await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
             OrderId = orderId,
             Event = "Order was shipped",
             Timestamp = DateTimeOffset.Now,
         }, cancellationToken);
 
-        await _databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return NoContent();
@@ -262,17 +226,21 @@ public sealed class OrderController : ControllerBase
 
     [HttpPut("{orderId:int}/complete")]
     public async Task<IActionResult> Complete(
+        [Database] SqlConnection connection,
         int orderId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         CancellationToken cancellationToken
     )
     {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var order = await _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.Pharmacy.CompanyId == companyId, cancellationToken);
+        var validationResult = await ValidateCompanyOrderRelation(transaction, companyId, orderId, cancellationToken);
+        if (validationResult is not null)
+        {
+            return validationResult;
+        }
 
+        var order = await _orderRepository.GetAsync(transaction, orderId, cancellationToken);
         if (order is null)
         {
             return NotFound();
@@ -283,40 +251,19 @@ public sealed class OrderController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Non-shipped order can't be completed"));
         }
 
+        await _orderMedicamentRepository.DeliveryToPharmacies(transaction, orderId, cancellationToken);
+
         order.Status = OrderStatus.Delivered;
-        _databaseContext.Orders.Update(order);
+        order.UpdatedAt = DateTimeOffset.Now;
+        await _orderRepository.UpdateAsync(transaction, order, cancellationToken);
 
-        var orderMedicaments = _databaseContext.OrderMedicaments
-            .Where(x => x.OrderId == orderId)
-            .AsAsyncEnumerable()
-            .WithCancellation(cancellationToken);
-
-        await foreach (var orderMedicament in orderMedicaments)
-        {
-            var pharmacyMedicament = await _databaseContext.PharmacyMedicaments
-                .SingleOrDefaultAsync(x => x.PharmacyId == order.PharmacyId && x.MedicamentId == orderMedicament.MedicamentId, cancellationToken);
-
-            if (pharmacyMedicament is null)
-            {
-                pharmacyMedicament = new PharmacyMedicament
-                {
-                    PharmacyId = order.PharmacyId,
-                    MedicamentId = orderMedicament.MedicamentId,
-                };
-            }
-
-            pharmacyMedicament.QuantityOnHand += orderMedicament.ApprovedCount!.Value;
-            _databaseContext.PharmacyMedicaments.Update(pharmacyMedicament);
-        }
-
-        await _databaseContext.OrderHistory.AddAsync(new OrderHistory
+        await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
             OrderId = orderId,
             Event = "Order was completed",
             Timestamp = DateTimeOffset.Now,
         }, cancellationToken);
 
-        await _databaseContext.SaveChangesAsync(cancellationToken);
         await transaction.CommitAsync(cancellationToken);
 
         return NoContent();
@@ -324,40 +271,38 @@ public sealed class OrderController : ControllerBase
 
     [HttpGet("{orderId:int}/history")]
     public async Task<IActionResult> History(
+        [Database(isReadOnly: true)] SqlConnection connection,
         int orderId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
         CancellationToken cancellationToken
     )
     {
-        await using var transaction = await _databaseContext.Database.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
+        await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var order = await _databaseContext.Orders
-            .Include(x => x.Pharmacy)
-            .SingleOrDefaultAsync(x => x.Id == orderId && x.Pharmacy.CompanyId == companyId, cancellationToken);
-
-        if (order is null)
+        var validationResult = await ValidateCompanyOrderRelation(transaction, companyId, orderId, cancellationToken);
+        if (validationResult is not null)
         {
-            return NotFound();
+            return validationResult;
         }
 
-        var historyRecords = await _databaseContext.OrderHistory
-            .Where(x => x.OrderId == orderId)
-            .OrderByDescending(x => x.Id)
-            .ToArrayAsync(cancellationToken);
-
+        var historyRecords = await _orderHistoryRepository.ListAsync(transaction, orderId, cancellationToken);
         return Ok(new ItemsResponse(historyRecords.Select(OrderHistoryRecordModel.From)));
     }
 
     #region Validation
 
     [NonAction]
-    private async Task<IActionResult?> ValidateCompanyPharmacyRelation(int companyId, int pharmacyId, CancellationToken cancellationToken)
+    private async Task<IActionResult?> ValidateCompanyPharmacyRelation(IDbTransaction transaction, int companyId, int pharmacyId, CancellationToken cancellationToken)
     {
-        var pharmacy = await _databaseContext.Pharmacies
-            .AsNoTracking()
-            .SingleOrDefaultAsync(x => x.Id == pharmacyId, cancellationToken);
+        return !await _pharmacyRepository.IsExistAsync(transaction, companyId, pharmacyId, cancellationToken)
+            ? NotFound()
+            : null;
+    }
 
-        return pharmacy?.CompanyId != companyId
+    [NonAction]
+    private async Task<IActionResult?> ValidateCompanyOrderRelation(IDbTransaction transaction, int companyId, int orderId, CancellationToken cancellationToken)
+    {
+        return !await _orderRepository.IsExistAsync(transaction, companyId, orderId, cancellationToken)
             ? NotFound()
             : null;
     }

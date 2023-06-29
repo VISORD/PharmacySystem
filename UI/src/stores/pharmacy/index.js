@@ -13,6 +13,18 @@ const columns = {
         header: 'Name',
         matchMode: FilterMatchMode.EQUALS
     },
+    email: {
+        key: 'email',
+        field: 'Email',
+        header: 'Email',
+        matchMode: FilterMatchMode.EQUALS
+    },
+    phone: {
+        key: 'phone',
+        field: 'Phone',
+        header: 'Phone',
+        matchMode: FilterMatchMode.EQUALS
+    },
     address: {
         key: 'address',
         field: 'Address',

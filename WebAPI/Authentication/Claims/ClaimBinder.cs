@@ -22,7 +22,7 @@ public sealed class ClaimBinder : IModelBinder
             .HttpContext
             .User
             .Claims
-            .FirstOrDefault(c => string.Equals(c.Type, _contextAttribute?.ClaimType, StringComparison.InvariantCultureIgnoreCase));
+            .FirstOrDefault(c => string.Equals(c.Type, _contextAttribute.ClaimType, StringComparison.InvariantCultureIgnoreCase));
 
         if (claim is not null)
         {

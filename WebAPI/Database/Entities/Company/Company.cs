@@ -1,8 +1,5 @@
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace PharmacySystem.WebAPI.Database.Entities.Company;
 
-[Table(nameof(Company), Schema = "company")]
 public sealed class Company
 {
     public int Id { get; set; }
