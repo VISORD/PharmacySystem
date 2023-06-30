@@ -140,7 +140,7 @@ export const useOrderStore = defineStore('order', () => {
         orderId: null,
         dialog: false,
         loading: true,
-        buttons: true,
+        processing: true,
         profile: {},
         history: [],
         async reload() {
@@ -165,7 +165,7 @@ export const useOrderStore = defineStore('order', () => {
                 return
             }
 
-            this.buttons = false
+            this.processing = false
 
             const response = await remove(this.orderId)
             if (response.status < 400) {
@@ -184,7 +184,7 @@ export const useOrderStore = defineStore('order', () => {
                 })
             }
 
-            this.buttons = true
+            this.processing = true
 
             this.dialog = false
             this.orderId = null
@@ -198,7 +198,7 @@ export const useOrderStore = defineStore('order', () => {
                 return
             }
 
-            this.buttons = false
+            this.processing = false
 
             const response = await launch(this.orderId)
             if (response.status < 400) {
@@ -221,14 +221,14 @@ export const useOrderStore = defineStore('order', () => {
                 })
             }
 
-            this.buttons = true
+            this.processing = true
         },
         async tryShip() {
             if (!this.orderId) {
                 return
             }
 
-            this.buttons = false
+            this.processing = false
 
             const response = await ship(this.orderId)
             if (response.status < 400) {
@@ -251,14 +251,14 @@ export const useOrderStore = defineStore('order', () => {
                 })
             }
 
-            this.buttons = true
+            this.processing = true
         },
         async tryComplete() {
             if (!this.orderId) {
                 return
             }
 
-            this.buttons = false
+            this.processing = false
 
             const response = await complete(this.orderId)
             if (response.status < 400) {
@@ -281,7 +281,7 @@ export const useOrderStore = defineStore('order', () => {
                 })
             }
 
-            this.buttons = true
+            this.processing = true
         },
         async tryGetHistory() {
             if (!this.orderId) {
@@ -305,7 +305,10 @@ export const useOrderStore = defineStore('order', () => {
     const edit = ref({
         dialog: false,
         pending: false,
+        processing: false,
         async tryApply(values) {
+            this.processing = true
+
             const response = await add(values)
             if (response.status < 400) {
                 this.dialog = false
@@ -336,6 +339,8 @@ export const useOrderStore = defineStore('order', () => {
                     life: 3000
                 })
             }
+
+            this.processing = false
         }
     })
 

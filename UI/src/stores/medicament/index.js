@@ -183,7 +183,10 @@ export const useMedicamentStore = defineStore('medicament', () => {
     const edit = ref({
         dialog: false,
         pending: false,
+        processing: false,
         async tryApply(values) {
+            this.processing = true
+
             const response = view.value.medicamentId ? await update(view.value.medicamentId, values) : await add(values)
             if (response.status < 400) {
                 this.dialog = false
@@ -222,6 +225,8 @@ export const useMedicamentStore = defineStore('medicament', () => {
                     life: 3000
                 })
             }
+
+            this.processing = false
         }
     })
 

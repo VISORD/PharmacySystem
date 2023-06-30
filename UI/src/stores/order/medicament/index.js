@@ -135,8 +135,11 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
 
     const edit = ref({
         dialog: false,
+        processing: false,
         orderMedicament: {},
         async tryRequest(values) {
+            this.processing = true
+
             const response = await request(order.view.orderId, this.orderMedicament.medicament.id, values)
             if (response.status < 400) {
                 toast.add({
@@ -159,8 +162,12 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
                     life: 3000
                 })
             }
+
+            this.processing = false
         },
         async tryApprove(values) {
+            this.processing = true
+
             const response = await approve(order.view.orderId, this.orderMedicament.medicament.id, values)
             if (response.status < 400) {
                 toast.add({
@@ -183,6 +190,8 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
                     life: 3000
                 })
             }
+
+            this.processing = false
         }
     })
 

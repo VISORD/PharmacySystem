@@ -8,10 +8,13 @@ export const useCompanyStore = defineStore('company', () => {
     const dialog = ref(false)
     const data = ref({})
 
+    const processing = ref(false)
+
     const toast = useToast()
 
     async function reload() {
         loading.value = true
+        processing.value = true
 
         const response = await get()
         if (response.status < 400) {
@@ -25,10 +28,13 @@ export const useCompanyStore = defineStore('company', () => {
             })
         }
 
+        processing.value = false
         loading.value = false
     }
 
     async function tryUpdate(values) {
+        processing.value = true
+
         const response = await update(values)
 
         let notification
@@ -54,7 +60,9 @@ export const useCompanyStore = defineStore('company', () => {
         if (notification) {
             toast.add(notification)
         }
+
+        processing.value = false
     }
 
-    return { dialog, loading, data, reload, tryUpdate }
+    return { dialog, loading, processing, data, reload, tryUpdate }
 })

@@ -110,7 +110,13 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
                 <div style="text-align: right">
                     <div class="buttons">
                         <Button label="Cancel" icon="fa-solid fa-xmark" @click="medicament.edit.dialog = false" text />
-                        <Button label="Apply" icon="fa-solid fa-check" type="submit" />
+
+                        <Button
+                            label="Apply"
+                            icon="fa-solid fa-check"
+                            type="submit"
+                            :loading="medicament.edit.processing"
+                        />
                     </div>
                 </div>
             </form>

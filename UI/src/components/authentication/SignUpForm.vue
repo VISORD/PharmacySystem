@@ -86,7 +86,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await account.try
                 <small class="p-error" id="text-error">{{ form.password.errorMessage || '&nbsp;' }}</small>
             </div>
 
-            <Button type="submit" label="Submit" class="mt-2" />
+            <Button type="submit" label="Submit" class="mt-2" :loading="account.processing" />
         </form>
     </div>
 </template>

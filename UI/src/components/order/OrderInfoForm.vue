@@ -85,7 +85,7 @@ const onSubmit = handleSubmit.withControlled(
                 <div style="text-align: right">
                     <div class="buttons">
                         <Button label="Cancel" icon="fa-solid fa-xmark" @click="order.edit.dialog = false" text />
-                        <Button label="Apply" icon="fa-solid fa-check" type="submit" />
+                        <Button label="Apply" icon="fa-solid fa-check" type="submit" :loading="order.edit.processing" />
                     </div>
                 </div>
             </form>

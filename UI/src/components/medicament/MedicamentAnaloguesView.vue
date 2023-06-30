@@ -146,6 +146,7 @@ const menu = ref([
                     style="margin-right: 1rem"
                     @click="medicamentAnalogueSelector.table.dialog = true"
                     v-tooltip.left.hover="'Associate analogues'"
+                    :disabled="medicamentAnalogueSelector.table.loading"
                 />
 
                 <Button
@@ -153,7 +154,9 @@ const menu = ref([
                     severity="danger"
                     icon="fa-solid fa-link-slash"
                     aria-label="Manage analogues"
-                    :disabled="medicamentAnalogue.table.selection.length === 0"
+                    :disabled="
+                        medicamentAnalogueSelector.table.loading || medicamentAnalogue.table.selection.length === 0
+                    "
                     @click="disassociate()"
                     v-tooltip.left.hover="'Disassociate analogues'"
                     style="transition: all; transition-duration: 0.25s"

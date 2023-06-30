@@ -160,7 +160,12 @@ const onSubmit = handleSubmit.withControlled(async (values) => {
                             text
                         />
 
-                        <Button label="Apply" icon="fa-solid fa-check" type="submit" />
+                        <Button
+                            label="Apply"
+                            icon="fa-solid fa-check"
+                            type="submit"
+                            :loading="orderMedicament.edit.processing"
+                        />
                     </div>
                 </div>
             </form>

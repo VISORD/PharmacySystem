@@ -97,7 +97,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
                 <div style="text-align: right">
                     <div class="buttons">
                         <Button label="Cancel" icon="fa-solid fa-xmark" @click="company.dialog = false" text />
-                        <Button label="Apply" icon="fa-solid fa-check" type="submit" />
+                        <Button label="Apply" icon="fa-solid fa-check" type="submit" :loading="company.processing" />
                     </div>
                 </div>
             </form>

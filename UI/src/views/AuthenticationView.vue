@@ -2,6 +2,9 @@
 import SignInForm from '@/components/authentication/SignInForm.vue'
 import SignUpForm from '@/components/authentication/SignUpForm.vue'
 import { ref } from 'vue'
+import { useAccountStore } from '@/stores/account'
+
+const account = useAccountStore()
 
 const value = ref(1)
 const options = ref([
@@ -27,6 +30,7 @@ const options = ref([
                     option-label="name"
                     option-value="value"
                     unselectable
+                    :disabled="account.processing"
                 />
             </header>
             <div class="separator">

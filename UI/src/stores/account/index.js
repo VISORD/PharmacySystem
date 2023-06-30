@@ -22,6 +22,8 @@ export const useAccountStore = defineStore('account', () => {
     const isAuthenticated = ref(localStorage.getItem(accessible) === 'true')
     const toast = useToast()
 
+    const processing = ref(false)
+
     async function setAsAuthenticated() {
         localStorage.setItem(accessible, 'true')
         isAuthenticated.value = true
@@ -43,6 +45,8 @@ export const useAccountStore = defineStore('account', () => {
     }
 
     async function trySignIn({ email, password }) {
+        processing.value = true
+
         const response = await signIn({ email, password })
 
         let notification
@@ -66,9 +70,13 @@ export const useAccountStore = defineStore('account', () => {
         if (notification) {
             toast.add(notification)
         }
+
+        processing.value = false
     }
 
     async function trySignUp({ email, name, password }) {
+        processing.value = true
+
         const response = await signUp({ email, name, password })
 
         let notification
@@ -92,9 +100,13 @@ export const useAccountStore = defineStore('account', () => {
         if (notification) {
             toast.add(notification)
         }
+
+        processing.value = false
     }
 
     async function trySignOut() {
+        processing.value = true
+
         const response = await signOut()
 
         let notification
@@ -119,6 +131,8 @@ export const useAccountStore = defineStore('account', () => {
         if (notification) {
             toast.add(notification)
         }
+
+        processing.value = false
     }
 
     async function onUnauthorized() {
@@ -133,6 +147,7 @@ export const useAccountStore = defineStore('account', () => {
 
     return {
         isAuthenticated: readonly(isAuthenticated),
+        processing,
         trySignIn,
         trySignUp,
         trySignOut,
