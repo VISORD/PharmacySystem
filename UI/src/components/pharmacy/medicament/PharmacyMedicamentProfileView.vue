@@ -42,7 +42,7 @@ async function hide() {
                 ? `Pharmacy medicament info: ${pharmacyMedicament.view.profile.pharmacy.name} — ${pharmacyMedicament.view.profile.medicament.name}`
                 : 'Pharmacy medicament info'
         "
-        style="width: 85vw; margin: 5rem"
+        class="profile-dialog"
     >
         <TabView class="profile-view-tab" @tab-change="(event) => (tab = event.index)">
             <TabPanel header="General Info">

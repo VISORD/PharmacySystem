@@ -153,7 +153,7 @@ const menu = ref([
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-plus" aria-label="Manage rates" />
+            <Button type="button" icon="fa-solid fa-plus" severity="secondary" v-tooltip.left.hover="'Add an order'" />
         </template>
     </ListTable>
 </template>

@@ -73,17 +73,14 @@ onMounted(async () => await pharmacyMedicament.view.reload())
         </div>
 
         <div style="display: flex; justify-content: center; width: 6rem">
-            <div style="display: flex; flex-direction: column">
-                <div class="profile-view-button">
-                    <Button
-                        icon="fa-solid fa-arrow-up-right-from-square"
-                        severity="help"
-                        @click="pharmacyMedicament.view.showInfo()"
-                    />
-                </div>
-                <div class="profile-view-button">
-                    <Button icon="fa-solid fa-calculator" />
-                </div>
+            <div class="profile-view-button">
+                <Button
+                    icon="fa-solid fa-arrow-up-right-from-square"
+                    severity="info"
+                    text
+                    @click="pharmacyMedicament.view.showInfo()"
+                    v-tooltip.left.hover="'View in new window'"
+                />
             </div>
         </div>
     </div>

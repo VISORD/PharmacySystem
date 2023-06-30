@@ -11,6 +11,11 @@ const orderMedicament = useOrderMedicamentStore()
 
 const menu = ref([
     {
+        label: 'View in new window',
+        icon: 'fa-solid fa-arrow-up-right-from-square',
+        command: () => orderMedicament.table.showInfo()
+    },
+    {
         label: 'Request',
         disabled: () => order.view.profile.status !== DRAFT.id,
         items: [
@@ -192,7 +197,8 @@ const menu = ref([
                 v-if="order.view.profile.status === DRAFT.id"
                 type="button"
                 icon="fa-solid fa-plus"
-                aria-label="Request medicament"
+                severity="secondary"
+                v-tooltip.left.hover="'Request a medicament'"
             />
         </template>
     </ListTable>

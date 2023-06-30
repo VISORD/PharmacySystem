@@ -6,6 +6,7 @@ import { preparePagingRequest } from '@/utils/paging'
 import { list } from '@/api/order/medicament'
 import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
 import { useOrderStore } from '@/stores/order'
+import router from '@/plugins/router'
 
 const columns = {
     medicament: {
@@ -94,7 +95,19 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
         selectForContextMenu(selection) {
             this.selection = selection
         },
-        showInfo() {}
+        showInfo() {
+            if (!this.selection) {
+                return
+            }
+
+            window.open(
+                router.resolve({
+                    path: 'medicament',
+                    query: { medicamentId: this.selection.medicament.id }
+                }).href,
+                '_blank'
+            )
+        }
     })
 
     return { table }

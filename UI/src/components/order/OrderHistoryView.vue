@@ -8,7 +8,7 @@ onMounted(async () => await order.view.tryGetHistory())
 </script>
 
 <template>
-    <Timeline :value="order.view.history">
+    <Timeline :value="order.view.history" data-key="id">
         <template #opposite="{ item }">
             <div class="p-text-secondary">{{ item.timestampText }}</div>
         </template>

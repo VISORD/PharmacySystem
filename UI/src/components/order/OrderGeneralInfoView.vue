@@ -3,6 +3,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useOrderStore } from '@/stores/order'
 import { resolveOrderStatus } from '@/constants/order-statuses'
 import { onMounted } from 'vue'
+import router from '@/plugins/router'
 
 const confirm = useConfirm()
 const order = useOrderStore()
@@ -17,6 +18,16 @@ const confirmDelete = () => {
         accept: async () => await order.view.tryDelete(),
         reject: () => {}
     })
+}
+
+function toPharmacy() {
+    window.open(
+        router.resolve({
+            path: 'pharmacy',
+            query: { pharmacyId: order.view.profile.pharmacy.id }
+        }).href,
+        '_blank'
+    )
 }
 
 onMounted(async () => await order.view.reload())
@@ -44,17 +55,6 @@ onMounted(async () => await order.view.reload())
             </Transition>
 
             <div class="profile-view-icon">
-                <fa :icon="['fas', 'fa-hand-holding-medical']" />
-            </div>
-
-            <Transition name="profile" mode="out-in">
-                <div v-if="!order.view.loading" class="profile-view-item">
-                    {{ order.view.profile.pharmacy.name }} ({{ order.view.profile.pharmacy.address }})
-                </div>
-                <Skeleton v-else width="40rem" class="profile-view-item-skeleton" />
-            </Transition>
-
-            <div class="profile-view-icon">
                 <fa :icon="['fas', 'fa-spinner']" />
             </div>
 
@@ -66,7 +66,7 @@ onMounted(async () => await order.view.reload())
             </Transition>
 
             <div class="profile-view-icon">
-                <fa :icon="['fas', 'fa-calendar-check']" />
+                <fa :icon="['fas', 'fa-calendar-plus']" />
             </div>
 
             <Transition name="profile" mode="out-in">
@@ -90,12 +90,64 @@ onMounted(async () => await order.view.reload())
 
         <div style="display: flex; justify-content: center; width: 6rem">
             <div style="display: flex; flex-direction: column">
-                <div class="profile-view-button">
-                    <Button icon="fa-solid fa-pencil" />
+                <Transition name="profile" mode="out-in">
+                    <div class="profile-view-button" v-if="order.view.profile.status === 0">
+                        <Button icon="fa-solid fa-play" v-tooltip.left.hover="'Start the execution'" />
+                    </div>
+
+                    <div class="profile-view-button" v-else-if="order.view.profile.status === 1">
+                        <Button icon="fa-solid fa-truck-arrow-right" v-tooltip.left.hover="'Ship medicaments'" />
+                    </div>
+
+                    <div class="profile-view-button" v-else-if="order.view.profile.status === 2">
+                        <Button icon="fa-solid fa-circle-check" v-tooltip.left.hover="'Complete the order'" />
+                    </div>
+                </Transition>
+
+                <Transition name="profile" mode="out-in">
+                    <div class="profile-view-button" v-if="order.view.profile.status === 0">
+                        <Button
+                            icon="fa-solid fa-trash-can"
+                            severity="danger"
+                            @click="confirmDelete()"
+                            v-tooltip.left.hover="'Delete the order'"
+                        />
+                    </div>
+                </Transition>
+            </div>
+        </div>
+    </div>
+
+    <Divider />
+
+    <div style="display: flex; justify-content: space-between">
+        <div class="profile-view">
+            <div class="profile-view-header-icon">
+                <Avatar icon="fa-solid fa-hand-holding-medical" size="large" class="profile-view-header-icon-avatar" />
+            </div>
+
+            <Transition name="profile" mode="out-in">
+                <div v-if="!order.view.loading" class="profile-view-header">
+                    {{ order.view.profile.pharmacy.name }}
                 </div>
-                <div class="profile-view-button">
-                    <Button icon="fa-solid fa-trash-can" severity="danger" @click="confirmDelete()" />
+                <Skeleton v-else width="40rem" class="profile-view-header-skeleton" />
+            </Transition>
+
+            <div class="profile-view-icon">
+                <fa :icon="['fas', 'fa-map-location-dot']" />
+            </div>
+
+            <Transition name="profile" mode="out-in">
+                <div v-if="!order.view.loading" class="profile-view-item">
+                    {{ order.view.profile.pharmacy.address }}
                 </div>
+                <Skeleton v-else width="20rem" class="profile-view-item-skeleton" />
+            </Transition>
+        </div>
+
+        <div style="display: flex; justify-content: center; width: 6rem">
+            <div class="profile-view-button" v-tooltip.left.hover="'View in new window'">
+                <Button icon="fa-solid fa-arrow-up-right-from-square" severity="info" text @click="toPharmacy()" />
             </div>
         </div>
     </div>

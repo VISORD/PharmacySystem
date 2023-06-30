@@ -89,7 +89,7 @@ const pharmacyMedicamentSale = usePharmacyMedicamentSaleStore()
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-calculator" aria-label="Manage sales" />
+            <Button type="button" icon="fa-solid fa-plus" severity="secondary" v-tooltip.left.hover="'Add a sale'" />
         </template>
     </ListTable>
 </template>

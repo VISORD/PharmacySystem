@@ -9,6 +9,8 @@ onMounted(async () => await company.reload())
 </script>
 
 <template>
+    <CompanyInfoForm />
+
     <div style="display: flex; justify-content: space-between">
         <div class="profile-view">
             <div class="profile-view-header-icon">
@@ -55,9 +57,9 @@ onMounted(async () => await company.reload())
                         justify-content: center;
                         height: 4rem;
                     "
+                    v-tooltip.left.hover="'Edit the company info'"
                 >
                     <Button icon="fa-solid fa-pencil" @click="company.dialog = true" :disabled="company.loading" />
-                    <CompanyInfoForm />
                 </div>
             </div>
         </div>

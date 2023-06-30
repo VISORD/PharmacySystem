@@ -38,7 +38,7 @@ async function hide() {
         @show="show()"
         @hide="hide()"
         :header="pharmacy.view.profile.name ? `Pharmacy info: ${pharmacy.view.profile.name}` : 'Pharmacy info'"
-        style="width: 85vw; margin: 5rem"
+        class="profile-dialog"
     >
         <TabView class="profile-view-tab" @tab-change="(event) => (tab = event.index)">
             <TabPanel header="General Info">

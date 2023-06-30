@@ -6,9 +6,10 @@ import {
     faArrowUpRightFromSquare,
     faAt,
     faCalculator,
-    faCalendarCheck,
     faCalendarDay,
+    faCalendarPlus,
     faCheck,
+    faCircleCheck,
     faEraser,
     faHandHoldingMedical,
     faLink,
@@ -21,12 +22,14 @@ import {
     faMoneyBillWave,
     faPencil,
     faPhone,
+    faPlay,
     faPlus,
     faQuoteRight,
     faSpinner,
     faTablets,
     faTrashCan,
     faTriangleExclamation,
+    faTruckArrowRight,
     faUnlock,
     faUsersBetweenLines,
     faXmark
@@ -54,14 +57,17 @@ library.add(
     faMapLocationDot,
     faMoneyBillWave,
     faQuoteRight,
-    faCalendarCheck,
+    faCalendarPlus,
     faCalendarDay,
     faSpinner,
     faCalculator,
     faArrowUpRightFromSquare,
     faLocationDot,
     faLink,
-    faLinkSlash
+    faLinkSlash,
+    faPlay,
+    faTruckArrowRight,
+    faCircleCheck
 )
 
 // <i> => <svg>

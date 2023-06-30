@@ -74,14 +74,17 @@ onMounted(async () => await medicament.view.reload())
                         icon="fa-solid fa-pencil"
                         @click="medicament.edit.dialog = true"
                         :disabled="medicament.view.loading"
+                        v-tooltip.left.hover="'Edit the medicament'"
                     />
                 </div>
+
                 <div class="profile-view-button">
                     <Button
                         icon="fa-solid fa-trash-can"
                         severity="danger"
                         @click="confirmDelete()"
                         :disabled="medicament.view.loading"
+                        v-tooltip.left.hover="'Delete the medicament'"
                     />
                 </div>
             </div>

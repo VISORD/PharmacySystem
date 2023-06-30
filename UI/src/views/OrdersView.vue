@@ -211,7 +211,7 @@ const menu = ref([
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-plus" aria-label="Add new order" />
+            <Button type="button" icon="fa-solid fa-plus" severity="secondary" v-tooltip.left.hover="'Add new order'" />
         </template>
     </ListTable>
 </template>

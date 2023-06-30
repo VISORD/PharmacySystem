@@ -109,3 +109,19 @@ body {
     padding-right: 0 !important;
     padding-bottom: 0 !important;
 }
+
+.profile-dialog {
+    width: calc(100% - 10rem);
+    max-height: calc(100% - 10rem) !important;
+    margin: 5rem !important;
+}
+
+.form-dialog {
+    width: 60rem;
+    max-height: calc(100% - 10rem) !important;
+    margin: 5rem !important;
+}
+
+.p-tooltip {
+    max-width: 15rem !important;
+}

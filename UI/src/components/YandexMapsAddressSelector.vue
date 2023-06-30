@@ -89,7 +89,7 @@ const onSubmit = handleSubmit.withControlled(async () => {
         dismissable-mask
         @show="show()"
         @hide="hide()"
-        header="Select address"
+        header="Choose the point"
         style="width: 75vw; height: 75vh"
         content-style="height: 100%"
     >

@@ -5,6 +5,7 @@ import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/pa
 import { useToast } from 'primevue/usetoast'
 import { preparePagingRequest } from '@/utils/paging'
 import { get, history, list, remove } from '@/api/order'
+import router from '@/plugins/router'
 
 const columns = {
     id: {

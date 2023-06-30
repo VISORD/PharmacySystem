@@ -48,14 +48,15 @@ onMounted(async () => await props.store.table.reset())
                         type="button"
                         @click="store.table.reset()"
                         icon="fa-solid fa-eraser"
-                        aria-label="Reset filters"
+                        v-tooltip.right.hover="'Reset all parameters'"
                     />
+
                     <Button
                         type="button"
                         @click="store.table.reload()"
                         icon="fa-solid fa-arrows-rotate"
-                        aria-label="Reload table"
                         style="margin-left: 1rem"
+                        v-tooltip.right.hover="'Reload the table'"
                     />
                 </div>
                 <slot name="header" />

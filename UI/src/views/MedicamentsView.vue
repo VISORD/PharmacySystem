@@ -112,7 +112,8 @@ const menu = ref([
             <Button
                 type="button"
                 icon="fa-solid fa-plus"
-                aria-label="Add new medicament"
+                severity="secondary"
+                v-tooltip.left.hover="'Add new medicament'"
                 @click="medicament.edit.dialog = true"
             />
         </template>
