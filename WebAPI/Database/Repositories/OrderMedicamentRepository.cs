@@ -122,6 +122,9 @@ public sealed class OrderMedicamentRepository : IOrderMedicamentRepository
             MERGE INTO [pharmacy].[PharmacyMedicament] p
             USING (
                 SELECT
+                     o.[PharmacyId]
+                    ,m.[MedicamentId]
+                    ,m.[ApprovedCount]
                 FROM [order].[OrderMedicament] m
                 JOIN [order].[Order] o ON o.[Id] = m.[OrderId]
                 WHERE m.[OrderId] = @OrderId

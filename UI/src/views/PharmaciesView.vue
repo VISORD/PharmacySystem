@@ -164,6 +164,7 @@ const menu = ref([
                 severity="secondary"
                 v-tooltip.left.hover="'Add new pharmacy'"
                 @click="pharmacy.edit.dialog = true"
+                :disabled="pharmacy.table.loading"
             />
         </template>
     </ListTable>

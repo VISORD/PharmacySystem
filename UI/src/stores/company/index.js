@@ -38,7 +38,7 @@ export const useCompanyStore = defineStore('company', () => {
 
             notification = {
                 severity: 'success',
-                summary: 'Company info updated',
+                summary: 'Company info has updated',
                 detail: 'The operation has been successfully performed',
                 life: 3000
             }

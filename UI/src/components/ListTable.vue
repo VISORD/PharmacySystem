@@ -49,6 +49,7 @@ onMounted(async () => await props.store.table.reset())
                         @click="store.table.reset()"
                         icon="fa-solid fa-eraser"
                         v-tooltip.right.hover="'Reset all parameters'"
+                        :disabled="store.table.loading"
                     />
 
                     <Button
@@ -57,6 +58,7 @@ onMounted(async () => await props.store.table.reset())
                         icon="fa-solid fa-arrows-rotate"
                         style="margin-left: 1rem"
                         v-tooltip.right.hover="'Reload the table'"
+                        :disabled="store.table.loading"
                     />
                 </div>
                 <slot name="header" />

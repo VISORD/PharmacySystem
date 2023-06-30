@@ -98,7 +98,7 @@ export const useMedicamentStore = defineStore('medicament', () => {
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',
-                    summary: 'Medicament deleted',
+                    summary: 'Medicament has deleted',
                     detail: 'The operation has been successfully performed',
                     life: 3000
                 })
@@ -158,7 +158,7 @@ export const useMedicamentStore = defineStore('medicament', () => {
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',
-                    summary: 'Medicament deleted',
+                    summary: 'Medicament has deleted',
                     detail: 'The operation has been successfully performed',
                     life: 3000
                 })
@@ -199,7 +199,9 @@ export const useMedicamentStore = defineStore('medicament', () => {
                         () =>
                             toast.add({
                                 severity: 'success',
-                                summary: view.value.medicamentId ? 'Medicament info updated' : 'New medicament added',
+                                summary: view.value.medicamentId
+                                    ? 'Medicament info has updated'
+                                    : 'New medicament has added',
                                 detail: 'The operation has been successfully performed',
                                 life: 3000
                             }),
@@ -224,4 +226,66 @@ export const useMedicamentStore = defineStore('medicament', () => {
     })
 
     return { table, view, edit }
+})
+
+export const useMedicamentSelectorStore = defineStore('medicament-selector', () => {
+    const toast = useToast()
+
+    const table = ref({
+        dialog: false,
+        loading: true,
+        columns: columns,
+        data: {
+            items: [],
+            totalAmount: 0
+        },
+        selection: null,
+        filtering: defaultFiltering(columns),
+        ordering: defaultOrdering(),
+        paging: defaultPaging(),
+        async reload({
+            filters = undefined,
+            orders = undefined,
+            pageFirst = undefined,
+            pageNumber = undefined,
+            pageSize = undefined
+        } = {}) {
+            this.loading = true
+
+            const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
+            const response = await list(request)
+
+            if (response.status < 400) {
+                this.data = response.data
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Medicaments load failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+
+            this.loading = false
+        },
+        async reset() {
+            this.selection = null
+            this.filtering = defaultFiltering(columns)
+            this.ordering = defaultOrdering()
+            this.paging = defaultPaging()
+            await this.reload()
+        },
+        selectRow(selection) {
+            this.selection = selection
+        },
+        selectForContextMenu(selection) {
+            this.selection = selection
+        },
+        doubleClick() {
+            this.select()
+        },
+        select() {}
+    })
+
+    return { table }
 })

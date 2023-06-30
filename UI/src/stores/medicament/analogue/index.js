@@ -106,7 +106,14 @@ export const useMedicamentAnalogueStore = defineStore('medicament-analogue', () 
 
             const analogueIds = this.selection.map((item) => item.id)
             const response = await disassociate(medicament.view.medicamentId, analogueIds)
-            if (response.status >= 400 && response.status !== 401) {
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: `Medicament analogue${analogueIds.length > 1 ? 's have' : ' has'} disassociated`,
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+            } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
                     summary: 'Medicament analogue disassociation failed',
@@ -157,22 +164,13 @@ export const useMedicamentAnalogueSelectorStore = defineStore('medicament-analog
 
             const request = preparePagingRequest(this, {
                 filters,
-                extendedFilters: {
-                    Id: {
-                        matchMode: 'notIn',
-                        value: [
-                            medicament.view.medicamentId,
-                            ...medicamentAnalogue.table.data.items.map((item) => item.id)
-                        ]
-                    }
-                },
                 orders,
                 pageFirst,
                 pageNumber,
                 pageSize
             })
 
-            const response = await list(request)
+            const response = await list({ ...request, excludeById: medicament.view.medicamentId })
 
             if (response.status < 400) {
                 this.data = response.data
@@ -203,10 +201,18 @@ export const useMedicamentAnalogueSelectorStore = defineStore('medicament-analog
         doubleClick() {
             this.select()
         },
+        select() {},
         async tryAssociate() {
             const analogueIds = this.selection.map((item) => item.id)
             const response = await associate(medicament.view.medicamentId, analogueIds)
-            if (response.status >= 400 && response.status !== 401) {
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: `Medicament analogue${analogueIds.length > 1 ? 's have' : ' has'} associated`,
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+            } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
                     summary: 'Medicament analogue association failed',

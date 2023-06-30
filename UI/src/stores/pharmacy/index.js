@@ -110,7 +110,7 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',
-                    summary: 'Pharmacy deleted',
+                    summary: 'Pharmacy has deleted',
                     detail: 'The operation has been successfully performed',
                     life: 3000
                 })
@@ -170,7 +170,7 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',
-                    summary: 'Pharmacy deleted',
+                    summary: 'Pharmacy has deleted',
                     detail: 'The operation has been successfully performed',
                     life: 3000
                 })
@@ -211,7 +211,7 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
                         () =>
                             toast.add({
                                 severity: 'success',
-                                summary: view.value.pharmacyId ? 'Pharmacy info updated' : 'New pharmacy added',
+                                summary: view.value.pharmacyId ? 'Pharmacy info has updated' : 'New pharmacy has added',
                                 detail: 'The operation has been successfully performed',
                                 life: 3000
                             }),
@@ -239,18 +239,16 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
 export const usePharmacySelectorStore = defineStore('pharmacy-selector', () => {
     const toast = useToast()
 
-    const pharmacy = usePharmacyStore()
-
     const table = ref({
         dialog: false,
         loading: true,
-        columns: pharmacy.table.columns,
+        columns: columns,
         data: {
             items: [],
             totalAmount: 0
         },
         selection: null,
-        filtering: defaultFiltering(pharmacy.table.columns),
+        filtering: defaultFiltering(columns),
         ordering: defaultOrdering(),
         paging: defaultPaging(),
         async reload({
@@ -262,14 +260,7 @@ export const usePharmacySelectorStore = defineStore('pharmacy-selector', () => {
         } = {}) {
             this.loading = true
 
-            const request = preparePagingRequest(this, {
-                filters,
-                orders,
-                pageFirst,
-                pageNumber,
-                pageSize
-            })
-
+            const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
             const response = await list(request)
 
             if (response.status < 400) {
@@ -287,7 +278,7 @@ export const usePharmacySelectorStore = defineStore('pharmacy-selector', () => {
         },
         async reset() {
             this.selection = null
-            this.filtering = defaultFiltering(pharmacy.table.columns)
+            this.filtering = defaultFiltering(columns)
             this.ordering = defaultOrdering()
             this.paging = defaultPaging()
             await this.reload()
@@ -300,7 +291,8 @@ export const usePharmacySelectorStore = defineStore('pharmacy-selector', () => {
         },
         doubleClick() {
             this.select()
-        }
+        },
+        select() {}
     })
 
     return { table }

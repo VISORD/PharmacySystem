@@ -103,32 +103,89 @@ public sealed class MedicamentRepository : IMedicamentRepository
     )
     {
         var (filters, parameters) = request.SqlFiltering();
-        var where = "[CompanyId] = @CompanyId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
         var orderBy = string.Join(", ", request.SqlOrdering("Id"));
+
+        string query;
+        if (request.ExcludeById is not null)
+        {
+            const string with = @"WITH Excludes AS (
+                SELECT
+                     a.[OriginalId]
+                    ,a.[AnalogueId]
+                FROM [medicament].[Medicament] m
+                LEFT JOIN [medicament].[MedicamentAnalogue] a ON m.[Id] = a.[OriginalId]
+                WHERE a.[AnalogueId] IS NOT NULL
+            ), Medicaments AS (
+                SELECT
+                     m.[Id]
+                    ,m.[CompanyId]
+                    ,m.[Name]
+                    ,m.[Description]
+                    ,m.[VendorPrice]
+                    ,e.[OriginalId]
+                FROM [medicament].[Medicament] m
+                LEFT JOIN Excludes e ON e.[AnalogueId] = m.[Id]
+            )";
+
+            var where = "[CompanyId] = @CompanyId AND [Id] <> @ExcludeById AND ([OriginalId] <> @ExcludeById OR [OriginalId] IS NULL)"
+                        + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
+
+            query = $@"
+                {with}
+                SELECT COUNT (*)
+                FROM Medicaments
+                WHERE {where};
+
+                {with}
+                SELECT
+                     [Id]            [{nameof(Medicament.Id)}]
+                    ,[CompanyId]     [{nameof(Medicament.CompanyId)}]
+                    ,[Name]          [{nameof(Medicament.Name)}]
+                    ,[Description]   [{nameof(Medicament.Description)}]
+                    ,[VendorPrice]   [{nameof(Medicament.VendorPrice)}]
+                FROM Medicaments
+                WHERE {where}
+                GROUP BY
+                     [Id]
+                    ,[CompanyId]
+                    ,[Name]
+                    ,[Description]
+                    ,[VendorPrice]
+                ORDER BY {orderBy}
+                OFFSET {request.Paging.Offset} ROWS FETCH NEXT {request.Paging.Size} ROWS ONLY;
+            ";
+        }
+        else
+        {
+            var where = "[CompanyId] = @CompanyId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
+
+            query = $@"
+                SELECT COUNT (*)
+                FROM [medicament].[Medicament]
+                WHERE {where};
+
+                SELECT
+                     [Id]            [{nameof(Medicament.Id)}]
+                    ,[CompanyId]     [{nameof(Medicament.CompanyId)}]
+                    ,[Name]          [{nameof(Medicament.Name)}]
+                    ,[Description]   [{nameof(Medicament.Description)}]
+                    ,[VendorPrice]   [{nameof(Medicament.VendorPrice)}]
+                FROM [medicament].[Medicament]
+                WHERE {where}
+                ORDER BY {orderBy}
+                OFFSET {request.Paging.Offset} ROWS FETCH NEXT {request.Paging.Size} ROWS ONLY;
+            ";
+        }
 
         var @params = new DynamicParameters();
         @params.Add("CompanyId", companyId);
+        @params.Add("ExcludeById", request.ExcludeById);
         foreach (var (field, value) in parameters)
         {
             @params.Add(field, value);
         }
 
-        await using var reader = await transaction.Connection.QueryMultipleAsync(new CommandDefinition($@"
-            SELECT COUNT (*)
-            FROM [medicament].[Medicament]
-            WHERE {where};
-
-            SELECT
-                 [Id]            [{nameof(Medicament.Id)}]
-                ,[CompanyId]     [{nameof(Medicament.CompanyId)}]
-                ,[Name]          [{nameof(Medicament.Name)}]
-                ,[Description]   [{nameof(Medicament.Description)}]
-                ,[VendorPrice]   [{nameof(Medicament.VendorPrice)}]
-            FROM [medicament].[Medicament]
-            WHERE {where}
-            ORDER BY {orderBy}
-            OFFSET {request.Paging.Offset} ROWS FETCH NEXT {request.Paging.Size} ROWS ONLY;
-        ", parameters: @params, transaction: transaction, cancellationToken: cancellationToken));
+        await using var reader = await transaction.Connection.QueryMultipleAsync(new CommandDefinition(query, parameters: @params, transaction: transaction, cancellationToken: cancellationToken));
 
         return new ItemsPagingResult<Medicament>(
             TotalAmount: await reader.ReadSingleAsync<int>(),

@@ -9,9 +9,7 @@ import { usePharmacySelectorStore } from '@/stores/pharmacy'
 const { handleSubmit } = useForm()
 const form = ref({
     pharmacy: useField('pharmacy', (value) => (!value ? 'Pharmacy is required' : true)),
-    pharmacyId: null,
-    pharmacyName: null,
-    pharmacyAddress: null
+    pharmacyId: null
 })
 
 const order = useOrderStore()
@@ -27,8 +25,6 @@ async function show() {
 async function hide() {
     form.value.pharmacy.resetField()
     form.value.pharmacyId = null
-    form.value.pharmacyName = null
-    form.value.pharmacyAddress = null
 
     await router.push({
         path: router.currentRoute.value.path,
@@ -45,10 +41,8 @@ const onSubmit = handleSubmit.withControlled(
     <PharmacySelector
         @apply="
             ({ pharmacy }) => {
-                form.pharmacyId = pharmacy.id
-                form.pharmacyName = pharmacy.name
-                form.pharmacyAddress = pharmacy.address
                 form.pharmacy.setValue(`${pharmacy.name} (${pharmacy.address})`)
+                form.pharmacyId = pharmacy.id
             }
         "
     />

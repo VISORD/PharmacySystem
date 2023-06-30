@@ -3,7 +3,7 @@ import { FilterMatchMode } from 'primevue/api'
 import { ref } from 'vue'
 import { useToast } from 'primevue/usetoast'
 import { preparePagingRequest } from '@/utils/paging'
-import { list } from '@/api/order/medicament'
+import { approve, disapprove, list, request } from '@/api/order/medicament'
 import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
 import { useOrderStore } from '@/stores/order'
 import router from '@/plugins/router'
@@ -108,10 +108,83 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
                 '_blank'
             )
         },
-        doubleClick() {
-            this.showInfo()
+        doubleClick() {},
+        async tryDisapprove() {
+            const response = await disapprove(order.view.orderId, this.selection.medicament.id)
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Medicament has disapproved',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+
+                this.selection = null
+                this.paging = defaultPaging()
+                await this.reload()
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Medicament disapproval failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
         }
     })
 
-    return { table }
+    const edit = ref({
+        dialog: false,
+        orderMedicament: {},
+        async tryRequest(values) {
+            const response = await request(order.view.orderId, this.orderMedicament.medicament.id, values)
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Medicament has requested',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+
+                this.dialog = false
+
+                table.value.selection = null
+                table.value.paging = defaultPaging()
+                await table.value.reload()
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Medicament request failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+        },
+        async tryApprove(values) {
+            const response = await approve(order.view.orderId, this.orderMedicament.medicament.id, values)
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: `Medicament has ${!this.isApproved ? '' : 're-'}approved`,
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+
+                this.dialog = false
+
+                table.value.selection = null
+                table.value.paging = defaultPaging()
+                await table.value.reload()
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: `Medicament ${!this.isApproved ? '' : 're-'}approval failed`,
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+        }
+    })
+
+    return { table, edit }
 })

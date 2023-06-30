@@ -84,7 +84,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
                             :max-fraction-digits="4"
                             placeholder="Vendor Price"
                             :class="{ 'p-invalid': form.vendorPrice.errorMessage }"
-                            autocomplete="email"
+                            autocomplete="vendorPrice"
                         />
                     </div>
                     <small class="p-error" id="text-error">{{ form.vendorPrice.errorMessage || '&nbsp;' }}</small>

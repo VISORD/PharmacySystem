@@ -89,7 +89,13 @@ const pharmacyMedicamentSale = usePharmacyMedicamentSaleStore()
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-plus" severity="secondary" v-tooltip.left.hover="'Add a sale'" />
+            <Button
+                type="button"
+                icon="fa-solid fa-plus"
+                severity="secondary"
+                v-tooltip.left.hover="'Add a sale'"
+                :disabled="pharmacyMedicamentSale.table.loading"
+            />
         </template>
     </ListTable>
 </template>

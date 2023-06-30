@@ -117,8 +117,11 @@ function buildRateDatesFrameMessage(rate) {
             </template>
 
             <template #body="{ data }">
-                <div v-if="data.rate">{{ data.rate?.retailPriceText }}</div>
-                <div v-if="data.rate" style="font-size: 10px">({{ buildRateDatesFrameMessage(data.rate) }})</div>
+                <div v-if="data.rate">
+                    <div v-if="data.rate">{{ data.rate?.retailPriceText }}</div>
+                    <div v-if="data.rate" style="font-size: 10px">({{ buildRateDatesFrameMessage(data.rate) }})</div>
+                </div>
+                <div v-else>—</div>
             </template>
         </Column>
 

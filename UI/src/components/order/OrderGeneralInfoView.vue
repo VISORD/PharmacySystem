@@ -96,6 +96,7 @@ onMounted(async () => await order.view.reload())
                             icon="fa-solid fa-play"
                             @click="order.view.tryLaunch()"
                             v-tooltip.left.hover="'Start the execution'"
+                            :loading="!order.view.buttons"
                         />
                     </div>
 
@@ -104,6 +105,7 @@ onMounted(async () => await order.view.reload())
                             icon="fa-solid fa-truck-arrow-right"
                             @click="order.view.tryShip()"
                             v-tooltip.left.hover="'Ship medicaments'"
+                            :loading="!order.view.buttons"
                         />
                     </div>
 
@@ -112,6 +114,7 @@ onMounted(async () => await order.view.reload())
                             icon="fa-solid fa-circle-check"
                             @click="order.view.tryComplete()"
                             v-tooltip.left.hover="'Complete the order'"
+                            :loading="!order.view.buttons"
                         />
                     </div>
                 </Transition>
@@ -123,6 +126,7 @@ onMounted(async () => await order.view.reload())
                             severity="danger"
                             @click="confirmDelete()"
                             v-tooltip.left.hover="'Delete the order'"
+                            :loading="!order.view.buttons"
                         />
                     </div>
                 </Transition>
@@ -159,7 +163,13 @@ onMounted(async () => await order.view.reload())
 
         <div style="display: flex; justify-content: center; width: 6rem">
             <div class="profile-view-button" v-tooltip.left.hover="'View in new window'">
-                <Button icon="fa-solid fa-arrow-up-right-from-square" severity="info" text @click="toPharmacy()" />
+                <Button
+                    icon="fa-solid fa-arrow-up-right-from-square"
+                    severity="info"
+                    text
+                    @click="toPharmacy()"
+                    :disabled="order.view.loading"
+                />
             </div>
         </div>
     </div>

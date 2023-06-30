@@ -168,6 +168,13 @@ public sealed class OrderMedicamentController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Non-processing order medicament can't be modified"));
         }
 
+        if (orderMedicament.RequestedCount < model.Count!.Value)
+        {
+            return BadRequest(new ItemResponse(Error: "Approved Count should less or equal Requested Count"));
+        }
+
+        var isReApprove = orderMedicament.IsApproved;
+
         orderMedicament.ApprovedCount = model.Count!.Value;
         orderMedicament.IsApproved = true;
 
@@ -177,7 +184,7 @@ public sealed class OrderMedicamentController : ControllerBase
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
             OrderId = orderId,
-            Event = $"{model.Count!.Value} item{(hasManyItems ? "s" : "")} of \"{medicament.Name}\" medicament {(hasManyItems ? "were" : "was")} approved",
+            Event = $"{model.Count!.Value} item{(hasManyItems ? "s" : "")} of \"{medicament.Name}\" medicament {(hasManyItems ? "were" : "was")} {(isReApprove? "re-": "")}approved",
             Timestamp = DateTimeOffset.Now,
         }, cancellationToken);
 

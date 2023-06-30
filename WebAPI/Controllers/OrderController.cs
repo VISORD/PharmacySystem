@@ -181,7 +181,7 @@ public sealed class OrderController : ControllerBase
             UpdatedAt = DateTimeOffset.Now
         };
 
-        await _orderRepository.UpdateAsync(transaction, modification, cancellationToken);
+        await _orderRepository.UpdateAsync(transaction, orderId, modification, cancellationToken);
 
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
@@ -230,10 +230,11 @@ public sealed class OrderController : ControllerBase
         var modification = new OrderModification
         {
             Status = OrderStatus.Shipped,
+            OrderedAt = order.OrderedAt,
             UpdatedAt = DateTimeOffset.Now
         };
 
-        await _orderRepository.UpdateAsync(transaction, modification, cancellationToken);
+        await _orderRepository.UpdateAsync(transaction, orderId, modification, cancellationToken);
 
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
@@ -279,10 +280,11 @@ public sealed class OrderController : ControllerBase
         var modification = new OrderModification
         {
             Status = OrderStatus.Delivered,
+            OrderedAt = order.OrderedAt,
             UpdatedAt = DateTimeOffset.Now
         };
 
-        await _orderRepository.UpdateAsync(transaction, modification, cancellationToken);
+        await _orderRepository.UpdateAsync(transaction, orderId, modification, cancellationToken);
 
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {

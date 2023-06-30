@@ -1,13 +1,21 @@
 <script setup>
 import ListTable from '@/components/ListTable.vue'
+import OrderMedicamentInfoFrom from '@/components/order/OrderMedicamentInfoFrom.vue'
 import { useOrderStore } from '@/stores/order'
 import { useOrderMedicamentStore } from '@/stores/order/medicament'
 import { ref } from 'vue'
 import { allYesNoOptions, resolveYesNoOption } from '@/constants/yes-no-options'
 import { DRAFT, ORDERED } from '@/constants/order-statuses'
+import { useConfirm } from 'primevue/useconfirm'
 
 const order = useOrderStore()
 const orderMedicament = useOrderMedicamentStore()
+orderMedicament.table.doubleClick = () => {
+    orderMedicament.edit.orderMedicament = orderMedicament.table.selection
+    orderMedicament.edit.dialog = true
+}
+
+const confirm = useConfirm()
 
 const menu = ref([
     {
@@ -22,7 +30,10 @@ const menu = ref([
             {
                 label: 'Change count',
                 icon: 'fa-solid fa-calculator',
-                command: () => {}
+                command: () => {
+                    orderMedicament.edit.orderMedicament = orderMedicament.table.selection
+                    orderMedicament.edit.dialog = true
+                }
             },
             {
                 label: 'Delete',
@@ -36,15 +47,27 @@ const menu = ref([
         disabled: () => order.view.profile.status !== ORDERED.id,
         items: [
             {
-                label: 'Approve',
+                label: () => (orderMedicament.table.selection?.isApproved !== true ? 'Approve' : 'Re-approve'),
                 icon: 'fa-solid fa-check',
-                command: () => {},
-                disabled: () => orderMedicament.table.selection?.isApproved === true
+                command: () => {
+                    orderMedicament.edit.orderMedicament = orderMedicament.table.selection
+                    orderMedicament.edit.dialog = true
+                }
             },
             {
                 label: 'Disapprove',
                 icon: 'fa-solid fa-times',
-                command: () => {},
+                command: () => {
+                    confirm.require({
+                        group: 'order-medicaments-table-disapprove',
+                        header: 'Confirmation',
+                        icon: 'fa-solid fa-triangle-exclamation',
+                        acceptIcon: 'fa-solid fa-check',
+                        rejectIcon: 'fa-solid fa-xmark',
+                        accept: async () => await orderMedicament.table.tryDisapprove(),
+                        reject: () => {}
+                    })
+                },
                 disabled: () => orderMedicament.table.selection?.isApproved !== true
             }
         ]
@@ -53,6 +76,17 @@ const menu = ref([
 </script>
 
 <template>
+    <ConfirmDialog group="order-medicaments-table-disapprove">
+        <template #message>
+            <div>
+                Are you sure you want to disapprove '<b>{{ orderMedicament.table.selection.medicament.name }}</b
+                >' medicament?
+            </div>
+        </template>
+    </ConfirmDialog>
+
+    <OrderMedicamentInfoFrom />
+
     <ListTable :store="orderMedicament" :menu="menu">
         <Column
             :key="orderMedicament.table.columns.medicament.key"
@@ -199,6 +233,8 @@ const menu = ref([
                 icon="fa-solid fa-plus"
                 severity="secondary"
                 v-tooltip.left.hover="'Request a medicament'"
+                @click="orderMedicament.edit.dialog = true"
+                :disabled="orderMedicament.table.loading"
             />
         </template>
     </ListTable>

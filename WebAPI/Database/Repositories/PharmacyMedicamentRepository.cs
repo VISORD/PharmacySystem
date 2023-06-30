@@ -95,8 +95,7 @@ public sealed class PharmacyMedicamentRepository : IPharmacyMedicamentRepository
                 FROM [pharmacy].[PharmacyMedicament] pm
                 JOIN [pharmacy].[Pharmacy] p ON p.[Id] = pm.[PharmacyId]
                 JOIN [medicament].[Medicament] m ON m.[Id] = pm.[MedicamentId]
-                LEFT JOIN [pharmacy].[PharmacyMedicamentRate] r ON r.[PharmacyId] = pm.[PharmacyId] AND r.[MedicamentId] = pm.[MedicamentId]
-                WHERE @AsOfDate BETWEEN r.[StartDate] AND r.[StopDate]
+                LEFT JOIN [pharmacy].[PharmacyMedicamentRate] r ON r.[PharmacyId] = pm.[PharmacyId] AND r.[MedicamentId] = pm.[MedicamentId] AND @AsOfDate BETWEEN r.[StartDate] AND r.[StopDate]
             )";
         var (filters, parameters) = request.SqlFiltering();
         var where = "[PharmacyId] = @PharmacyId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
@@ -198,10 +197,9 @@ public sealed class PharmacyMedicamentRepository : IPharmacyMedicamentRepository
             FROM [pharmacy].[PharmacyMedicament] pm
             JOIN [pharmacy].[Pharmacy] p ON p.[Id] = pm.[PharmacyId]
             JOIN [medicament].[Medicament] m ON m.[Id] = pm.[MedicamentId]
-            LEFT JOIN [pharmacy].[PharmacyMedicamentRate] r ON r.[PharmacyId] = pm.[PharmacyId] AND r.[MedicamentId] = pm.[MedicamentId]
+            LEFT JOIN [pharmacy].[PharmacyMedicamentRate] r ON r.[PharmacyId] = pm.[PharmacyId] AND r.[MedicamentId] = pm.[MedicamentId] AND @AsOfDate BETWEEN r.[StartDate] AND r.[StopDate]
             WHERE pm.[PharmacyId] = @PharmacyId
-              AND pm.[MedicamentId] = @MedicamentId
-              AND @AsOfDate BETWEEN r.[StartDate] AND r.[StopDate];
+              AND pm.[MedicamentId] = @MedicamentId;
         ", parameters: new
         {
             PharmacyId = pharmacyId,

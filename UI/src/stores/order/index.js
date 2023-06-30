@@ -117,7 +117,7 @@ export const useOrderStore = defineStore('order', () => {
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',
-                    summary: 'Order deleted',
+                    summary: 'Order has deleted',
                     detail: 'The operation has been successfully performed',
                     life: 3000
                 })
@@ -140,6 +140,7 @@ export const useOrderStore = defineStore('order', () => {
         orderId: null,
         dialog: false,
         loading: true,
+        buttons: true,
         profile: {},
         history: [],
         async reload() {
@@ -164,11 +165,13 @@ export const useOrderStore = defineStore('order', () => {
                 return
             }
 
+            this.buttons = false
+
             const response = await remove(this.orderId)
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',
-                    summary: 'Order deleted',
+                    summary: 'Order has deleted',
                     detail: 'The operation has been successfully performed',
                     life: 3000
                 })
@@ -181,17 +184,34 @@ export const useOrderStore = defineStore('order', () => {
                 })
             }
 
+            this.buttons = true
+
             this.dialog = false
             this.orderId = null
+
+            table.value.selection = null
+            table.value.paging = defaultPaging()
+            await table.value.reload()
         },
         async tryLaunch() {
             if (!this.orderId) {
                 return
             }
 
+            this.buttons = false
+
             const response = await launch(this.orderId)
             if (response.status < 400) {
                 this.history = response.data.items
+
+                toast.add({
+                    severity: 'success',
+                    summary: 'Order has launched',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+
+                await this.reload()
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
@@ -200,15 +220,28 @@ export const useOrderStore = defineStore('order', () => {
                     life: 3000
                 })
             }
+
+            this.buttons = true
         },
         async tryShip() {
             if (!this.orderId) {
                 return
             }
 
+            this.buttons = false
+
             const response = await ship(this.orderId)
             if (response.status < 400) {
                 this.history = response.data.items
+
+                toast.add({
+                    severity: 'success',
+                    summary: 'Order has shipped',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+
+                await this.reload()
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
@@ -217,15 +250,28 @@ export const useOrderStore = defineStore('order', () => {
                     life: 3000
                 })
             }
+
+            this.buttons = true
         },
         async tryComplete() {
             if (!this.orderId) {
                 return
             }
 
+            this.buttons = false
+
             const response = await complete(this.orderId)
             if (response.status < 400) {
                 this.history = response.data.items
+
+                toast.add({
+                    severity: 'success',
+                    summary: 'Order has completed',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+
+                await this.reload()
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
@@ -234,6 +280,8 @@ export const useOrderStore = defineStore('order', () => {
                     life: 3000
                 })
             }
+
+            this.buttons = true
         },
         async tryGetHistory() {
             if (!this.orderId) {

@@ -42,6 +42,7 @@ public interface IOrderRepository
 
     Task UpdateAsync(
         IDbTransaction transaction,
+        int id,
         OrderModification order,
         CancellationToken cancellationToken = default
     );
@@ -220,6 +221,7 @@ public sealed class OrderRepository : IOrderRepository
 
     public async Task UpdateAsync(
         IDbTransaction transaction,
+        int id,
         OrderModification order,
         CancellationToken cancellationToken = default
     )
@@ -227,12 +229,18 @@ public sealed class OrderRepository : IOrderRepository
         await transaction.Connection.ExecuteAsync(new CommandDefinition($@"
             UPDATE [order].[Order]
             SET
-                 [Status]    = @{nameof(Order.Status)}
+                 [StatusId]   = @{nameof(Order.Status)}
                 ,[OrderedAt] = @{nameof(Order.OrderedAt)}
                 ,[UpdatedAt] = @{nameof(Order.UpdatedAt)}
             FROM [order].[Order]
-            WHERE [Id] = @{nameof(Order.Id)};
-        ", parameters: order, transaction: transaction, cancellationToken: cancellationToken));
+            WHERE [Id] = @Id;
+        ", parameters: new
+        {
+            Id = id,
+            order.Status,
+            order.OrderedAt,
+            order.UpdatedAt,
+        }, transaction: transaction, cancellationToken: cancellationToken));
     }
 
     public async Task DeleteAsync(

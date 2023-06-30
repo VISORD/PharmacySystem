@@ -80,6 +80,7 @@ onMounted(async () => await pharmacyMedicament.view.reload())
                     text
                     @click="pharmacyMedicament.view.showInfo()"
                     v-tooltip.left.hover="'View in new window'"
+                    :disabled="pharmacyMedicament.view.loading"
                 />
             </div>
         </div>

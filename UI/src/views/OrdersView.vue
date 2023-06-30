@@ -219,6 +219,7 @@ const menu = ref([
                 severity="secondary"
                 v-tooltip.left.hover="'Add new order'"
                 @click="order.edit.dialog = true"
+                :disabled="order.table.loading"
             />
         </template>
     </ListTable>

@@ -106,6 +106,7 @@ const menu = ref([
                 icon="fa-solid fa-pencil"
                 severity="secondary"
                 v-tooltip.left.hover="'Manage rates'"
+                :disabled="pharmacyMedicamentRate.table.loading"
             />
         </template>
     </ListTable>
