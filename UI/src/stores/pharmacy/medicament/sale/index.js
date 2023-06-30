@@ -84,7 +84,7 @@ export const usePharmacyMedicamentSaleStore = defineStore('pharmacy-medicament-s
         selectForContextMenu(selection) {
             this.selection = selection
         },
-        showInfo() {}
+        doubleClick() {}
     })
 
     return { table }

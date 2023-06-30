@@ -134,10 +134,3 @@ const onSubmit = handleSubmit.withControlled(async () => {
         </div>
     </Dialog>
 </template>
-
-<style scoped>
-.buttons > button {
-    margin: 0 0.5rem 0 0;
-    width: auto;
-}
-</style>

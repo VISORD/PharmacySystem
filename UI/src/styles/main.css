@@ -122,6 +122,17 @@ body {
     margin: 5rem !important;
 }
 
+.form-selector-dialog {
+    width: 70rem;
+    max-height: calc(100% - 10rem) !important;
+    margin: 5rem !important;
+}
+
 .p-tooltip {
     max-width: 15rem !important;
+}
+
+.buttons > button {
+    margin: 0 0.5rem 0 0 !important;
+    width: auto !important;
 }

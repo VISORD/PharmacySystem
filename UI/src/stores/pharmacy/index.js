@@ -98,6 +98,9 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
             view.value.dialog = true
             view.value.pharmacyId = this.selection.id
         },
+        doubleClick() {
+            this.showInfo()
+        },
         async tryDelete() {
             if (!this.selection?.id) {
                 return
@@ -120,6 +123,7 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
                 })
             }
 
+            this.selection = null
             this.paging = defaultPaging()
             await this.reload()
         }
@@ -171,6 +175,7 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
                     life: 3000
                 })
 
+                table.value.selection = null
                 table.value.paging = defaultPaging()
                 await table.value.reload()
             } else if (response.status !== 401) {
@@ -193,21 +198,30 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
         async tryApply(values) {
             const response = view.value.pharmacyId ? await update(view.value.pharmacyId, values) : await add(values)
             if (response.status < 400) {
-                toast.add({
-                    severity: 'success',
-                    summary: view.value.pharmacyId ? 'Pharmacy info updated' : 'New pharmacy added',
-                    detail: 'The operation has been successfully performed',
-                    life: 3000
-                })
-
                 this.dialog = false
+                setTimeout(async () => {
+                    if (view.value.pharmacyId) {
+                        await view.value.reload()
+                    } else {
+                        view.value.pharmacyId = response.data.item.id
+                        view.value.dialog = true
+                    }
 
-                if (view.value.pharmacyId) {
-                    await view.value.reload()
-                }
+                    setTimeout(
+                        () =>
+                            toast.add({
+                                severity: 'success',
+                                summary: view.value.pharmacyId ? 'Pharmacy info updated' : 'New pharmacy added',
+                                detail: 'The operation has been successfully performed',
+                                life: 3000
+                            }),
+                        100
+                    )
 
-                table.value.paging = defaultPaging()
-                await table.value.reload()
+                    table.value.selection = null
+                    table.value.paging = defaultPaging()
+                    await table.value.reload()
+                }, 100)
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',
@@ -220,4 +234,74 @@ export const usePharmacyStore = defineStore('pharmacy', () => {
     })
 
     return { table, view, edit }
+})
+
+export const usePharmacySelectorStore = defineStore('pharmacy-selector', () => {
+    const toast = useToast()
+
+    const pharmacy = usePharmacyStore()
+
+    const table = ref({
+        dialog: false,
+        loading: true,
+        columns: pharmacy.table.columns,
+        data: {
+            items: [],
+            totalAmount: 0
+        },
+        selection: null,
+        filtering: defaultFiltering(pharmacy.table.columns),
+        ordering: defaultOrdering(),
+        paging: defaultPaging(),
+        async reload({
+            filters = undefined,
+            orders = undefined,
+            pageFirst = undefined,
+            pageNumber = undefined,
+            pageSize = undefined
+        } = {}) {
+            this.loading = true
+
+            const request = preparePagingRequest(this, {
+                filters,
+                orders,
+                pageFirst,
+                pageNumber,
+                pageSize
+            })
+
+            const response = await list(request)
+
+            if (response.status < 400) {
+                this.data = response.data
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Pharmacies load failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+
+            this.loading = false
+        },
+        async reset() {
+            this.selection = null
+            this.filtering = defaultFiltering(pharmacy.table.columns)
+            this.ordering = defaultOrdering()
+            this.paging = defaultPaging()
+            await this.reload()
+        },
+        selectRow(selection) {
+            this.selection = selection
+        },
+        selectForContextMenu(selection) {
+            this.selection = selection
+        },
+        doubleClick() {
+            this.select()
+        }
+    })
+
+    return { table }
 })

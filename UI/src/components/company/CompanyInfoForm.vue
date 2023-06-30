@@ -13,13 +13,12 @@ const form = ref({
 })
 
 const company = useCompanyStore()
-company.before = function (data) {
-    form.value.name.setValue(data.name)
-    form.value.email.setValue(data.email)
-    form.value.phone.setValue(data.phone)
-}
 
 async function show() {
+    form.value.name.setValue(company.data.name)
+    form.value.email.setValue(company.data.email)
+    form.value.phone.setValue(company.data.phone)
+
     await router.push({
         path: router.currentRoute.value.path,
         query: { ...router.currentRoute.value.query, companyEditForm: true }
@@ -105,10 +104,3 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
         </div>
     </Dialog>
 </template>
-
-<style scoped>
-.buttons > button {
-    margin: 0 0.5rem 0 0;
-    width: auto;
-}
-</style>

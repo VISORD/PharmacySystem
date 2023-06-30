@@ -30,19 +30,21 @@ const pharmacy = usePharmacyStore()
 const selector = ref()
 
 async function show() {
-    form.value.name.setValue(pharmacy.view.profile.name)
-    form.value.email.setValue(pharmacy.view.profile.email)
-    form.value.phone.setValue(pharmacy.view.profile.phone)
-    form.value.address.setValue(pharmacy.view.profile.address)
-    form.value.description.setValue(pharmacy.view.profile.description)
-    form.value.latitude = pharmacy.view.pharmacyId ? pharmacy.view.profile.latitude : null
-    form.value.longitude = pharmacy.view.pharmacyId ? pharmacy.view.profile.longitude : null
+    if (pharmacy.view.pharmacyId) {
+        form.value.name.setValue(pharmacy.view.profile.name)
+        form.value.email.setValue(pharmacy.view.profile.email)
+        form.value.phone.setValue(pharmacy.view.profile.phone)
+        form.value.address.setValue(pharmacy.view.profile.address)
+        form.value.description.setValue(pharmacy.view.profile.description)
+        form.value.latitude = pharmacy.view.pharmacyId ? pharmacy.view.profile.latitude : null
+        form.value.longitude = pharmacy.view.pharmacyId ? pharmacy.view.profile.longitude : null
 
-    for (const weekday of allWeekdays) {
-        setWorkingHours(weekday.name)
+        for (const weekday of allWeekdays) {
+            setWorkingHours(weekday.name)
 
-        form.value.weekDays[weekday.name] =
-            pharmacy.view.profile.workingHours && !!pharmacy.view.profile.workingHours[weekday.name]
+            form.value.weekDays[weekday.name] =
+                pharmacy.view.profile.workingHours && !!pharmacy.view.profile.workingHours[weekday.name]
+        }
     }
 
     await router.push({
@@ -321,10 +323,3 @@ const onSubmit = handleSubmit.withControlled(async (values) => {
         </div>
     </Dialog>
 </template>
-
-<style scoped>
-.buttons > button {
-    margin: 0 0.5rem 0 0;
-    width: auto;
-}
-</style>

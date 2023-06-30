@@ -1,6 +1,7 @@
 <script setup>
 import ListTable from '@/components/ListTable.vue'
 import OrderProfileView from '@/components/order/OrderProfileView.vue'
+import OrderInfoForm from '@/components/order/OrderInfoForm.vue'
 import { allOrderStatuses, resolveOrderStatus } from '@/constants/order-statuses'
 import { useOrderStore } from '@/stores/order'
 import { ref } from 'vue'
@@ -45,6 +46,7 @@ const menu = ref([
     </ConfirmDialog>
 
     <OrderProfileView />
+    <OrderInfoForm />
 
     <ListTable :store="order" :menu="menu">
         <Column
@@ -211,7 +213,13 @@ const menu = ref([
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-plus" severity="secondary" v-tooltip.left.hover="'Add new order'" />
+            <Button
+                type="button"
+                icon="fa-solid fa-plus"
+                severity="secondary"
+                v-tooltip.left.hover="'Add new order'"
+                @click="order.edit.dialog = true"
+            />
         </template>
     </ListTable>
 </template>

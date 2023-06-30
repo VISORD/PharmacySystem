@@ -86,6 +86,9 @@ export const useMedicamentStore = defineStore('medicament', () => {
             view.value.dialog = true
             view.value.medicamentId = this.selection.id
         },
+        doubleClick() {
+            this.showInfo()
+        },
         async tryDelete() {
             if (!this.selection) {
                 return
@@ -108,6 +111,7 @@ export const useMedicamentStore = defineStore('medicament', () => {
                 })
             }
 
+            this.selection = null
             this.paging = defaultPaging()
             await this.reload()
         }
@@ -159,6 +163,7 @@ export const useMedicamentStore = defineStore('medicament', () => {
                     life: 3000
                 })
 
+                table.value.selection = null
                 table.value.paging = defaultPaging()
                 await table.value.reload()
             } else if (response.status !== 401) {
@@ -181,21 +186,30 @@ export const useMedicamentStore = defineStore('medicament', () => {
         async tryApply(values) {
             const response = view.value.medicamentId ? await update(view.value.medicamentId, values) : await add(values)
             if (response.status < 400) {
-                toast.add({
-                    severity: 'success',
-                    summary: view.value.medicamentId ? 'Medicament info updated' : 'New medicament added',
-                    detail: 'The operation has been successfully performed',
-                    life: 3000
-                })
-
                 this.dialog = false
+                setTimeout(async () => {
+                    if (view.value.medicamentId) {
+                        await view.value.reload()
+                    } else {
+                        view.value.medicamentId = response.data.item.id
+                        view.value.dialog = true
+                    }
 
-                if (view.value.medicamentId) {
-                    await view.value.reload()
-                }
+                    setTimeout(
+                        () =>
+                            toast.add({
+                                severity: 'success',
+                                summary: view.value.medicamentId ? 'Medicament info updated' : 'New medicament added',
+                                detail: 'The operation has been successfully performed',
+                                life: 3000
+                            }),
+                        100
+                    )
 
-                table.value.paging = defaultPaging()
-                await table.value.reload()
+                    table.value.selection = null
+                    table.value.paging = defaultPaging()
+                    await table.value.reload()
+                }, 100)
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',

@@ -55,21 +55,25 @@ public sealed class OrderController : ControllerBase
     public async Task<IActionResult> Add(
         [Database] SqlConnection connection,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        [FromBody] OrderCreationModel model,
+        [FromBody] OrderModificationModel model,
         CancellationToken cancellationToken
     )
     {
-        var order = model.To();
-
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
-        var validationResult = await ValidateCompanyPharmacyRelation(transaction, companyId, order.PharmacyId, cancellationToken);
+        var validationResult = await ValidateCompanyPharmacyRelation(transaction, companyId, model.PharmacyId!.Value, cancellationToken);
         if (validationResult is not null)
         {
             return validationResult;
         }
 
-        var orderId = await _orderRepository.AddAsync(transaction, order, cancellationToken);
+        var modification = new OrderModification
+        {
+            Status = OrderStatus.Draft,
+            UpdatedAt = DateTimeOffset.Now,
+        };
+
+        var orderId = await _orderRepository.AddAsync(transaction, model.PharmacyId!.Value, modification, cancellationToken);
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
             OrderId = orderId,
@@ -79,7 +83,7 @@ public sealed class OrderController : ControllerBase
 
         await transaction.CommitAsync(cancellationToken);
 
-        return NoContent();
+        return Ok(new ItemResponse(new OrderCreatedModel { Id = orderId }));
     }
 
     [HttpGet("{orderId:int}")]
@@ -170,10 +174,14 @@ public sealed class OrderController : ControllerBase
             return BadRequest(new ItemResponse(Error: "No requested medicaments"));
         }
 
-        order.Status = OrderStatus.Ordered;
-        order.OrderedAt = DateTimeOffset.Now;
-        order.UpdatedAt = DateTimeOffset.Now;
-        await _orderRepository.UpdateAsync(transaction, order, cancellationToken);
+        var modification = new OrderModification
+        {
+            Status = OrderStatus.Ordered,
+            OrderedAt = DateTimeOffset.Now,
+            UpdatedAt = DateTimeOffset.Now
+        };
+
+        await _orderRepository.UpdateAsync(transaction, modification, cancellationToken);
 
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
@@ -219,9 +227,13 @@ public sealed class OrderController : ControllerBase
             return BadRequest(new ItemResponse(Error: "All order medicaments should be approved before"));
         }
 
-        order.Status = OrderStatus.Shipped;
-        order.UpdatedAt = DateTimeOffset.Now;
-        await _orderRepository.UpdateAsync(transaction, order, cancellationToken);
+        var modification = new OrderModification
+        {
+            Status = OrderStatus.Shipped,
+            UpdatedAt = DateTimeOffset.Now
+        };
+
+        await _orderRepository.UpdateAsync(transaction, modification, cancellationToken);
 
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {
@@ -264,9 +276,13 @@ public sealed class OrderController : ControllerBase
 
         await _orderMedicamentRepository.DeliveryToPharmacies(transaction, orderId, cancellationToken);
 
-        order.Status = OrderStatus.Delivered;
-        order.UpdatedAt = DateTimeOffset.Now;
-        await _orderRepository.UpdateAsync(transaction, order, cancellationToken);
+        var modification = new OrderModification
+        {
+            Status = OrderStatus.Delivered,
+            UpdatedAt = DateTimeOffset.Now
+        };
+
+        await _orderRepository.UpdateAsync(transaction, modification, cancellationToken);
 
         await _orderHistoryRepository.AddAsync(transaction, new OrderHistory
         {

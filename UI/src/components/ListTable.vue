@@ -25,7 +25,7 @@ onMounted(async () => await props.store.table.reset())
         :selection-mode="selectionMode ?? 'single'"
         :selection="store.table.selection"
         @update:selection="(selection) => store.table.selectRow(selection)"
-        @row-dblclick="store.table.showInfo()"
+        @row-dblclick="store.table.doubleClick()"
         :context-menu="!!menu && menu.length > 0"
         :context-menu-selection="store.table.selection"
         @update:context-menu-selection="(selection) => store.table.selectForContextMenu(selection)"

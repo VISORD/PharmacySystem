@@ -4,12 +4,13 @@ import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
 import { useMedicamentAnalogueSelectorStore } from '@/stores/medicament/analogue'
 import { useMedicamentStore } from '@/stores/medicament'
+import router from '@/plugins/router'
+
+const confirm = useConfirm()
 
 const medicament = useMedicamentStore()
 const medicamentAnalogueSelector = useMedicamentAnalogueSelectorStore()
-const confirm = useConfirm()
-
-function associate() {
+medicamentAnalogueSelector.table.select = () => {
     if (!medicamentAnalogueSelector.table.selection.length) {
         return
     }
@@ -29,12 +30,24 @@ const menu = ref([
     {
         label: 'View in new window',
         icon: 'fa-solid fa-arrow-up-right-from-square',
-        command: () => medicamentAnalogueSelector.table.showInfo()
+        command: () => {
+            if (medicamentAnalogueSelector.table.selection?.length !== 1) {
+                return
+            }
+
+            window.open(
+                router.resolve({
+                    path: 'medicament',
+                    query: { medicamentId: medicamentAnalogueSelector.table.selection[0].id }
+                }).href,
+                '_blank'
+            )
+        }
     },
     {
         label: 'Associate',
         icon: 'fa-solid fa-link',
-        command: () => associate()
+        command: () => medicamentAnalogueSelector.table.select()
     }
 ])
 </script>
@@ -88,11 +101,11 @@ const menu = ref([
             </Column>
 
             <Column
-                :key="medicament.table.columns.vendorPrice.key"
-                :field="medicament.table.columns.vendorPrice.key"
-                :header="medicament.table.columns.vendorPrice.header"
-                :sort-field="medicament.table.columns.vendorPrice.field"
-                :filter-field="medicament.table.columns.vendorPrice.field"
+                :key="medicamentAnalogueSelector.table.columns.vendorPrice.key"
+                :field="medicamentAnalogueSelector.table.columns.vendorPrice.key"
+                :header="medicamentAnalogueSelector.table.columns.vendorPrice.header"
+                :sort-field="medicamentAnalogueSelector.table.columns.vendorPrice.field"
+                :filter-field="medicamentAnalogueSelector.table.columns.vendorPrice.field"
                 :sortable="true"
                 dataType="numeric"
                 filter
@@ -131,7 +144,7 @@ const menu = ref([
                     text
                 />
 
-                <Button label="Apply" icon="fa-solid fa-check" @click="associate()" />
+                <Button label="Apply" icon="fa-solid fa-check" @click="medicamentAnalogueSelector.table.select()" />
             </div>
         </div>
     </Dialog>

@@ -1,6 +1,7 @@
 import { dom, library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import {
+    faArrowPointer,
     faArrowRightFromBracket,
     faArrowsRotate,
     faArrowUpRightFromSquare,
@@ -67,7 +68,8 @@ library.add(
     faLinkSlash,
     faPlay,
     faTruckArrowRight,
-    faCircleCheck
+    faCircleCheck,
+    faArrowPointer
 )
 
 // <i> => <svg>

@@ -23,7 +23,8 @@ public interface IOrderRepository
 
     Task<int> AddAsync(
         IDbTransaction transaction,
-        Order order,
+        int pharmacyId,
+        OrderModification order,
         CancellationToken cancellationToken = default
     );
 
@@ -41,7 +42,7 @@ public interface IOrderRepository
 
     Task UpdateAsync(
         IDbTransaction transaction,
-        Order order,
+        OrderModification order,
         CancellationToken cancellationToken = default
     );
 
@@ -145,7 +146,8 @@ public sealed class OrderRepository : IOrderRepository
 
     public async Task<int> AddAsync(
         IDbTransaction transaction,
-        Order order,
+        int pharmacyId,
+        OrderModification order,
         CancellationToken cancellationToken = default
     )
     {
@@ -160,14 +162,20 @@ public sealed class OrderRepository : IOrderRepository
             )
             OUTPUT INSERTED.[Id] INTO @Id
             VALUES (
-                 @{nameof(Order.PharmacyId)}
-                ,@{nameof(Order.Status)}
-                ,@{nameof(Order.OrderedAt)}
-                ,@{nameof(Order.UpdatedAt)}
+                 @PharmacyId
+                ,@{nameof(OrderModification.Status)}
+                ,@{nameof(OrderModification.OrderedAt)}
+                ,@{nameof(OrderModification.UpdatedAt)}
             );
 
             SELECT [Value] FROM @Id;
-        ", parameters: order, transaction: transaction, cancellationToken: cancellationToken));
+        ", parameters: new
+        {
+            PharmacyId = pharmacyId,
+            order.Status,
+            order.OrderedAt,
+            order.UpdatedAt,
+        }, transaction: transaction, cancellationToken: cancellationToken));
     }
 
     public async Task<Order?> GetAsync(
@@ -212,7 +220,7 @@ public sealed class OrderRepository : IOrderRepository
 
     public async Task UpdateAsync(
         IDbTransaction transaction,
-        Order order,
+        OrderModification order,
         CancellationToken cancellationToken = default
     )
     {

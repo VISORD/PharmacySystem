@@ -51,7 +51,7 @@ public sealed class OrderHistoryRepository : IOrderHistoryRepository
                 ,[Event]
             )
             VALUES (
-                ,@{nameof(OrderHistory.OrderId)}
+                 @{nameof(OrderHistory.OrderId)}
                 ,@{nameof(OrderHistory.Timestamp)}
                 ,@{nameof(OrderHistory.Event)}
             );

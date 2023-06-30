@@ -28,9 +28,10 @@ public interface IMedicamentRepository
         CancellationToken cancellationToken = default
     );
 
-    Task AddAsync(
+    Task<int> AddAsync(
         IDbTransaction transaction,
-        Medicament medicament,
+        int companyId,
+        MedicamentModification medicament,
         CancellationToken cancellationToken = default
     );
 
@@ -42,7 +43,8 @@ public interface IMedicamentRepository
 
     Task UpdateAsync(
         IDbTransaction transaction,
-        Medicament medicament,
+        int id,
+        MedicamentModification medicament,
         CancellationToken cancellationToken = default
     );
 
@@ -134,26 +136,38 @@ public sealed class MedicamentRepository : IMedicamentRepository
         );
     }
 
-    public async Task AddAsync(
+    public async Task<int> AddAsync(
         IDbTransaction transaction,
-        Medicament medicament,
+        int companyId,
+        MedicamentModification medicament,
         CancellationToken cancellationToken = default
     )
     {
-        await transaction.Connection.ExecuteAsync(new CommandDefinition($@"
+        return await transaction.Connection.QuerySingleAsync<int>(new CommandDefinition($@"
+            DECLARE @Id [core].[IntegerItem];
+
             INSERT INTO [medicament].[Medicament] (
                  [CompanyId]
                 ,[Name]
                 ,[Description]
                 ,[VendorPrice]
             )
+            OUTPUT INSERTED.[Id] INTO @Id
             VALUES (
-                 @{nameof(Medicament.CompanyId)}
-                ,@{nameof(Medicament.Name)}
-                ,@{nameof(Medicament.Description)}
-                ,@{nameof(Medicament.VendorPrice)}
+                 @CompanyId
+                ,@{nameof(MedicamentModification.Name)}
+                ,@{nameof(MedicamentModification.Description)}
+                ,@{nameof(MedicamentModification.VendorPrice)}
             );
-        ", parameters: medicament, transaction: transaction, cancellationToken: cancellationToken));
+
+            SELECT [Value] FROM @Id;
+        ", parameters: new
+        {
+            CompanyId = companyId,
+            medicament.Name,
+            medicament.Description,
+            medicament.VendorPrice,
+        }, transaction: transaction, cancellationToken: cancellationToken));
     }
 
     public async Task<Medicament?> GetAsync(
@@ -176,19 +190,26 @@ public sealed class MedicamentRepository : IMedicamentRepository
 
     public async Task UpdateAsync(
         IDbTransaction transaction,
-        Medicament medicament,
+        int id,
+        MedicamentModification medicament,
         CancellationToken cancellationToken = default
     )
     {
         await transaction.Connection.ExecuteAsync(new CommandDefinition($@"
             UPDATE [medicament].[Medicament]
             SET
-                 [Name]        = @{nameof(Medicament.Name)}
-                ,[Description] = @{nameof(Medicament.Description)}
-                ,[VendorPrice] = @{nameof(Medicament.VendorPrice)}
+                 [Name]        = @{nameof(MedicamentModification.Name)}
+                ,[Description] = @{nameof(MedicamentModification.Description)}
+                ,[VendorPrice] = @{nameof(MedicamentModification.VendorPrice)}
             FROM [medicament].[Medicament]
-            WHERE [Id] = @{nameof(Medicament.Id)};
-        ", parameters: medicament, transaction: transaction, cancellationToken: cancellationToken));
+            WHERE [Id] = @Id;
+        ", parameters: new
+        {
+            Id = id,
+            medicament.Name,
+            medicament.Description,
+            medicament.VendorPrice,
+        }, transaction: transaction, cancellationToken: cancellationToken));
     }
 
     public async Task DeleteAsync(

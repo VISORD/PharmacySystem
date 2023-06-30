@@ -45,11 +45,11 @@ public sealed class PharmacyController : ControllerBase
     public async Task<IActionResult> Add(
         [Database] SqlConnection connection,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        [FromBody] PharmacyProfileModel model,
+        [FromBody] PharmacyModificationModel model,
         CancellationToken cancellationToken
     )
     {
-        var pharmacy = model.To(companyId);
+        var pharmacy = model.To();
 
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
@@ -59,14 +59,14 @@ public sealed class PharmacyController : ControllerBase
             return validationResult;
         }
 
-        var pharmacyId = await _pharmacyRepository.AddAsync(transaction, pharmacy, cancellationToken);
+        var pharmacyId = await _pharmacyRepository.AddAsync(transaction, companyId, pharmacy, cancellationToken);
 
         var workingHours = model.ToWorkingHours(pharmacyId);
         await _pharmacyWorkingHoursRepository.MergeAsync(transaction, pharmacyId, workingHours, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 
-        return NoContent();
+        return Ok(new ItemResponse(new PharmacyCreatedModel { Id = pharmacyId }));
     }
 
     [HttpGet("{pharmacyId:int}")]
@@ -100,11 +100,11 @@ public sealed class PharmacyController : ControllerBase
         [Database] SqlConnection connection,
         int pharmacyId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        [FromBody] PharmacyProfileModel model,
+        [FromBody] PharmacyModificationModel model,
         CancellationToken cancellationToken
     )
     {
-        var pharmacy = model.To(companyId, pharmacyId);
+        var pharmacy = model.To();
 
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
@@ -115,7 +115,7 @@ public sealed class PharmacyController : ControllerBase
             return validationResult;
         }
 
-        await _pharmacyRepository.UpdateAsync(transaction, pharmacy, cancellationToken);
+        await _pharmacyRepository.UpdateAsync(transaction, pharmacyId, pharmacy, cancellationToken);
 
         var workingHours = model.ToWorkingHours(pharmacyId);
         await _pharmacyWorkingHoursRepository.MergeAsync(transaction, pharmacyId, workingHours, cancellationToken);

@@ -92,15 +92,27 @@ onMounted(async () => await order.view.reload())
             <div style="display: flex; flex-direction: column">
                 <Transition name="profile" mode="out-in">
                     <div class="profile-view-button" v-if="order.view.profile.status === 0">
-                        <Button icon="fa-solid fa-play" v-tooltip.left.hover="'Start the execution'" />
+                        <Button
+                            icon="fa-solid fa-play"
+                            @click="order.view.tryLaunch()"
+                            v-tooltip.left.hover="'Start the execution'"
+                        />
                     </div>
 
                     <div class="profile-view-button" v-else-if="order.view.profile.status === 1">
-                        <Button icon="fa-solid fa-truck-arrow-right" v-tooltip.left.hover="'Ship medicaments'" />
+                        <Button
+                            icon="fa-solid fa-truck-arrow-right"
+                            @click="order.view.tryShip()"
+                            v-tooltip.left.hover="'Ship medicaments'"
+                        />
                     </div>
 
                     <div class="profile-view-button" v-else-if="order.view.profile.status === 2">
-                        <Button icon="fa-solid fa-circle-check" v-tooltip.left.hover="'Complete the order'" />
+                        <Button
+                            icon="fa-solid fa-circle-check"
+                            @click="order.view.tryComplete()"
+                            v-tooltip.left.hover="'Complete the order'"
+                        />
                     </div>
                 </Transition>
 

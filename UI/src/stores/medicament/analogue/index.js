@@ -96,6 +96,9 @@ export const useMedicamentAnalogueStore = defineStore('medicament-analogue', () 
                 '_blank'
             )
         },
+        doubleClick() {
+            this.showInfo()
+        },
         async tryDisassociate() {
             if (this.selection.length === 0) {
                 return
@@ -112,6 +115,7 @@ export const useMedicamentAnalogueStore = defineStore('medicament-analogue', () 
                 })
             }
 
+            this.selection = []
             this.paging = defaultPaging()
             await this.reload()
         }
@@ -129,7 +133,7 @@ export const useMedicamentAnalogueSelectorStore = defineStore('medicament-analog
     const table = ref({
         dialog: false,
         loading: true,
-        columns: { ...medicament.table.columns },
+        columns: medicament.table.columns,
         data: {
             items: [],
             totalAmount: 0
@@ -196,18 +200,8 @@ export const useMedicamentAnalogueSelectorStore = defineStore('medicament-analog
         selectForContextMenu(selection) {
             this.selection = [selection]
         },
-        showInfo() {
-            if (this.selection?.length !== 1) {
-                return
-            }
-
-            window.open(
-                router.resolve({
-                    path: 'medicament',
-                    query: { medicamentId: this.selection[0].id }
-                }).href,
-                '_blank'
-            )
+        doubleClick() {
+            this.select()
         },
         async tryAssociate() {
             const analogueIds = this.selection.map((item) => item.id)

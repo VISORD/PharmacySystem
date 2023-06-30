@@ -15,9 +15,11 @@ const form = ref({
 const medicament = useMedicamentStore()
 
 async function show() {
-    form.value.name.setValue(medicament.view.profile.name)
-    form.value.vendorPrice.setValue(medicament.view.profile.vendorPrice)
-    form.value.description.setValue(medicament.view.profile.description)
+    if (medicament.view.medicamentId) {
+        form.value.name.setValue(medicament.view.profile.name)
+        form.value.vendorPrice.setValue(medicament.view.profile.vendorPrice)
+        form.value.description.setValue(medicament.view.profile.description)
+    }
 
     await router.push({
         path: router.currentRoute.value.path,
@@ -115,10 +117,3 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
         </div>
     </Dialog>
 </template>
-
-<style scoped>
-.buttons > button {
-    margin: 0 0.5rem 0 0;
-    width: auto;
-}
-</style>

@@ -45,11 +45,11 @@ public sealed class MedicamentController : ControllerBase
     public async Task<IActionResult> Add(
         [Database] SqlConnection connection,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        [FromBody] MedicamentProfileModel model,
+        [FromBody] MedicamentModificationModel model,
         CancellationToken cancellationToken
     )
     {
-        var medicament = model.To(companyId);
+        var medicament = model.To();
 
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
@@ -59,11 +59,11 @@ public sealed class MedicamentController : ControllerBase
             return validationResult;
         }
 
-        await _medicamentRepository.AddAsync(transaction, medicament, cancellationToken);
+        var medicamentId = await _medicamentRepository.AddAsync(transaction, companyId, medicament, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 
-        return NoContent();
+        return Ok(new ItemResponse(new MedicamentCreatedModel { Id = medicamentId }));
     }
 
     [HttpGet("{medicamentId:int}")]
@@ -93,11 +93,11 @@ public sealed class MedicamentController : ControllerBase
         [Database] SqlConnection connection,
         int medicamentId,
         [FromClaim(ClaimTypes.CompanyId)] int companyId,
-        [FromBody] MedicamentProfileModel model,
+        [FromBody] MedicamentModificationModel model,
         CancellationToken cancellationToken
     )
     {
-        var medicament = model.To(companyId, medicamentId);
+        var medicament = model.To();
 
         await using var transaction = await connection.BeginTransactionAsync(IsolationLevel.Snapshot, cancellationToken);
 
@@ -108,7 +108,7 @@ public sealed class MedicamentController : ControllerBase
             return validationResult;
         }
 
-        await _medicamentRepository.UpdateAsync(transaction, medicament, cancellationToken);
+        await _medicamentRepository.UpdateAsync(transaction, medicamentId, medicament, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);
 

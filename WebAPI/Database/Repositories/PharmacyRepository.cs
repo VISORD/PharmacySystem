@@ -30,7 +30,8 @@ public interface IPharmacyRepository
 
     Task<int> AddAsync(
         IDbTransaction transaction,
-        Pharmacy pharmacy,
+        int companyId,
+        PharmacyModification pharmacy,
         CancellationToken cancellationToken = default
     );
 
@@ -42,7 +43,8 @@ public interface IPharmacyRepository
 
     Task UpdateAsync(
         IDbTransaction transaction,
-        Pharmacy pharmacy,
+        int id,
+        PharmacyModification pharmacy,
         CancellationToken cancellationToken = default
     );
 
@@ -136,7 +138,8 @@ public sealed class PharmacyRepository : IPharmacyRepository
 
     public async Task<int> AddAsync(
         IDbTransaction transaction,
-        Pharmacy pharmacy,
+        int companyId,
+        PharmacyModification pharmacy,
         CancellationToken cancellationToken = default
     )
     {
@@ -155,18 +158,28 @@ public sealed class PharmacyRepository : IPharmacyRepository
             )
             OUTPUT INSERTED.[Id] INTO @Id
             VALUES (
-                 @{nameof(Pharmacy.CompanyId)}
-                ,@{nameof(Pharmacy.Name)}
-                ,@{nameof(Pharmacy.Email)}
-                ,@{nameof(Pharmacy.Phone)}
-                ,@{nameof(Pharmacy.Address)}
-                ,@{nameof(Pharmacy.Latitude)}
-                ,@{nameof(Pharmacy.Longitude)}
-                ,@{nameof(Pharmacy.Description)}
+                 @CompanyId
+                ,@{nameof(PharmacyModification.Name)}
+                ,@{nameof(PharmacyModification.Email)}
+                ,@{nameof(PharmacyModification.Phone)}
+                ,@{nameof(PharmacyModification.Address)}
+                ,@{nameof(PharmacyModification.Latitude)}
+                ,@{nameof(PharmacyModification.Longitude)}
+                ,@{nameof(PharmacyModification.Description)}
             );
 
             SELECT [Value] FROM @Id;
-        ", parameters: pharmacy, transaction: transaction, cancellationToken: cancellationToken));
+        ", parameters: new
+        {
+            CompanyId = companyId,
+            pharmacy.Name,
+            pharmacy.Email,
+            pharmacy.Phone,
+            pharmacy.Address,
+            pharmacy.Latitude,
+            pharmacy.Longitude,
+            pharmacy.Description,
+        }, transaction: transaction, cancellationToken: cancellationToken));
     }
 
     public async Task<Pharmacy?> GetAsync(
@@ -193,23 +206,34 @@ public sealed class PharmacyRepository : IPharmacyRepository
 
     public async Task UpdateAsync(
         IDbTransaction transaction,
-        Pharmacy pharmacy,
+        int id,
+        PharmacyModification pharmacy,
         CancellationToken cancellationToken = default
     )
     {
         await transaction.Connection.ExecuteAsync(new CommandDefinition($@"
             UPDATE [pharmacy].[Pharmacy]
             SET
-                 [Name]        = @{nameof(Pharmacy.Name)}
-                ,[Email]       = @{nameof(Pharmacy.Email)}
-                ,[Phone]       = @{nameof(Pharmacy.Phone)}
-                ,[Address]     = @{nameof(Pharmacy.Address)}
-                ,[Latitude]    = @{nameof(Pharmacy.Latitude)}
-                ,[Longitude]   = @{nameof(Pharmacy.Longitude)}
-                ,[Description] = @{nameof(Pharmacy.Description)}
+                 [Name]        = @{nameof(PharmacyModification.Name)}
+                ,[Email]       = @{nameof(PharmacyModification.Email)}
+                ,[Phone]       = @{nameof(PharmacyModification.Phone)}
+                ,[Address]     = @{nameof(PharmacyModification.Address)}
+                ,[Latitude]    = @{nameof(PharmacyModification.Latitude)}
+                ,[Longitude]   = @{nameof(PharmacyModification.Longitude)}
+                ,[Description] = @{nameof(PharmacyModification.Description)}
             FROM [pharmacy].[Pharmacy]
             WHERE [Id] = @{nameof(Pharmacy.Id)};
-        ", parameters: pharmacy, transaction: transaction, cancellationToken: cancellationToken));
+        ", parameters: new
+        {
+            Id = id,
+            pharmacy.Name,
+            pharmacy.Email,
+            pharmacy.Phone,
+            pharmacy.Address,
+            pharmacy.Latitude,
+            pharmacy.Longitude,
+            pharmacy.Description,
+        }, transaction: transaction, cancellationToken: cancellationToken));
     }
 
     public async Task DeleteAsync(

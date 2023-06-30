@@ -1,11 +1,11 @@
 <script setup>
 import ListTable from '@/components/ListTable.vue'
 import PharmacyProfileView from '@/components/pharmacy/PharmacyProfileView.vue'
+import PharmacyMedicamentProfileView from '@/components/pharmacy/medicament/PharmacyMedicamentProfileView.vue'
+import PharmacyInfoForm from '@/components/pharmacy/PharmacyInfoForm.vue'
 import { usePharmacyStore } from '@/stores/pharmacy'
 import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
-import PharmacyMedicamentProfileView from '@/components/pharmacy/medicament/PharmacyMedicamentProfileView.vue'
-import PharmacyInfoForm from '@/components/pharmacy/PharmacyInfoForm.vue'
 
 const pharmacy = usePharmacyStore()
 const confirm = useConfirm()

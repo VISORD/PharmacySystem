@@ -73,6 +73,7 @@ const router = createRouter({
                         const order = useOrderStore()
                         order.view.dialog = !!to.query.orderId
                         order.view.orderId = to.query.orderId
+                        order.edit.pending = !!to.query.orderEditForm
 
                         next()
                     }

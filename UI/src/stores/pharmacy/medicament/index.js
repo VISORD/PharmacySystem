@@ -96,6 +96,9 @@ export const usePharmacyMedicamentStore = defineStore('pharmacy-medicament', () 
 
             view.value.dialog = true
             view.value.medicamentId = this.selection.medicament.id
+        },
+        doubleClick() {
+            this.showInfo()
         }
     })
 
@@ -133,6 +136,9 @@ export const usePharmacyMedicamentStore = defineStore('pharmacy-medicament', () 
                 }).href,
                 '_blank'
             )
+        },
+        doubleClick() {
+            this.showInfo()
         }
     })
 

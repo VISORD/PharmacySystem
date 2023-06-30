@@ -109,6 +109,9 @@ export const usePharmacyMedicamentOrderStore = defineStore('pharmacy-medicament-
                 }).href,
                 '_blank'
             )
+        },
+        doubleClick() {
+            this.showInfo()
         }
     })
 

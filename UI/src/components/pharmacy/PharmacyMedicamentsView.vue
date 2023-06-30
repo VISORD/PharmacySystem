@@ -145,15 +145,6 @@ function buildRateDatesFrameMessage(rate) {
                 />
             </template>
         </Column>
-
-        <template #header>
-            <Button
-                type="button"
-                severity="secondary"
-                icon="fa-solid fa-plus"
-                v-tooltip.left.hover="'Create an order'"
-            />
-        </template>
     </ListTable>
 </template>
 

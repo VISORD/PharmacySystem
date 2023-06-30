@@ -22,7 +22,7 @@ async function show() {
 async function hide() {
     await router.push({
         path: router.currentRoute.value.path,
-        query: { ...router.currentRoute.value.query, orderId: undefined }
+        query: { ...router.currentRoute.value.query, orderId: undefined, orderEditForm: undefined }
     })
 }
 </script>

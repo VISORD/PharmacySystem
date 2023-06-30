@@ -84,7 +84,7 @@ export const usePharmacyMedicamentRateStore = defineStore('pharmacy-medicament-r
         selectForContextMenu(selection) {
             this.selection = selection
         },
-        showInfo() {}
+        doubleClick() {}
     })
 
     return { table }
