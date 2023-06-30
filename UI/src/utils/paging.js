@@ -4,6 +4,7 @@ export function preparePagingRequest(
     table,
     {
         filters = undefined,
+        extendedFilters = undefined,
         orders = undefined,
         pageFirst = undefined,
         pageNumber = undefined,
@@ -20,6 +21,15 @@ export function preparePagingRequest(
             minimizedFilters.push({
                 field: key,
                 ...table.filtering[key]
+            })
+        }
+    }
+
+    for (const extendedFilterKey in extendedFilters) {
+        if (extendedFilters[extendedFilterKey].value) {
+            minimizedFilters.push({
+                field: extendedFilterKey,
+                ...extendedFilters[extendedFilterKey]
             })
         }
     }

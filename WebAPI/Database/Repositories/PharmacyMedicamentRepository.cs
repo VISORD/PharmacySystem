@@ -98,7 +98,7 @@ public sealed class PharmacyMedicamentRepository : IPharmacyMedicamentRepository
                 LEFT JOIN [pharmacy].[PharmacyMedicamentRate] r ON r.[PharmacyId] = pm.[PharmacyId] AND r.[MedicamentId] = pm.[MedicamentId]
                 WHERE @AsOfDate BETWEEN r.[StartDate] AND r.[StopDate]
             )";
-        var (filters, parameters) = request.SqlFiltering<PharmacyMedicamentItem>();
+        var (filters, parameters) = request.SqlFiltering();
         var where = "[PharmacyId] = @PharmacyId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
         var orderBy = string.Join(", ", request.SqlOrdering("PharmacyId", "MedicamentId"));
 

@@ -120,6 +120,17 @@ public sealed class OrderController : ControllerBase
             return validationResult;
         }
 
+        var order = await _orderRepository.GetAsync(transaction, orderId, cancellationToken);
+        if (order is null)
+        {
+            return NotFound();
+        }
+
+        if (order.Status != OrderStatus.Draft)
+        {
+            return BadRequest(new ItemResponse(Error: "Non-draft order can't be deleted"));
+        }
+
         await _orderRepository.DeleteAsync(transaction, orderId, cancellationToken);
 
         await transaction.CommitAsync(cancellationToken);

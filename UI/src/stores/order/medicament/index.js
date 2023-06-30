@@ -64,7 +64,6 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
             pageSize = undefined
         } = {}) {
             this.loading = true
-            this.selection = null
 
             const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
             const response = await list(order.view.orderId, request)
@@ -83,6 +82,7 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
             this.loading = false
         },
         async reset() {
+            this.selection = null
             this.filtering = defaultFiltering(columns)
             this.ordering = defaultOrdering()
             this.paging = defaultPaging()

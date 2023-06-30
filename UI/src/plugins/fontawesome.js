@@ -11,6 +11,8 @@ import {
     faCheck,
     faEraser,
     faHandHoldingMedical,
+    faLink,
+    faLinkSlash,
     faListCheck,
     faLocationDot,
     faLock,
@@ -57,7 +59,9 @@ library.add(
     faSpinner,
     faCalculator,
     faArrowUpRightFromSquare,
-    faLocationDot
+    faLocationDot,
+    faLink,
+    faLinkSlash
 )
 
 // <i> => <svg>

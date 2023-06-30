@@ -165,7 +165,7 @@ public sealed class OrderMedicamentRepository : IOrderMedicamentRepository
                 JOIN [pharmacy].[Pharmacy] p ON p.[Id] = o.[PharmacyId]
                 LEFT JOIN [pharmacy].[PharmacyMedicament] pm ON pm.[PharmacyId] = o.[PharmacyId] AND pm.[MedicamentId] = om.[MedicamentId]
             )";
-        var (filters, parameters) = request.SqlFiltering<OrderMedicamentItem>();
+        var (filters, parameters) = request.SqlFiltering();
         var where = "[OrderId] = @OrderId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
         var orderBy = string.Join(", ", request.SqlOrdering("OrderId", "MedicamentId"));
 

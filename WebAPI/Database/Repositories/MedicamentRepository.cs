@@ -100,7 +100,7 @@ public sealed class MedicamentRepository : IMedicamentRepository
         CancellationToken cancellationToken = default
     )
     {
-        var (filters, parameters) = request.SqlFiltering<Medicament>();
+        var (filters, parameters) = request.SqlFiltering();
         var where = "[CompanyId] = @CompanyId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
         var orderBy = string.Join(", ", request.SqlOrdering("Id"));
 

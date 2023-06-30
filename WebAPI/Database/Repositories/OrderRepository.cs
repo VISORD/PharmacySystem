@@ -104,7 +104,7 @@ public sealed class OrderRepository : IOrderRepository
                     ,o.[OrderedAt]
                     ,o.[UpdatedAt]
             )";
-        var (filters, parameters) = request.SqlFiltering<OrderItem>();
+        var (filters, parameters) = request.SqlFiltering();
         var where = "[CompanyId] = @CompanyId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
         var orderBy = string.Join(", ", request.SqlOrdering("Id"));
 

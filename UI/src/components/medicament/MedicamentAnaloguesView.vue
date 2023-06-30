@@ -1,22 +1,55 @@
 <script setup>
 import ListTable from '@/components/ListTable.vue'
-import { useMedicamentAnalogueStore } from '@/stores/medicament/analogue'
+import MedicamentAnaloguesSelector from '@/components/medicament/MedicamentAnaloguesSelector.vue'
+import { useMedicamentAnalogueSelectorStore, useMedicamentAnalogueStore } from '@/stores/medicament/analogue'
 import { ref } from 'vue'
 import { allMedicamentAnalogueTypes, resolveMedicamentAnalogueType } from '@/constants/medicament-analogue-types'
+import { useConfirm } from 'primevue/useconfirm'
 
 const medicamentAnalogue = useMedicamentAnalogueStore()
+const medicamentAnalogueSelector = useMedicamentAnalogueSelectorStore()
+const confirm = useConfirm()
+
+function disassociate() {
+    confirm.require({
+        group: 'medicament-analogue-table-disassociate',
+        header: 'Confirmation',
+        icon: 'fa-solid fa-triangle-exclamation',
+        acceptIcon: 'fa-solid fa-check',
+        rejectIcon: 'fa-solid fa-xmark',
+        accept: async () => await medicamentAnalogue.table.tryDisassociate(),
+        reject: () => {}
+    })
+}
 
 const menu = ref([
     {
         label: 'View in new window',
         icon: 'fa-solid fa-arrow-up-right-from-square',
         command: () => medicamentAnalogue.table.showInfo()
+    },
+    {
+        label: 'Disassociate',
+        icon: 'fa-solid fa-link-slash',
+        command: () => disassociate()
     }
 ])
 </script>
 
 <template>
-    <ListTable :store="medicamentAnalogue" :menu="menu">
+    <ConfirmDialog group="medicament-analogue-table-disassociate">
+        <template #message>
+            <div>
+                Are you sure you want to disassociate selected medicament{{
+                    medicamentAnalogue.table.selection.length > 1 ? 's' : ''
+                }}?
+            </div>
+        </template>
+    </ConfirmDialog>
+
+    <MedicamentAnaloguesSelector />
+
+    <ListTable :store="medicamentAnalogue" :menu="menu" selection-mode="multiple">
         <Column
             :key="medicamentAnalogue.table.columns.name.key"
             :field="medicamentAnalogue.table.columns.name.key"
@@ -105,7 +138,25 @@ const menu = ref([
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-pencil" aria-label="Manage analogues" />
+            <div>
+                <Button
+                    type="button"
+                    severity="secondary"
+                    icon="fa-solid fa-link"
+                    aria-label="Manage analogues"
+                    style="margin-right: 1rem"
+                    @click="medicamentAnalogueSelector.table.dialog = true"
+                />
+
+                <Button
+                    type="button"
+                    severity="danger"
+                    icon="fa-solid fa-link-slash"
+                    aria-label="Manage analogues"
+                    :disabled="medicamentAnalogue.table.selection.length === 0"
+                    @click="disassociate()"
+                />
+            </div>
         </template>
     </ListTable>
 </template>

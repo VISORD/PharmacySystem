@@ -54,7 +54,7 @@ public sealed class PharmacyMedicamentRateRepository : IPharmacyMedicamentRateRe
         CancellationToken cancellationToken = default
     )
     {
-        var (filters, parameters) = request.SqlFiltering<PharmacyMedicamentRate>();
+        var (filters, parameters) = request.SqlFiltering();
         var where = "[PharmacyId] = @PharmacyId AND [MedicamentId] = @MedicamentId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
         var orderBy = string.Join(", ", request.SqlOrdering("PharmacyId", "MedicamentId", "StartDate", "StopDate"));
 

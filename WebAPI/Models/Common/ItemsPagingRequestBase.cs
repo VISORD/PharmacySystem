@@ -8,10 +8,10 @@ public abstract class ItemsPagingRequestBase
     public ICollection<Ordering> Ordering { get; init; } = new List<Ordering>();
     public Paging Paging { get; init; } = new(Number: 0, Size: 10);
 
-    public (ICollection<string> filters, ICollection<(string field, object value)> parameters) SqlFiltering<T>()
+    public (ICollection<string> filters, ICollection<(string field, object? value)> parameters) SqlFiltering()
     {
         var filters = new List<string>();
-        var parameters = new List<(string field, object value)>();
+        var parameters = new List<(string field, object? value)>();
         foreach (var (field, value, matchMode) in Filtering)
         {
             if (value is null)
@@ -47,6 +47,10 @@ public abstract class ItemsPagingRequestBase
 
                 case "in":
                     filters.Add($"[{field}] IS NOT NULL AND [{field}] IN @{field}");
+                    break;
+
+                case "notIn":
+                    filters.Add($"[{field}] IS NOT NULL AND [{field}] NOT IN @{field}");
                     break;
 
                 // Ignore
@@ -91,11 +95,24 @@ public abstract class ItemsPagingRequestBase
 
             if (((JsonElement) value).ValueKind == JsonValueKind.Array)
             {
-                parameters.Add((field, ((JsonElement) value).EnumerateArray().Select(x => x.ToString()).ToArray()));
+                parameters.Add((field, ((JsonElement) value).EnumerateArray().Select(x => x.ValueKind switch
+                {
+                    JsonValueKind.False => "0",
+                    JsonValueKind.True => "1",
+                    _ => x.ToString()
+                }).ToArray()));
+            }
+            else if (((JsonElement) value).ValueKind == JsonValueKind.False)
+            {
+                parameters.Add((field, "0"));
+            }
+            else if (((JsonElement) value).ValueKind == JsonValueKind.True)
+            {
+                parameters.Add((field, "1"));
             }
             else
             {
-                parameters.Add((field, value.ToString())!);
+                parameters.Add((field, value.ToString()));
             }
         }
 

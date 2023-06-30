@@ -52,7 +52,7 @@ public sealed class MedicamentAnalogueRepository : IMedicamentAnalogueRepository
                 JOIN [medicament].[Medicament] original ON a.[OriginalId] = original.[Id]
                 JOIN [medicament].[Medicament] analogue ON a.[AnalogueId] = analogue.[Id]
             )";
-        var (filters, parameters) = request.SqlFiltering<MedicamentAnalogue>();
+        var (filters, parameters) = request.SqlFiltering();
         var where = "@MedicamentId IN ([OriginalId], [AnalogueId])" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
         var orderBy = string.Join(", ", request.SqlOrdering("OriginalId", "AnalogueId"));
 
@@ -122,7 +122,8 @@ public sealed class MedicamentAnalogueRepository : IMedicamentAnalogueRepository
         await transaction.Connection.ExecuteAsync(new CommandDefinition(@"
             DELETE a
             FROM [medicament].[MedicamentAnalogue] a
-            JOIN @AnalogueIds i ON a.[OriginalId] = @MedicamentId AND a.[AnalogueId] = i.[Value];
+            JOIN @AnalogueIds i ON a.[OriginalId] = @MedicamentId AND a.[AnalogueId] = i.[Value]
+                                       OR a.[OriginalId] = i.[Value] AND a.[AnalogueId] = @MedicamentId;
         ", parameters: new
         {
             MedicamentId = medicamentId,

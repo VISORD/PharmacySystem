@@ -43,7 +43,6 @@ export const useMedicamentStore = defineStore('medicament', () => {
             pageSize = undefined
         } = {}) {
             this.loading = true
-            this.selection = null
 
             const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
             const response = await list(request)
@@ -67,6 +66,7 @@ export const useMedicamentStore = defineStore('medicament', () => {
             }
         },
         async reset() {
+            this.selection = null
             this.filtering = defaultFiltering(columns)
             this.ordering = defaultOrdering()
             this.paging = defaultPaging()
@@ -78,7 +78,7 @@ export const useMedicamentStore = defineStore('medicament', () => {
         selectForContextMenu(selection) {
             this.selection = selection
         },
-        async showInfo() {
+        showInfo() {
             if (!this.selection?.id) {
                 return
             }

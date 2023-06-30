@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue'
 
-const props = defineProps(['store', 'menu'])
+const props = defineProps(['store', 'menu', 'selectionMode'])
 const contextMenu = ref()
 
 onMounted(async () => await props.store.table.reset())
@@ -9,6 +9,7 @@ onMounted(async () => await props.store.table.reset())
 
 <template>
     <ContextMenu ref="contextMenu" v-if="!!menu" :model="menu" style="width: 15rem" />
+
     <DataTable
         :value="store.table.data.items"
         data-key="id"
@@ -21,7 +22,7 @@ onMounted(async () => await props.store.table.reset())
         :filters="store.table.filtering"
         @update:filters="(filters) => store.table.reload({ filters: filters })"
         row-hover
-        selection-mode="single"
+        :selection-mode="selectionMode ?? 'single'"
         :selection="store.table.selection"
         @update:selection="(selection) => store.table.selectRow(selection)"
         @row-dblclick="store.table.showInfo()"
