@@ -108,6 +108,10 @@ export const usePharmacyMedicamentSaleStore = defineStore('pharmacy-medicament-s
                 table.value.selection = null
                 table.value.paging = defaultPaging()
                 await table.value.reload()
+
+                pharmacyMedicament.table.selection = null
+                pharmacyMedicament.table.paging = defaultPaging()
+                await pharmacyMedicament.table.reload()
             } else if (response.status !== 401) {
                 toast.add({
                     severity: 'error',

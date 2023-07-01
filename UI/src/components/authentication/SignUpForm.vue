@@ -55,7 +55,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await account.try
                 <Password
                     id="password"
                     input-id="password-input"
-                    v-model="form.password"
+                    v-model="form.password.value"
                     placeholder="Password"
                     :class="{ 'p-invalid': form.password.errorMessage }"
                     aria-describedby="text-error"
