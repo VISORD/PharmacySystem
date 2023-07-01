@@ -15,7 +15,7 @@ public sealed class PharmacyMedicamentRateItemPagingModel
 
     public static PharmacyMedicamentRateItemPagingModel From(PharmacyMedicamentRate rate) => new()
     {
-        Id = $"{rate.PharmacyId}:{rate.MedicamentId}",
+        Id = $"{rate.PharmacyId}:{rate.MedicamentId}:{rate.StartDate:ddMMyyyy}:{rate.StopDate:ddMMyyyy}",
         RetailPrice = rate.RetailPrice,
         StartDate = rate.StartDate.AsStartDate(),
         StopDate = rate.StopDate.AsStopDate()

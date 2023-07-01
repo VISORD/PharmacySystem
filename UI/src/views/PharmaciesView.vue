@@ -3,6 +3,8 @@ import ListTable from '@/components/ListTable.vue'
 import PharmacyProfileView from '@/components/pharmacy/PharmacyProfileView.vue'
 import PharmacyMedicamentProfileView from '@/components/pharmacy/medicament/PharmacyMedicamentProfileView.vue'
 import PharmacyInfoForm from '@/components/pharmacy/PharmacyInfoForm.vue'
+import PharmacyMedicamentRateForm from '@/components/pharmacy/medicament/PharmacyMedicamentRateForm.vue'
+import PharmacyMedicamentSaleForm from '@/components/pharmacy/medicament/PharmacyMedicamentSaleForm.vue'
 import { usePharmacyStore } from '@/stores/pharmacy'
 import { ref } from 'vue'
 import { useConfirm } from 'primevue/useconfirm'
@@ -55,6 +57,8 @@ const menu = ref([
     <PharmacyProfileView />
     <PharmacyMedicamentProfileView />
     <PharmacyInfoForm />
+    <PharmacyMedicamentRateForm />
+    <PharmacyMedicamentSaleForm />
 
     <ListTable :store="pharmacy" :menu="menu">
         <Column

@@ -139,7 +139,7 @@ export const useMedicamentAnalogueSelectorStore = defineStore('medicament-analog
 
     const table = ref({
         dialog: false,
-        loading: false,
+        loading: true,
         columns: medicament.table.columns,
         data: {
             items: [],

@@ -70,12 +70,12 @@ const onSubmit = handleSubmit.withControlled(
 
                         <fa class="field-icon" :icon="['fas', 'hand-holding-medical']" />
                         <InputText
-                            id="address"
+                            id="pharmacy"
                             v-model="form.pharmacy.value"
                             type="text"
                             placeholder="Pharmacy"
                             :class="{ 'p-invalid': form.pharmacy.errorMessage }"
-                            autocomplete="address"
+                            autocomplete="pharmacy"
                             disabled
                         />
                     </div>

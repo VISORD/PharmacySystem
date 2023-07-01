@@ -14,7 +14,7 @@ public sealed class PharmacyMedicamentSaleItemPagingModel
 
     public static PharmacyMedicamentSaleItemPagingModel From(PharmacyMedicamentSale sale) => new()
     {
-        Id = $"{sale.PharmacyId}:{sale.MedicamentId}",
+        Id = $"{sale.PharmacyId}:{sale.MedicamentId}:{sale.SoldAt:ddMMyyyy-HHmmss}",
         SoldAt = sale.SoldAt.LocalDateTime,
         SalePrice = sale.SalePrice,
         UnitsSold = sale.UnitsSold,

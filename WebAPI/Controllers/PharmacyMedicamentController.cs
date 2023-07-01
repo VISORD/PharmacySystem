@@ -142,11 +142,6 @@ public sealed class PharmacyMedicamentController : ControllerBase
             return BadRequest(new ItemResponse(Error: "Start date should be earlier than stop date or equal it"));
         }
 
-        if (rate.StartDate < DateTime.Today)
-        {
-            return BadRequest(new ItemResponse(Error: "Rate can't be modified in the past"));
-        }
-
         var pharmacyMedicament = await _pharmacyMedicamentRepository.GetProfileAsync(transaction, pharmacyId, medicamentId, cancellationToken: cancellationToken);
         if (pharmacyMedicament is null)
         {

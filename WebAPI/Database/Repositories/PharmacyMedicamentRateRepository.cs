@@ -133,7 +133,7 @@ public sealed class PharmacyMedicamentRateRepository : IPharmacyMedicamentRateRe
             WHERE [PharmacyId]   =  @{nameof(PharmacyMedicamentRate.PharmacyId)}
               AND [MedicamentId] =  @{nameof(PharmacyMedicamentRate.MedicamentId)}
               AND [StartDate]    <= @{nameof(PharmacyMedicamentRate.StartDate)}
-              AND [StopDate]     >= @{nameof(PharmacyMedicamentRate.RetailPrice)};
+              AND [StopDate]     >= @{nameof(PharmacyMedicamentRate.StopDate)};
         ", parameters: rate, transaction: transaction, cancellationToken: cancellationToken));
     }
 

@@ -45,6 +45,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await company.try
         @hide="hide()"
         :header="company.data ? `Edit company info: ${company.data.name}` : 'Edit company info'"
         class="form-dialog"
+        style="width: 30rem"
     >
         <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
             <form @submit="onSubmit" style="width: 100%" @keydown.enter.prevent>

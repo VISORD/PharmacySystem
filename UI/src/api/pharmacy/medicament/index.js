@@ -36,6 +36,22 @@ export function rateList(pharmacyId, medicamentId, { filtering, ordering, paging
     )
 }
 
+export function rate(pharmacyId, medicamentId, { retailPrice, startDate, stopDate }) {
+    return api.put(
+        `/api/pharmacy/${pharmacyId}/medicament/${medicamentId}/rate`,
+        {
+            retailPrice: retailPrice,
+            startDate: startDate,
+            stopDate: stopDate
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    )
+}
+
 export function saleList(pharmacyId, medicamentId, { filtering, ordering, paging }) {
     return api.post(
         `/api/pharmacy/${pharmacyId}/medicament/${medicamentId}/sale/list`,
@@ -43,6 +59,21 @@ export function saleList(pharmacyId, medicamentId, { filtering, ordering, paging
             filtering: filtering,
             ordering: ordering,
             paging: paging
+        },
+        {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        }
+    )
+}
+
+export function sale(pharmacyId, medicamentId, { soldAt, unitsSold }) {
+    return api.put(
+        `/api/pharmacy/${pharmacyId}/medicament/${medicamentId}/sale`,
+        {
+            soldAt: soldAt,
+            unitsSold: unitsSold
         },
         {
             headers: {

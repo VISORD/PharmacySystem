@@ -4,12 +4,19 @@ import { usePharmacyMedicamentRateStore } from '@/stores/pharmacy/medicament/rat
 import { ref } from 'vue'
 
 const pharmacyMedicamentRate = usePharmacyMedicamentRateStore()
+pharmacyMedicamentRate.table.doubleClick = () => {
+    pharmacyMedicamentRate.edit.data = pharmacyMedicamentRate.table.selection
+    pharmacyMedicamentRate.edit.dialog = true
+}
 
 const menu = ref([
     {
         label: 'Edit',
         icon: 'fa-solid fa-pencil',
-        command: () => {}
+        command: () => {
+            pharmacyMedicamentRate.edit.data = pharmacyMedicamentRate.table.selection
+            pharmacyMedicamentRate.edit.dialog = true
+        }
     }
 ])
 </script>
@@ -101,7 +108,13 @@ const menu = ref([
         </Column>
 
         <template #header>
-            <Button type="button" icon="fa-solid fa-plus" severity="secondary" v-tooltip.left.hover="'Add new rate'" />
+            <Button
+                type="button"
+                icon="fa-solid fa-plus"
+                severity="secondary"
+                v-tooltip.left.hover="'Add new rate'"
+                @click="pharmacyMedicamentRate.edit.dialog = true"
+            />
         </template>
     </ListTable>
 </template>

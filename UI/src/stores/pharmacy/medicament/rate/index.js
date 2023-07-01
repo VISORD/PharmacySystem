@@ -6,7 +6,7 @@ import { preparePagingRequest } from '@/utils/paging'
 import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
 import { usePharmacyStore } from '@/stores/pharmacy'
 import { usePharmacyMedicamentStore } from '@/stores/pharmacy/medicament'
-import { rateList } from '@/api/pharmacy/medicament'
+import { rate, rateList } from '@/api/pharmacy/medicament'
 
 const columns = {
     retailPrice: {
@@ -87,5 +87,39 @@ export const usePharmacyMedicamentRateStore = defineStore('pharmacy-medicament-r
         doubleClick() {}
     })
 
-    return { table }
+    const edit = ref({
+        dialog: false,
+        processing: false,
+        data: {},
+        async trySave(values) {
+            this.processing = true
+
+            const response = await rate(pharmacy.view.pharmacyId, pharmacyMedicament.view.profile.medicament.id, values)
+            if (response.status < 400) {
+                toast.add({
+                    severity: 'success',
+                    summary: 'Medicament rate has been added',
+                    detail: 'The operation has been successfully performed',
+                    life: 3000
+                })
+
+                this.dialog = false
+
+                table.value.selection = null
+                table.value.paging = defaultPaging()
+                await table.value.reload()
+            } else if (response.status !== 401) {
+                toast.add({
+                    severity: 'error',
+                    summary: 'Medicament rate addition failed',
+                    detail: response.data.error,
+                    life: 3000
+                })
+            }
+
+            this.processing = false
+        }
+    })
+
+    return { table, edit }
 })
