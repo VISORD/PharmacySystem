@@ -1,3 +1,5 @@
+using PharmacySystem.WebAPI.Health;
+
 namespace PharmacySystem.WebAPI.Database.Publisher;
 
 /// <summary>
@@ -6,10 +8,12 @@ namespace PharmacySystem.WebAPI.Database.Publisher;
 public sealed class DatabasePublicationStartupFilter : IStartupFilter
 {
     private readonly IServiceScopeFactory _factory;
+    private readonly HealthCheckStatus _status;
 
-    public DatabasePublicationStartupFilter(IServiceScopeFactory factory)
+    public DatabasePublicationStartupFilter(IServiceScopeFactory factory, HealthCheckStatus status)
     {
         _factory = factory;
+        _status = status;
     }
 
     public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next) => builder =>
@@ -24,6 +28,8 @@ public sealed class DatabasePublicationStartupFilter : IStartupFilter
         {
             throw new InvalidOperationException("Failed to publish database project", result.Exception);
         }
+
+        _status.IsReady = true;
 
         next(builder);
     };

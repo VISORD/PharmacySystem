@@ -8,6 +8,7 @@ using PharmacySystem.WebAPI.Authentication.Claims;
 using PharmacySystem.WebAPI.Database.Connection;
 using PharmacySystem.WebAPI.Database.Publisher;
 using PharmacySystem.WebAPI.Database.Repositories;
+using PharmacySystem.WebAPI.Health;
 using PharmacySystem.WebAPI.Models.Common;
 using PharmacySystem.WebAPI.Options;
 
@@ -47,6 +48,12 @@ internal static class Program
             .AddScoped<IPharmacyMedicamentSaleRepository, PharmacyMedicamentSaleRepository>()
             .AddScoped<IPharmacyMedicamentOrderRepository, PharmacyMedicamentOrderRepository>()
             .AddScoped<IDatabasePublicationService, DatabasePublicationService>();
+
+        // Add health check
+        builder.Services
+            .AddSingleton<HealthCheckStatus>()
+            .AddHealthChecks()
+            .AddCheck<HealthCheckService>("Application");
 
         // Add filters
         builder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IStartupFilter, DatabasePublicationStartupFilter>());
@@ -125,6 +132,8 @@ internal static class Program
                 options.SwaggerEndpoint($"/swagger/{ApiVersion}/swagger.json", ApiVersion);
             });
         }
+
+        app.MapHealthChecks("/healthz");
 
         app.UseHttpsRedirection();
 

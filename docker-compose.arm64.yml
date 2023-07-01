@@ -1,13 +1,14 @@
 version: "3.9"
 
 services:
+
   azure-sql-edge:
     image: mcr.microsoft.com/azure-sql-edge:latest
     restart: on-failure
     cap_add:
       - SYS_PTRACE
     environment:
-      - MSSQL_SA_PASSWORD=<2023!Pass>
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
       - ACCEPT_EULA=1
     ports:
       - "1433:1433"
@@ -16,6 +17,45 @@ services:
       - mssql-extensibility:/var/opt/mssql-extensibility
       - mssql-extensibility-log:/var/opt/mssql-extensibility/log
       - mssql-extensibility-data:/var/opt/mssql-extensibility/data
+    healthcheck:
+      test: echo
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 30s
+
+  backend:
+    image: pharmacy-system/backend
+    build:
+      context: .
+      dockerfile: WebAPI/Dockerfile
+    environment:
+      DATABASE_CONNECTION_STRING: Data Source=azure-sql-edge,1433;User ID=sa;Password=${MSSQL_SA_PASSWORD};Database=master;Trust Server Certificate=true
+    ports:
+      - "80:80"
+    depends_on:
+      azure-sql-edge:
+        condition: service_healthy
+    healthcheck:
+      test: curl --fail http://localhost:80/healthz || exit
+      interval: 5s
+      timeout: 5s
+      retries: 15
+      start_period: 5s
+
+  frontend:
+    image: pharmacy-system/frontend
+    build:
+      context: .
+      dockerfile: UI/Dockerfile
+    environment:
+      VITE_API_SERVER_URL: http://localhost:80
+      VITE_YAMAPS_API_KEY: ${YAMAPS_API_KEY}
+    ports:
+      - "5173:8080"
+    depends_on:
+      backend:
+        condition: service_healthy
 
 volumes:
   mssql-data: { }

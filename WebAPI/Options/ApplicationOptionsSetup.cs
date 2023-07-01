@@ -16,6 +16,6 @@ public sealed class ApplicationOptionsSetup : IConfigureOptions<ApplicationOptio
 
     public void Configure(ApplicationOptions options)
     {
-        options.DbConnectionString = _configuration.GetOrThrow(DbConnectionString);
+        options.DbConnectionString = _configuration["DATABASE_CONNECTION_STRING"] ?? _configuration.GetOrThrow(DbConnectionString);
     }
 }
