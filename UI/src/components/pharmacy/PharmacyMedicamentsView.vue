@@ -121,7 +121,7 @@ function buildRateDatesFrameMessage(rate) {
                     <div v-if="data.rate">{{ data.rate?.retailPriceText }}</div>
                     <div v-if="data.rate" style="font-size: 10px">({{ buildRateDatesFrameMessage(data.rate) }})</div>
                 </div>
-                <div v-else>—</div>
+                <Tag v-else icon="fa-solid fa-triangle-exclamation" severity="warning" value="—" />
             </template>
         </Column>
 

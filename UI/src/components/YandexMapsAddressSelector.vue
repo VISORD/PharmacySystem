@@ -53,7 +53,10 @@ async function show() {
     map.longitude = props.coords.longitude ?? 37.613206
     map.precision = null
     map.suggestions = null
-    form.value.address.setValue(props.coords.address)
+
+    if (props.coords.address) {
+        form.value.address.setValue(props.coords.address)
+    }
 }
 
 async function hide() {

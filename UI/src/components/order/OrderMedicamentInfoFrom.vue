@@ -44,7 +44,7 @@ const form = ref({
 })
 
 function show() {
-    if (orderMedicament.edit.orderMedicament) {
+    if (orderMedicament.edit.orderMedicament?.id) {
         form.value.medicamentId = orderMedicament.edit.orderMedicament.medicament?.id
         form.value.medicament.setValue(orderMedicament.edit.orderMedicament.medicament?.name)
         form.value.requestedCount.setValue(orderMedicament.edit.orderMedicament.requestedCount)

@@ -101,13 +101,7 @@ const menu = ref([
         </Column>
 
         <template #header>
-            <Button
-                type="button"
-                icon="fa-solid fa-pencil"
-                severity="secondary"
-                v-tooltip.left.hover="'Manage rates'"
-                :disabled="pharmacyMedicamentRate.table.loading"
-            />
+            <Button type="button" icon="fa-solid fa-plus" severity="secondary" v-tooltip.left.hover="'Add new rate'" />
         </template>
     </ListTable>
 </template>

@@ -104,7 +104,15 @@ body {
     height: 4rem;
 }
 
+.profile-view-tab {
+    display: flex;
+    flex-direction: column;
+    flex: auto;
+    width: 100%;
+}
+
 .profile-view-tab .p-tabview-panels {
+    overflow-y: scroll;
     padding-left: 0 !important;
     padding-right: 0 !important;
     padding-bottom: 0 !important;

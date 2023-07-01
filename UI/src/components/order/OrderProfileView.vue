@@ -38,6 +38,7 @@ async function hide() {
         @hide="hide()"
         :header="order.view.profile.id ? `Order info: Order #${order.view.profile.id}` : 'Order info'"
         class="profile-dialog"
+        content-style="display: flex"
     >
         <TabView class="profile-view-tab" @tab-change="(event) => (tab = event.index)">
             <TabPanel header="General Info">
@@ -46,7 +47,7 @@ async function hide() {
             <TabPanel header="Medicaments">
                 <OrderMedicamentsView v-if="tab === 1" />
             </TabPanel>
-            <TabPanel header="History">
+            <TabPanel header="History" content-style="overflow-y: scroll">
                 <OrderHistoryView v-if="tab === 2" />
             </TabPanel>
         </TabView>

@@ -234,7 +234,6 @@ const menu = ref([
                 severity="secondary"
                 v-tooltip.left.hover="'Request a medicament'"
                 @click="orderMedicament.edit.dialog = true"
-                :disabled="orderMedicament.table.loading"
             />
         </template>
     </ListTable>

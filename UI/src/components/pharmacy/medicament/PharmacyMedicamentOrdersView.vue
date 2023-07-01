@@ -151,16 +151,6 @@ const menu = ref([
                 {{ data.updatedAtText }}
             </template>
         </Column>
-
-        <template #header>
-            <Button
-                type="button"
-                icon="fa-solid fa-plus"
-                severity="secondary"
-                v-tooltip.left.hover="'Add an order'"
-                :disabled="pharmacyMedicamentOrder.table.loading"
-            />
-        </template>
     </ListTable>
 </template>
 
