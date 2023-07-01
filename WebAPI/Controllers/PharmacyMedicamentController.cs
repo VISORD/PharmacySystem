@@ -22,13 +22,15 @@ public sealed class PharmacyMedicamentController : ControllerBase
     private readonly IPharmacyMedicamentRateRepository _pharmacyMedicamentRateRepository;
     private readonly IPharmacyMedicamentSaleRepository _pharmacyMedicamentSaleRepository;
     private readonly IPharmacyMedicamentOrderRepository _pharmacyMedicamentOrderRepository;
+    private readonly IMedicamentRepository _medicamentRepository;
 
     public PharmacyMedicamentController(
         IPharmacyRepository pharmacyRepository,
         IPharmacyMedicamentRepository pharmacyMedicamentRepository,
         IPharmacyMedicamentRateRepository pharmacyMedicamentRateRepository,
         IPharmacyMedicamentSaleRepository pharmacyMedicamentSaleRepository,
-        IPharmacyMedicamentOrderRepository pharmacyMedicamentOrderRepository
+        IPharmacyMedicamentOrderRepository pharmacyMedicamentOrderRepository,
+        IMedicamentRepository medicamentRepository
     )
     {
         _pharmacyRepository = pharmacyRepository;
@@ -36,6 +38,7 @@ public sealed class PharmacyMedicamentController : ControllerBase
         _pharmacyMedicamentRateRepository = pharmacyMedicamentRateRepository;
         _pharmacyMedicamentSaleRepository = pharmacyMedicamentSaleRepository;
         _pharmacyMedicamentOrderRepository = pharmacyMedicamentOrderRepository;
+        _medicamentRepository = medicamentRepository;
     }
 
     [HttpPost("list")]
@@ -318,7 +321,8 @@ public sealed class PharmacyMedicamentController : ControllerBase
     [NonAction]
     private async Task<IActionResult?> ValidateCompanyPharmacyMedicamentRelation(IDbTransaction transaction, int companyId, int pharmacyId, int medicamentId, CancellationToken cancellationToken)
     {
-        return !await _pharmacyMedicamentRepository.IsExistAsync(transaction, companyId, pharmacyId, medicamentId, cancellationToken)
+        return !await _pharmacyRepository.IsExistAsync(transaction, companyId, pharmacyId, cancellationToken) ||
+               !await _medicamentRepository.IsExistAsync(transaction, companyId, medicamentId, cancellationToken)
             ? NotFound()
             : null;
     }

@@ -263,7 +263,8 @@ public sealed class OrderMedicamentController : ControllerBase
     [NonAction]
     private async Task<IActionResult?> ValidateCompanyOrderMedicamentRelation(IDbTransaction transaction, int companyId, int orderId, int medicamentId, CancellationToken cancellationToken)
     {
-        return !await _orderMedicamentRepository.IsExistAsync(transaction, companyId, orderId, medicamentId, cancellationToken)
+        return !await _orderRepository.IsExistAsync(transaction, companyId, orderId, cancellationToken) ||
+               !await _medicamentRepository.IsExistAsync(transaction, companyId, medicamentId, cancellationToken)
             ? NotFound()
             : null;
     }

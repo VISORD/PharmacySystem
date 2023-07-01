@@ -61,10 +61,11 @@ function hide() {
 }
 
 const onSubmit = handleSubmit.withControlled(async (values) => {
+    const medicamentId = orderMedicament.edit.orderMedicament.medicament?.id ?? form.value.medicamentId
     if (order.view.profile.status === DRAFT.id) {
-        await orderMedicament.edit.tryRequest({ count: values.requestedCount })
+        await orderMedicament.edit.tryRequest(medicamentId, { count: values.requestedCount })
     } else {
-        await orderMedicament.edit.tryApprove({ count: values.approvedCount })
+        await orderMedicament.edit.tryApprove(medicamentId, { count: values.approvedCount })
     }
 })
 </script>

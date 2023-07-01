@@ -8,14 +8,6 @@ namespace PharmacySystem.WebAPI.Database.Repositories;
 
 public interface IOrderMedicamentRepository
 {
-    Task<bool> IsExistAsync(
-        IDbTransaction transaction,
-        int companyId,
-        int orderId,
-        int medicamentId,
-        CancellationToken cancellationToken = default
-    );
-
     Task<bool> HasRequested(
         IDbTransaction transaction,
         int orderId,
@@ -64,28 +56,6 @@ public interface IOrderMedicamentRepository
 
 public sealed class OrderMedicamentRepository : IOrderMedicamentRepository
 {
-    public async Task<bool> IsExistAsync(
-        IDbTransaction transaction,
-        int companyId,
-        int orderId,
-        int medicamentId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        return await transaction.Connection.QuerySingleOrDefaultAsync<bool>(new CommandDefinition(@"
-            SELECT TOP 1 1
-            FROM [order].[OrderMedicament] om
-            JOIN [order].[Order] o ON o.[Id] = om.[OrderId]
-            JOIN [pharmacy].[Pharmacy] p ON p.[Id] = o.[PharmacyId]
-            WHERE p.[CompanyId] = @CompanyId AND o.[Id] = @OrderId AND om.[MedicamentId] = @MedicamentId;
-        ", parameters: new
-        {
-            CompanyId = companyId,
-            OrderId = orderId,
-            MedicamentId = medicamentId,
-        }, transaction: transaction, cancellationToken: cancellationToken));
-    }
-
     public async Task<bool> HasRequested(
         IDbTransaction transaction,
         int orderId,

@@ -5,6 +5,7 @@ import { useToast } from 'primevue/usetoast'
 import { preparePagingRequest } from '@/utils/paging'
 import { add, get, list, remove, update } from '@/api/medicament'
 import { defaultFiltering, defaultOrdering, defaultPaging } from '@/constants/paging'
+import { useOrderStore } from '@/stores/order'
 
 const columns = {
     name: {
@@ -236,6 +237,8 @@ export const useMedicamentStore = defineStore('medicament', () => {
 export const useMedicamentSelectorStore = defineStore('medicament-selector', () => {
     const toast = useToast()
 
+    const order = useOrderStore()
+
     const table = ref({
         dialog: false,
         loading: true,
@@ -258,7 +261,7 @@ export const useMedicamentSelectorStore = defineStore('medicament-selector', () 
             this.loading = true
 
             const request = preparePagingRequest(this, { filters, orders, pageFirst, pageNumber, pageSize })
-            const response = await list(request)
+            const response = await list({ ...request, excludeByOrderId: order.view.orderId })
 
             if (response.status < 400) {
                 this.data = response.data

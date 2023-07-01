@@ -5,4 +5,5 @@ namespace PharmacySystem.WebAPI.Models.Medicament;
 public sealed class MedicamentItemsPagingRequest : ItemsPagingRequestBase
 {
     public int? ExcludeById { get; init; }
+    public int? ExcludeByOrderId { get; init; }
 }

@@ -137,10 +137,10 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
         dialog: false,
         processing: false,
         orderMedicament: {},
-        async tryRequest(values) {
+        async tryRequest(medicamentId, values) {
             this.processing = true
 
-            const response = await request(order.view.orderId, this.orderMedicament.medicament.id, values)
+            const response = await request(order.view.orderId, medicamentId, values)
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',
@@ -165,10 +165,10 @@ export const useOrderMedicamentStore = defineStore('order-medicament', () => {
 
             this.processing = false
         },
-        async tryApprove(values) {
+        async tryApprove(medicamentId, values) {
             this.processing = true
 
-            const response = await approve(order.view.orderId, this.orderMedicament.medicament.id, values)
+            const response = await approve(order.view.orderId, medicamentId, values)
             if (response.status < 400) {
                 toast.add({
                     severity: 'success',

@@ -155,6 +155,53 @@ public sealed class MedicamentRepository : IMedicamentRepository
                 OFFSET {request.Paging.Offset} ROWS FETCH NEXT {request.Paging.Size} ROWS ONLY;
             ";
         }
+        else if (request.ExcludeByOrderId is not null)
+        {
+            const string with = @"WITH Excludes AS (
+                SELECT DISTINCT m.[Id]
+                FROM [medicament].[Medicament] m
+                LEFT JOIN [order].[OrderMedicament] om ON m.[Id] = om.[MedicamentId]
+                WHERE om.[OrderId] = @ExcludeByOrderId
+            ), Medicaments AS (
+                SELECT
+                     m.[Id]
+                    ,m.[CompanyId]
+                    ,m.[Name]
+                    ,m.[Description]
+                    ,m.[VendorPrice]
+                FROM [medicament].[Medicament] m
+                LEFT JOIN Excludes e ON e.[Id] = m.[Id]
+                WHERE e.[Id] IS NULL
+            )";
+
+            var where = "[CompanyId] = @CompanyId"
+                        + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
+
+            query = $@"
+                {with}
+                SELECT COUNT (*)
+                FROM Medicaments
+                WHERE {where};
+
+                {with}
+                SELECT
+                     [Id]            [{nameof(Medicament.Id)}]
+                    ,[CompanyId]     [{nameof(Medicament.CompanyId)}]
+                    ,[Name]          [{nameof(Medicament.Name)}]
+                    ,[Description]   [{nameof(Medicament.Description)}]
+                    ,[VendorPrice]   [{nameof(Medicament.VendorPrice)}]
+                FROM Medicaments
+                WHERE {where}
+                GROUP BY
+                     [Id]
+                    ,[CompanyId]
+                    ,[Name]
+                    ,[Description]
+                    ,[VendorPrice]
+                ORDER BY {orderBy}
+                OFFSET {request.Paging.Offset} ROWS FETCH NEXT {request.Paging.Size} ROWS ONLY;
+            ";
+        }
         else
         {
             var where = "[CompanyId] = @CompanyId" + (filters.Count > 0 ? $" AND {string.Join(" AND ", filters)}" : "");
@@ -180,6 +227,7 @@ public sealed class MedicamentRepository : IMedicamentRepository
         var @params = new DynamicParameters();
         @params.Add("CompanyId", companyId);
         @params.Add("ExcludeById", request.ExcludeById);
+        @params.Add("ExcludeByOrderId", request.ExcludeByOrderId);
         foreach (var (field, value) in parameters)
         {
             @params.Add(field, value);

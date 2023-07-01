@@ -8,14 +8,6 @@ namespace PharmacySystem.WebAPI.Database.Repositories;
 
 public interface IPharmacyMedicamentRepository
 {
-    Task<bool> IsExistAsync(
-        IDbTransaction transaction,
-        int companyId,
-        int pharmacyId,
-        int medicamentId,
-        CancellationToken cancellationToken = default
-    );
-
     Task<ItemsPagingResult<PharmacyMedicamentItem>> ListAsync(
         IDbTransaction transaction,
         int pharmacyId,
@@ -54,27 +46,6 @@ public interface IPharmacyMedicamentRepository
 
 public sealed class PharmacyMedicamentRepository : IPharmacyMedicamentRepository
 {
-    public async Task<bool> IsExistAsync(
-        IDbTransaction transaction,
-        int companyId,
-        int pharmacyId,
-        int medicamentId,
-        CancellationToken cancellationToken = default
-    )
-    {
-        return await transaction.Connection.QuerySingleOrDefaultAsync<bool>(new CommandDefinition(@"
-            SELECT TOP 1 1
-            FROM [pharmacy].[PharmacyMedicament] pm
-            JOIN [pharmacy].[Pharmacy] p ON p.[Id] = pm.[PharmacyId]
-            WHERE p.[CompanyId] = @CompanyId AND p.[Id] = @PharmacyId AND pm.[MedicamentId] = @MedicamentId;
-        ", parameters: new
-        {
-            CompanyId = companyId,
-            PharmacyId = pharmacyId,
-            MedicamentId = medicamentId,
-        }, transaction: transaction, cancellationToken: cancellationToken));
-    }
-
     public async Task<ItemsPagingResult<PharmacyMedicamentItem>> ListAsync(
         IDbTransaction transaction,
         int pharmacyId,

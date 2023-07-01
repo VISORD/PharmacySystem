@@ -1,13 +1,14 @@
 import api from '@/api'
 
-export function list({ filtering, ordering, paging, excludeById = undefined }) {
+export function list({ filtering, ordering, paging, excludeById = undefined, excludeByOrderId = undefined }) {
     return api.post(
         '/api/medicament/list',
         {
             filtering: filtering,
             ordering: ordering,
             paging: paging,
-            excludeById: excludeById
+            excludeById: excludeById,
+            excludeByOrderId: excludeByOrderId
         },
         {
             headers: {
