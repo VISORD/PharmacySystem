@@ -1,4 +1,4 @@
-FROM arm64v8/node:20-alpine AS build
+FROM node:20-alpine AS build
 EXPOSE 8080
 
 WORKDIR /src

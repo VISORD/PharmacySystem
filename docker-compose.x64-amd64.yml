@@ -28,7 +28,7 @@ services:
     ports:
       - "80:80"
     depends_on:
-      azure-sql-edge:
+      mssql:
         condition: service_healthy
     healthcheck:
       test: curl --fail http://localhost:80/healthz || exit
