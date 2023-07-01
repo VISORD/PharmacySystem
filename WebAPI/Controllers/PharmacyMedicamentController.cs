@@ -155,46 +155,191 @@ public sealed class PharmacyMedicamentController : ControllerBase
 
         var ratesToAdd = new List<PharmacyMedicamentRate>();
         var ratesToDelete = new List<PharmacyMedicamentRate>();
-        foreach (var intersectedRate in intersectedRates)
-        {
-            if (intersectedRate.StartDate < rate.StartDate)
-            {
-                ratesToAdd.Add(new PharmacyMedicamentRate
-                {
-                    PharmacyId = pharmacyId,
-                    MedicamentId = medicamentId,
-                    StartDate = intersectedRate.StartDate,
-                    StopDate = rate.StartDate.AddDays(-1),
-                    RetailPrice = intersectedRate.RetailPrice
-                });
-            }
-
-            if (rate.StopDate < intersectedRate.StopDate)
-            {
-                ratesToAdd.Add(new PharmacyMedicamentRate
-                {
-                    PharmacyId = pharmacyId,
-                    MedicamentId = medicamentId,
-                    StartDate = rate.StopDate.AddDays(1),
-                    StopDate = intersectedRate.StopDate,
-                    RetailPrice = intersectedRate.RetailPrice
-                });
-            }
-
-            if (intersectedRate.StartDate != rate.StartDate || rate.StopDate != intersectedRate.StopDate)
-            {
-                ratesToAdd.Add(rate);
-                ratesToDelete.Add(intersectedRate);
-            }
-        }
 
         if (intersectedRates.Length == 0)
         {
             ratesToAdd.Add(rate);
         }
+        else
+        {
+            PharmacyMedicamentRate? left = null;
+            PharmacyMedicamentRate? right = null;
+            foreach (var intersectedRate in intersectedRates)
+            {
+                if (rate.StartDate <= intersectedRate.StartDate && intersectedRate.StopDate <= rate.StopDate)
+                {
+                    ratesToDelete.Add(intersectedRate);
+                    continue;
+                }
 
-        await _pharmacyMedicamentRateRepository.DeleteAsync(transaction, ratesToDelete, cancellationToken);
-        await _pharmacyMedicamentRateRepository.AddAsync(transaction, ratesToAdd, cancellationToken);
+                if (intersectedRate.StartDate < rate.StartDate && rate.StartDate < intersectedRate.StopDate)
+                {
+                    left = intersectedRate;
+                }
+
+                if (intersectedRate.StartDate < rate.StopDate && rate.StopDate < intersectedRate.StopDate)
+                {
+                    right = intersectedRate;
+                }
+            }
+
+            var flag = left is null && right is null;
+
+            if (left is not null && right is null)
+            {
+                if (left.RetailPrice == rate.RetailPrice)
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = left.StartDate,
+                        StopDate = rate.StopDate,
+                        RetailPrice = rate.RetailPrice
+                    });
+                }
+                else
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = left.StartDate,
+                        StopDate = rate.StartDate.AddDays(-1),
+                        RetailPrice = left.RetailPrice
+                    });
+
+                    flag = true;
+                }
+
+                ratesToDelete.Add(left);
+            }
+
+            if (right is not null && left is null)
+            {
+                if (right.RetailPrice == rate.RetailPrice)
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = rate.StartDate,
+                        StopDate = right.StopDate,
+                        RetailPrice = rate.RetailPrice
+                    });
+                }
+                else
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = rate.StopDate.AddDays(1),
+                        StopDate = right.StopDate,
+                        RetailPrice = right.RetailPrice
+                    });
+
+                    flag = true;
+                }
+
+                ratesToDelete.Add(right);
+            }
+
+            if (left is not null && right is not null)
+            {
+                if (left.RetailPrice == rate.RetailPrice && right.RetailPrice == rate.RetailPrice)
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = left.StartDate,
+                        StopDate = right.StopDate,
+                        RetailPrice = rate.RetailPrice
+                    });
+                }
+                else if (left.RetailPrice == rate.RetailPrice)
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = left.StartDate,
+                        StopDate = rate.StopDate,
+                        RetailPrice = rate.RetailPrice
+                    });
+
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = rate.StopDate.AddDays(1),
+                        StopDate = right.StopDate,
+                        RetailPrice = right.RetailPrice
+                    });
+                } 
+                else if (right.RetailPrice == rate.RetailPrice)
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = left.StartDate,
+                        StopDate = rate.StartDate.AddDays(-1),
+                        RetailPrice = rate.RetailPrice
+                    });
+
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = rate.StartDate,
+                        StopDate = right.StopDate,
+                        RetailPrice = rate.RetailPrice
+                    });
+                }
+                else
+                {
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = left.StartDate,
+                        StopDate = rate.StartDate.AddDays(-1),
+                        RetailPrice = right.RetailPrice
+                    });
+
+                    ratesToAdd.Add(new PharmacyMedicamentRate
+                    {
+                        PharmacyId = pharmacyId,
+                        MedicamentId = medicamentId,
+                        StartDate = rate.StopDate.AddDays(1),
+                        StopDate = right.StopDate,
+                        RetailPrice = right.RetailPrice
+                    });
+
+                    flag = true;
+                }
+
+                ratesToDelete.Add(left);
+                ratesToDelete.Add(right);
+            }
+
+            if (flag)
+            {
+                ratesToAdd.Add(rate);
+            }
+        }
+
+        if (ratesToDelete.Count > 0)
+        {
+            await _pharmacyMedicamentRateRepository.DeleteAsync(transaction, ratesToDelete, cancellationToken);
+        }
+
+        if (ratesToAdd.Count > 0)
+        {
+            await _pharmacyMedicamentRateRepository.AddAsync(transaction, ratesToAdd, cancellationToken);
+        }
 
         await transaction.CommitAsync(cancellationToken);
 

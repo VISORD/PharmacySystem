@@ -31,7 +31,7 @@ onMounted(async () => await medicament.view.reload())
         </template>
     </ConfirmDialog>
 
-    <div style="display: flex; justify-content: space-between">
+    <div style="display: flex; justify-content: space-between" v-if="medicament.view.dialog">
         <div class="profile-view">
             <div class="profile-view-header-icon">
                 <Avatar icon="fa-solid fa-tablets" size="large" class="profile-view-header-icon-avatar" />

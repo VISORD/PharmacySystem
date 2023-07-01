@@ -161,7 +161,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => {
         :header="pharmacy.view.pharmacyId ? `Edit pharmacy info: ${pharmacy.view.profile.name}` : 'Add new pharmacy'"
         class="form-dialog"
     >
-        <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
+        <div class="flex justify-content-center p-fluid" style="margin-top: 1rem" v-if="pharmacy.edit.dialog">
             <form @submit="onSubmit" style="width: 100%" @keydown.enter.prevent>
                 <div class="field">
                     <div class="p-input-icon-right">

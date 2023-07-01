@@ -56,7 +56,7 @@ const onSubmit = handleSubmit.withControlled(async (values) => await medicament.
         "
         class="form-dialog"
     >
-        <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
+        <div class="flex justify-content-center p-fluid" style="margin-top: 1rem" v-if="medicament.edit.dialog">
             <form @submit="onSubmit" style="width: 100%" @keydown.enter.prevent>
                 <div class="field">
                     <div class="p-input-icon-right">

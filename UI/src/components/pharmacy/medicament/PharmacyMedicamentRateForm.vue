@@ -2,6 +2,7 @@
 import { useField, useForm } from 'vee-validate'
 import { ref } from 'vue'
 import { usePharmacyMedicamentRateStore } from '@/stores/pharmacy/medicament/rate'
+import { formatDate } from '@/utils/datetime'
 
 const pharmacyMedicamentRate = usePharmacyMedicamentRateStore()
 
@@ -53,7 +54,14 @@ function hide() {
     pharmacyMedicamentRate.edit.data = {}
 }
 
-const onSubmit = handleSubmit.withControlled(async (values) => await pharmacyMedicamentRate.edit.trySave(values))
+const onSubmit = handleSubmit.withControlled(
+    async (values) =>
+        await pharmacyMedicamentRate.edit.trySave({
+            retailPrice: values.retailPrice,
+            startDate: formatDate(values.startDate),
+            stopDate: formatDate(values.stopDate)
+        })
+)
 </script>
 
 <template>

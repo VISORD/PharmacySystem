@@ -57,7 +57,7 @@ const onSubmit = handleSubmit.withControlled(
         header="Add new order"
         class="form-dialog"
     >
-        <div class="flex justify-content-center p-fluid" style="margin-top: 1rem">
+        <div class="flex justify-content-center p-fluid" style="margin-top: 1rem" v-if="order.edit.dialog">
             <form @submit="onSubmit" style="width: 100%" @keydown.enter.prevent>
                 <div class="field">
                     <div class="p-input-icon-right" style="display: flex">
